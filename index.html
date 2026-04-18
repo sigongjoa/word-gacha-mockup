@@ -1249,6 +1249,114 @@
   .tc-buddy { cursor: pointer; position: relative; }
   .tc-buddy:active { transform: scale(.96); }
   .tc-buddy { transition: transform .12s var(--ease-quart); }
+  .tc-buddy.pet { animation: pet 0.5s var(--ease-quart); }
+  @keyframes pet {
+    0%, 100% { transform: scale(1); }
+    20% { transform: scale(1.08) rotate(-2deg); }
+    50% { transform: scale(0.96) rotate(2deg); }
+    80% { transform: scale(1.04); }
+  }
+  /* 홈 기분 배지 */
+  .mood-badge {
+    position: absolute;
+    bottom: -4px; right: -4px;
+    width: 22px; height: 22px;
+    background: var(--panel);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-pill);
+    display: grid; place-items: center;
+    font-size: 12px;
+    z-index: 3;
+  }
+  .mood-badge.happy { border-color: var(--t-grass); }
+  .mood-badge.sad { border-color: var(--t-water); }
+  .mood-badge.fire { border-color: var(--pri); background: var(--pri); }
+  /* 친밀도 표시 */
+  .bond-row {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 10px;
+    font-size: 10px; font-weight: 700;
+    color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .bond-hearts { display: flex; gap: 2px; }
+  .bond-heart {
+    width: 8px; height: 8px;
+    background: var(--divider);
+    border-radius: var(--r-pill);
+  }
+  .bond-heart.on { background: var(--pri); }
+
+  /* === Quiz buddy (동행) === */
+  .quiz-buddy {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+    min-height: 40px;
+  }
+  .qb-avatar {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-pill);
+    display: grid; place-items: center;
+    color: var(--ink);
+  }
+  .qb-avatar svg { width: 28px; height: 28px; }
+  .qb-avatar.cheer { animation: qb-bounce .45s var(--ease-quart); border-color: var(--t-grass); }
+  .qb-avatar.sad { animation: qb-shake .4s var(--ease); border-color: var(--t-water); }
+  @keyframes qb-bounce {
+    0%, 100% { transform: translateY(0); }
+    35% { transform: translateY(-8px) scale(1.06); }
+    70% { transform: translateY(0) scale(0.97); }
+  }
+  @keyframes qb-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
+  }
+  .qb-bubble {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 8px 12px;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-soft);
+    position: relative;
+    max-width: 240px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity .2s, transform .2s var(--ease-quart);
+  }
+  .qb-bubble.show { opacity: 1; transform: translateX(0); }
+  .qb-bubble.cheer { color: var(--t-grass); border-color: var(--t-grass); background: #ecf6ef; }
+  .qb-bubble.sad { color: var(--t-water); border-color: var(--t-water); background: #eaf2fb; }
+  .qb-bubble::before {
+    content: '';
+    position: absolute;
+    left: -5px; top: 11px;
+    width: 8px; height: 8px;
+    background: inherit;
+    border-left: 1px solid;
+    border-bottom: 1px solid;
+    border-color: inherit;
+    transform: rotate(45deg);
+  }
+
+  /* === Unlock banner (친구 최초 등장) === */
+  .fd-card.unlock .fd-stage { padding-top: 40px; }
+  .fd-card.unlock .fd-unlock-tag {
+    position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,.3);
+    color: #fff;
+    font-size: 10px; font-weight: 800;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    white-space: nowrap;
+  }
   .speech {
     position: absolute;
     top: -8px; left: calc(100% + 8px);
@@ -1453,6 +1561,7 @@
              onclick="buddyTalk()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();buddyTalk();}">
           <svg aria-hidden="true"><use href="#buddy"/></svg>
           <span class="speech" id="buddy-speech"></span>
+          <span class="mood-badge" id="mood-badge" hidden></span>
         </div>
         <div class="tc-meta">
           <div class="tc-name-row">
@@ -1469,6 +1578,10 @@
           <div class="exp-text">
             <span><span id="exp-home">0</span> / 100</span>
             <span class="totem-on" id="totem-on" hidden>×<span id="totem-on-val">1.5</span> BOOST</span>
+          </div>
+          <div class="bond-row" id="bond-row">
+            <span class="bond-label">유대</span>
+            <span class="bond-hearts" id="bond-hearts"></span>
           </div>
         </div>
         <button class="tc-slot empty" id="home-slot" type="button"
@@ -1509,6 +1622,12 @@
       <div class="quiz-meta">
         <span>EXP <b id="exp-mission">0</b></span>
         <span>외운 단어 <b id="mastered-mission">0</b></span>
+      </div>
+      <div class="quiz-buddy">
+        <div class="qb-avatar" id="qb-avatar" aria-hidden="true">
+          <svg><use href="#buddy"/></svg>
+        </div>
+        <div class="qb-bubble" id="qb-bubble" role="status"></div>
       </div>
       <div class="word-card">
         <div class="word-num" id="word-num">#01</div>
@@ -1671,9 +1790,10 @@
 
 <!-- Friend detail modal (pokedex entry) -->
 <div class="ov" id="fd-ov" role="dialog" aria-modal="true" onclick="closeFriend()">
-  <div class="fd-card" onclick="event.stopPropagation()">
+  <div class="fd-card" id="fd-card" onclick="event.stopPropagation()">
     <div class="fd-stage" id="fd-stage">
       <span class="fd-num" id="fd-num">No.001</span>
+      <span class="fd-unlock-tag" id="fd-unlock-tag" hidden>처음 만남</span>
       <button class="fd-close" type="button" onclick="closeFriend()" aria-label="닫기">✕</button>
       <div class="fd-sprite" id="fd-sprite">●</div>
       <div class="fd-name" id="fd-name">토토</div>
@@ -1741,14 +1861,40 @@
       line:"쿠어어! 최강 트레이너 인정한다." },
   ];
 
-  const BUDDY_LINES = [
-    "오늘도 같이 공부하자!",
-    "단어 외우면 친구가 늘어나!",
-    "토템 끼면 경험치 2배야.",
-    "어제보다 한 개라도 더!",
-    "나 토토, 잊지 말아줘!",
-    "졸리면 잠깐 쉬어도 돼.",
+  // 유대 단계별 대사 풀 (0~4)
+  const BUDDY_LINES_TIERED = [
+    [ // T0 — 낯선 사이
+      "…누구세요?",
+      "조용히 있을게요.",
+      "시작해볼까…요?",
+    ],
+    [ // T1 — 아는 사이
+      "오늘도 같이 공부하자!",
+      "단어 외우면 친구가 늘어나!",
+      "토템 끼면 경험치 2배야.",
+    ],
+    [ // T2 — 친해진 사이
+      "어제보다 한 개라도 더!",
+      "나 토토, 잊지 말아줘!",
+      "졸리면 잠깐 쉬어도 돼.",
+      "너 어제 잘하더라?",
+    ],
+    [ // T3 — 믿음직한 동료
+      "우리 진짜 팀이네.",
+      "다음 단원 가볼까?",
+      "너라면 충분해.",
+      "내가 옆에 있잖아.",
+    ],
+    [ // T4 — 최고의 파트너
+      "너랑 있으면 뭐든 돼.",
+      "우리 이제 레전드야.",
+      "나… 진짜 좋아해.",
+      "끝까지 같이 가자.",
+    ],
   ];
+  // 응원/위로 (퀴즈 중)
+  const CHEER_LINES = ["좋아!", "완벽!", "그거야!", "거침없다!", "가즈아!"];
+  const SUPPORT_LINES = ["괜찮아, 다음!", "아깝다!", "한 번 더 보자.", "이건 어려웠어.", "침착!"];
 
   const TOTEMS = [
     { id:'tot-001', name:'새싹',    svg:'t-leaf',  type:'grass', mult:1.5 },
@@ -1844,6 +1990,11 @@
     addedTbWords: [],     // [tb word ids]
     knownTbWords: [],     // [tb word ids]
     currentUnit: 0,       // 0 = 전체
+    petCount: 0,          // buddy 토닥 횟수 — 유대 단계 결정
+    lastActiveTs: Date.now(),
+    correctStreak: 0,
+    wrongStreak: 0,
+    metFriends: ["toto"], // 최초 만남 모달 본 친구 id
   };
   let state = load();
 
@@ -1962,19 +2113,26 @@
 
     const fb = document.getElementById("feedback");
     const mult = currentMult();
+    state.lastActiveTs = Date.now();
     if (correct) {
       const base = 20, gained = Math.round(base * mult);
       state.exp += gained; state.totalExp += gained;
       state.mastered[word.en] = (state.mastered[word.en] || 0) + 1;
+      state.correctStreak = (state.correctStreak || 0) + 1;
+      state.wrongStreak = 0;
       fb.innerHTML = mult > 1
         ? `정답 <small>·</small> +${gained} EXP <small>(×${mult})</small>`
         : `정답 <small>·</small> +${gained} EXP`;
       fb.className = "feedback ok show";
+      quizBuddyReact('cheer');
     } else {
       const base = 5, gained = Math.round(base * mult);
       state.exp += gained; state.totalExp += gained;
+      state.correctStreak = 0;
+      state.wrongStreak = (state.wrongStreak || 0) + 1;
       fb.innerHTML = `정답: <b>${word.ko}</b> <small>·</small> +${gained} EXP`;
       fb.className = "feedback no show";
+      quizBuddyReact('sad');
     }
 
     const before = unlockedFriends().length;
@@ -1990,12 +2148,22 @@
     save(); renderAll();
     document.getElementById("next-btn").classList.add("show");
 
+    const friendIdx = newFriend ? FRIENDS.indexOf(newFriend) : -1;
+    const shouldUnlockMeet = newFriend && !(state.metFriends || []).includes(newFriend.id);
+    if (shouldUnlockMeet) {
+      state.metFriends = [ ...(state.metFriends || []), newFriend.id ];
+      save();
+    }
+
     if (leveledUp) {
       setTimeout(() => showLevelup(newFriend), 500);
-      if (dropped) setTimeout(() => showDrop(dropped), 1700);
+      if (shouldUnlockMeet) setTimeout(() => openFriend(friendIdx, { unlock: true }), 1700);
+      else if (newFriend) setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 1700);
+      if (dropped) setTimeout(() => showDrop(dropped), shouldUnlockMeet ? 2900 : 1700);
     } else if (newFriend) {
-      setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 500);
-      if (dropped) setTimeout(() => showDrop(dropped), 1500);
+      if (shouldUnlockMeet) setTimeout(() => openFriend(friendIdx, { unlock: true }), 500);
+      else setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 500);
+      if (dropped) setTimeout(() => showDrop(dropped), shouldUnlockMeet ? 1700 : 1500);
     } else if (dropped) {
       setTimeout(() => showDrop(dropped), 500);
     }
@@ -2389,23 +2557,82 @@
   }
   function closeLevelup() { document.getElementById('lvup-ov').classList.remove('show'); }
 
-  // ── Buddy speech ──
+  // ── Buddy speech / bond / mood ──
+  function affectionTier() {
+    const p = state.petCount || 0;
+    const m = masteredCount();
+    const score = p + m * 0.5;        // 토닥 + 마스터 보정
+    if (score >= 40) return 4;
+    if (score >= 20) return 3;
+    if (score >= 8)  return 2;
+    if (score >= 2)  return 1;
+    return 0;
+  }
+  function computeMood() {
+    // fire > sad > happy > null 우선순위
+    if ((state.correctStreak || 0) >= 5) return 'fire';
+    const idleH = (Date.now() - (state.lastActiveTs || 0)) / 3600000;
+    if (idleH >= 24) return 'sad';
+    if ((state.correctStreak || 0) >= 2) return 'happy';
+    return null;
+  }
+  const MOOD_GLYPH = { happy: '◕', sad: '…', fire: '✦' };
+
   let buddySpeechT = null;
+  let buddyPetT = null;
   function buddyTalk() {
-    const line = BUDDY_LINES[Math.floor(Math.random() * BUDDY_LINES.length)];
+    state.petCount = (state.petCount || 0) + 1;
+    state.lastActiveTs = Date.now();
+    const tier = affectionTier();
+    const pool = BUDDY_LINES_TIERED[Math.min(tier, BUDDY_LINES_TIERED.length - 1)];
+    const line = pool[Math.floor(Math.random() * pool.length)];
     const el = document.getElementById('buddy-speech');
     el.textContent = line;
     el.classList.add('show');
     clearTimeout(buddySpeechT);
     buddySpeechT = setTimeout(() => el.classList.remove('show'), 2400);
+
+    const buddy = document.getElementById('home-buddy');
+    if (buddy) {
+      buddy.classList.remove('pet');
+      // reflow to restart animation
+      void buddy.offsetWidth;
+      buddy.classList.add('pet');
+      clearTimeout(buddyPetT);
+      buddyPetT = setTimeout(() => buddy.classList.remove('pet'), 520);
+    }
+    save();
+    renderHome();
+  }
+
+  // 퀴즈 버디 반응 (correct/wrong)
+  let qbT = null;
+  function quizBuddyReact(kind) {
+    const av = document.getElementById('qb-avatar');
+    const bub = document.getElementById('qb-bubble');
+    if (!av || !bub) return;
+    const pool = kind === 'cheer' ? CHEER_LINES : SUPPORT_LINES;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    av.classList.remove('cheer','sad');
+    bub.classList.remove('show','cheer','sad');
+    void av.offsetWidth;
+    av.classList.add(kind);
+    bub.textContent = line;
+    bub.classList.add('show', kind);
+    clearTimeout(qbT);
+    qbT = setTimeout(() => {
+      av.classList.remove(kind);
+      bub.classList.remove('show');
+    }, 2000);
   }
 
   // ── Friend detail modal ──
-  function openFriend(idx) {
+  function openFriend(idx, opts) {
     const f = FRIENDS[idx];
     if (!f) return;
     const ok = masteredCount() >= f.need;
     if (!ok) return;
+    const unlock = !!(opts && opts.unlock);
     document.getElementById('fd-num').textContent = 'No.' + String(idx+1).padStart(3,'0');
     document.getElementById('fd-sprite').textContent = f.emoji;
     document.getElementById('fd-name').textContent = f.name;
@@ -2414,10 +2641,18 @@
     document.getElementById('fd-need').textContent = f.need === 0 ? '기본 동료' : `단어 ${f.need}개`;
     document.getElementById('fd-speech').textContent = '"' + f.line + '"';
     document.getElementById('fd-stage').style.background = `var(--t-${f.type})`;
+    const card = document.getElementById('fd-card');
+    const tag = document.getElementById('fd-unlock-tag');
+    if (card) card.classList.toggle('unlock', unlock);
+    if (tag) tag.hidden = !unlock;
     document.getElementById('fd-ov').classList.add('show');
   }
   function closeFriend() {
     document.getElementById('fd-ov').classList.remove('show');
+    const card = document.getElementById('fd-card');
+    if (card) card.classList.remove('unlock');
+    const tag = document.getElementById('fd-unlock-tag');
+    if (tag) tag.hidden = true;
   }
 
   let toastT = null;
@@ -2467,6 +2702,32 @@
       slot.classList.remove('equipped'); slot.classList.add('empty');
       slot.setAttribute('aria-label', '토템 미장착');
       plus.hidden = false; svg.hidden = true; mult.hidden = true;
+    }
+
+    // 기분 배지
+    const badge = document.getElementById('mood-badge');
+    if (badge) {
+      const mood = computeMood();
+      badge.classList.remove('happy','sad','fire');
+      if (mood) {
+        badge.hidden = false;
+        badge.classList.add(mood);
+        badge.textContent = MOOD_GLYPH[mood] || '';
+      } else {
+        badge.hidden = true;
+        badge.textContent = '';
+      }
+    }
+    // 유대 하트 (5단계)
+    const hearts = document.getElementById('bond-hearts');
+    if (hearts) {
+      const tier = affectionTier();
+      hearts.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const h = document.createElement('span');
+        h.className = 'bond-heart' + (i < tier ? ' on' : '');
+        hearts.appendChild(h);
+      }
     }
   }
 
