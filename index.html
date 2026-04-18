@@ -3,521 +3,695 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fbf3e3">
-<title>Word Gacha · 단어 가챠</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#fafbfc">
+<title>Word Gacha</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" as="style" crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
   :root {
-    --cream:        oklch(97% 0.018 78);
-    --cream-deep:   oklch(93% 0.04 78);
-    --divider:      oklch(88% 0.04 78);
-    --ink:          oklch(34% 0.05 330);
-    --ink-soft:     oklch(48% 0.05 330);
-    --berry:        oklch(58% 0.20 10);
-    --berry-deep:   oklch(46% 0.22 10);
-    --good:         oklch(62% 0.16 150);
-    --good-deep:    oklch(48% 0.18 150);
+    --bg:          #fafbfc;
+    --panel:       #ffffff;
+    --ink:         #14171f;
+    --ink-soft:    #5a6273;
+    --ink-mute:    #8a93a4;
+    --divider:     #e5e8ee;
+    --divider-deep:#cfd5e0;
 
-    --pal-fur:        oklch(86% 0.09 50);
-    --pal-ear:        oklch(78% 0.13 28);
-    --pal-ear-inner:  oklch(86% 0.09 18);
-    --pal-belly:      oklch(95% 0.04 78);
-    --pal-cheek:      oklch(72% 0.18 18);
-    --pal-eye:        oklch(20% 0.04 330);
+    --pri:         #d4232c;   /* 와와 레드 */
+    --pri-deep:    #9a161d;
+    --pri-soft:    #fde6e7;
 
-    --rare-r:   oklch(83% 0.07 295);
-    --rare-e:   oklch(91% 0.10 86);
-    --rare-l:   oklch(86% 0.09 50);
+    /* 타입 컬러 — 토템/단원/난이도 분류 */
+    --t-grass:    #2f9e57;
+    --t-fire:     #e85a2c;
+    --t-water:    #2174d4;
+    --t-bolt:     #e8b521;
+    --t-mind:     #b73d8a;
+    --t-rock:     #6f5b48;
 
-    --display: "Jua", system-ui, sans-serif;
-    --body:    "Jua", system-ui, sans-serif;
-    --num:     "Bagel Fat One", "Jua", sans-serif;
-    --en:      "Fredoka", "Jua", sans-serif;
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-pill: 999px;
 
-    --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-soft: cubic-bezier(0.45, 0, 0.55, 1);
-  }
+    --display: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+    --num:     "Pretendard Variable", Pretendard, system-ui, sans-serif;
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --cream:      oklch(22% 0.02 330);
-      --cream-deep: oklch(28% 0.025 330);
-      --divider:    oklch(34% 0.03 330);
-      --ink:        oklch(94% 0.02 78);
-      --ink-soft:   oklch(76% 0.04 78);
-      --berry:      oklch(72% 0.18 12);
-      --berry-deep: oklch(58% 0.20 12);
-    }
+    --ease:        cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-quart:  cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: var(--body);
-    background: var(--cream);
+    font-family: var(--display);
+    font-feature-settings: "ss06", "ss07";
+    background: var(--bg);
     color: var(--ink);
     min-height: 100dvh;
     overscroll-behavior-y: contain;
     -webkit-tap-highlight-color: transparent;
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
   .visually-hidden { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  .n { font-family: var(--num); font-weight: normal; letter-spacing: 0.02em; color: var(--ink); }
-
   :focus { outline: none; }
   :focus-visible {
-    outline: 3px dashed var(--berry);
-    outline-offset: 4px;
-    border-radius: 6px;
+    outline: 2px solid var(--pri);
+    outline-offset: 2px;
   }
-
-  .skip { position: absolute; left: -9999px; padding: 10px 16px; background: var(--berry); color: white; border-radius: 10px; font-weight: 600; text-decoration: none; }
+  button { font-family: inherit; }
+  .skip { position: absolute; left: -9999px; padding: 8px 14px; background: var(--ink); color: var(--bg); border-radius: var(--r-sm); }
   .skip:focus { left: 12px; top: 12px; z-index: 999; }
 
+  /* === App shell === */
   .app {
     max-width: 480px;
     margin: 0 auto;
     min-height: 100dvh;
     padding-top: env(safe-area-inset-top);
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    position: relative;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    background: var(--bg);
   }
 
+  /* === Top bar === */
   .topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 20px 6px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 8px;
+    height: 56px;
   }
-  .wordmark { height: 40px; width: auto; display: block; }
-  .topbar .bell {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: transparent; border: 0;
-    display: grid; place-items: center;
-    color: var(--ink); position: relative; cursor: pointer;
+  .wordmark {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: -0.04em;
+    line-height: 1;
   }
-  .topbar .bell::after {
-    content: ""; position: absolute; top: 11px; right: 11px;
-    width: 9px; height: 9px; background: var(--berry);
-    border-radius: 50%; border: 2px solid var(--cream);
+  .wordmark .accent { color: var(--pri); }
+  .wordmark .sub {
+    display: block;
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .topbar .trainer-id {
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-feature-settings: "tnum";
+    font-weight: 600;
   }
 
+  /* === Screens === */
   .screen { display: none; padding: 0 20px; }
   body[data-screen="home"]    .screen.home    { display: block; }
   body[data-screen="mission"] .screen.mission { display: block; }
   body[data-screen="dex"]     .screen.dex     { display: block; }
+  body[data-screen="totems"]  .screen.totems  { display: block; }
   body[data-screen="me"]      .screen.me      { display: block; }
 
-  .stage {
-    position: relative; display: grid; place-items: center;
-    width: 100%; aspect-ratio: 1; margin: 0 auto 4px;
-    touch-action: none;
+  .screen-h {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 4px 0 2px;
   }
-  .stage::before {
-    content: ""; position: absolute;
-    width: 78%; aspect-ratio: 1;
-    background: var(--cream-deep);
-    border-radius: 50%; z-index: 0;
-    transform: translateY(8%);
+  .screen-sub {
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin: 0 0 18px;
+    font-weight: 500;
   }
-  .toto { position: relative; width: 70%; height: 70%; z-index: 1; will-change: transform; }
 
-  .name-line { text-align: center; font-family: var(--display); font-size: 1.7rem; color: var(--ink); line-height: 1.1; margin: 0 0 18px; }
-  .name-line small { display: block; font-family: var(--body); font-size: .82rem; color: var(--ink-soft); margin-top: 6px; letter-spacing: 0.02em; }
-
-  .progress-line { margin: 0 0 22px; }
-  .progress-row { display: flex; justify-content: space-between; font-size: .85rem; color: var(--ink-soft); margin-bottom: 6px; }
-  .progress-row b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1rem; letter-spacing: 0.02em; }
-  progress {
-    width: 100%; height: 14px;
-    appearance: none; -webkit-appearance: none;
-    border-radius: 999px; overflow: hidden;
-    background: var(--cream-deep); border: 0; display: block;
+  /* === HOME — 트레이너 카드 === */
+  .trainer-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 18px 18px 16px;
+    margin: 8px 0 18px;
   }
-  progress::-webkit-progress-bar { background: var(--cream-deep); border-radius: 999px; }
-  progress::-webkit-progress-value { background: var(--berry); border-radius: 999px; transition: width .6s var(--ease-out); }
-  progress::-moz-progress-bar { background: var(--berry); border-radius: 999px; }
+  .tc-row { display: flex; gap: 14px; align-items: flex-start; }
+  .tc-buddy {
+    width: 64px; height: 64px;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .tc-buddy svg { width: 48px; height: 48px; }
+  .tc-meta { flex: 1; min-width: 0; }
+  .tc-name-row {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tc-name {
+    font-size: 17px; font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .tc-stage {
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-  .mission-call { background: var(--cream-deep); border-radius: 24px; padding: 22px 22px 24px; text-align: center; }
-  .mission-call p { margin: 0 0 16px; font-size: 1.05rem; color: var(--ink); line-height: 1.5; }
-  .mission-call b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.2em; letter-spacing: 0.02em; }
+  /* HP-bar 스타일 (포켓몬 배틀 EXP) */
+  .lv-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .lv-badge {
+    font-family: var(--num);
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: var(--r-sm);
+    letter-spacing: 0.02em;
+    font-feature-settings: "tnum";
+  }
+  .lv-num { font-feature-settings: "tnum"; }
+  .lv-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .exp-track {
+    height: 8px;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+  }
+  .exp-fill {
+    height: 100%;
+    background: var(--pri);
+    border-radius: var(--r-pill);
+    transition: width 0.4s var(--ease-quart);
+  }
+  .exp-text {
+    display: flex; justify-content: space-between;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    font-feature-settings: "tnum";
+  }
+  .exp-text .totem-on {
+    color: var(--pri);
+  }
 
-  .cta {
-    display: block; width: 100%; min-height: 56px;
-    padding: 14px 20px;
-    background: var(--berry); color: white;
-    border: 0; border-radius: 18px;
-    font-family: var(--body); font-size: 1.1rem; font-weight: 600;
+  /* 장착 토템 슬롯 (트레이너 카드 옆) */
+  .tc-slot {
+    width: 40px; height: 40px;
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    display: grid; place-items: center;
+    background: var(--bg);
     cursor: pointer;
-    box-shadow: 0 4px 0 var(--berry-deep);
-    transform: translateY(0);
-    transition: transform .12s var(--ease-soft), box-shadow .12s var(--ease-soft);
+    flex-shrink: 0;
+    position: relative;
   }
-  .cta:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--berry-deep); }
+  .tc-slot.empty { border-style: dashed; opacity: .55; }
+  .tc-slot.equipped { background: var(--pri-soft); border-color: var(--pri); }
+  .tc-slot svg { width: 22px; height: 22px; color: var(--ink); }
+  .tc-slot.equipped svg { color: var(--pri); }
+  .tc-slot .plus {
+    color: var(--ink-mute); font-size: 18px; font-weight: 700;
+  }
+  .tc-slot-mult {
+    position: absolute; bottom: -7px; right: -6px;
+    background: var(--ink); color: #fff;
+    font-size: 9px; font-weight: 800;
+    padding: 1px 4px; border-radius: var(--r-sm);
+    font-feature-settings: "tnum";
+    letter-spacing: 0;
+  }
 
-  .screen-title { font-family: var(--display); font-size: 2.1rem; margin: 4px 0 2px; line-height: 1; }
-  .screen-sub { color: var(--ink-soft); font-size: .9rem; margin: 0 0 22px; }
-
-  /* ── 퀴즈 카드 ─── */
-  .quiz {
-    background: var(--cream-deep);
-    border-radius: 24px;
-    padding: 28px 22px 24px;
+  /* 홈 통계 그리드 — 4개 셀 */
+  .home-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--divider);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    overflow: hidden;
     margin-bottom: 18px;
   }
-  .quiz .word-en {
-    font-family: var(--en); font-weight: 700;
-    font-size: 2.6rem; text-align: center;
-    color: var(--ink); margin: 0 0 8px;
-    letter-spacing: -0.01em;
-  }
-  .quiz .word-hint {
-    text-align: center; color: var(--ink-soft);
-    font-size: .85rem; margin: 0 0 22px;
-  }
-  .choices {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  }
-  .choice {
-    min-height: 56px;
-    padding: 14px 12px;
-    background: var(--cream);
-    border: 3px solid var(--ink);
-    border-radius: 16px;
-    font-family: var(--display);
-    font-size: 1.05rem;
-    color: var(--ink);
-    cursor: pointer;
-    transition: transform .1s var(--ease-soft);
-  }
-  .choice:active { transform: scale(.96); }
-  .choice.correct {
-    background: var(--good); color: white; border-color: var(--good-deep);
-    box-shadow: 0 4px 0 var(--good-deep);
-  }
-  .choice.wrong {
-    background: var(--berry); color: white; border-color: var(--berry-deep);
-    box-shadow: 0 4px 0 var(--berry-deep);
-  }
-  .choice:disabled { cursor: default; }
-
-  .feedback {
-    margin: 18px 0 4px;
-    padding: 16px 20px;
-    border-radius: 16px;
+  .home-stats .cell {
+    background: var(--panel);
+    padding: 12px 8px;
     text-align: center;
-    font-size: 1rem;
-    line-height: 1.4;
-    display: none;
   }
-  .feedback.show { display: block; }
-  .feedback.ok { background: var(--good); color: white; }
-  .feedback.no { background: var(--berry); color: white; }
-  .feedback b { font-family: var(--num); font-size: 1.2em; }
+  .home-stats .cell .v {
+    font-weight: 800; font-size: 18px;
+    letter-spacing: -0.02em;
+    font-feature-settings: "tnum";
+  }
+  .home-stats .cell .l {
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
 
+  /* CTA 버튼 */
+  .cta {
+    width: 100%;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cta:active { transform: translateY(1px); }
+  .cta .arr { font-weight: 600; opacity: .7; }
+  .cta-sub {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--divider-deep);
+  }
+  .cta-pri {
+    background: var(--pri);
+  }
+
+  /* === 미션(퀴즈) === */
   .quiz-meta {
     display: flex; justify-content: space-between;
-    color: var(--ink-soft); font-size: .85rem;
-    margin: 0 4px 14px;
+    font-size: 11px; font-weight: 600; color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 14px;
+    font-feature-settings: "tnum";
   }
-  .quiz-meta b { font-family: var(--num); color: var(--berry); font-size: 1rem; }
+  .quiz-meta b { color: var(--ink); font-weight: 800; }
+
+  .word-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 28px 20px 22px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .word-num {
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-mute);
+    font-feature-settings: "tnum";
+    letter-spacing: 0.05em;
+  }
+  .word-en {
+    font-size: clamp(34px, 9vw, 44px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin: 8px 0 4px;
+  }
+  .word-hint {
+    font-size: 12px; color: var(--ink-mute);
+    font-weight: 500;
+  }
+
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    background: var(--panel);
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    text-align: left;
+    font-family: var(--display);
+    font-weight: 600; font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .choice .key {
+    width: 22px; height: 22px;
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-sm);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 800;
+    color: var(--ink-mute);
+    flex-shrink: 0;
+    font-feature-settings: "tnum";
+  }
+  .choice:hover { border-color: var(--ink); }
+  .choice:disabled { cursor: default; }
+  .choice.correct {
+    background: #ecf6ef;
+    border-color: var(--t-grass);
+    color: var(--t-grass);
+  }
+  .choice.correct .key {
+    background: var(--t-grass); color: #fff; border-color: var(--t-grass);
+  }
+  .choice.wrong {
+    background: var(--pri-soft);
+    border-color: var(--pri);
+    color: var(--pri-deep);
+  }
+  .choice.wrong .key {
+    background: var(--pri); color: #fff; border-color: var(--pri);
+  }
+
+  .feedback {
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-mute);
+    margin-top: 14px;
+    min-height: 18px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .feedback.show { opacity: 1; }
+  .feedback.ok { color: var(--t-grass); }
+  .feedback.no { color: var(--pri-deep); }
+  .feedback small { font-weight: 500; opacity: .7; }
 
   .next-btn {
-    margin-top: 12px;
-    display: none;
+    margin-top: 16px;
+    visibility: hidden;
   }
-  .next-btn.show { display: block; }
+  .next-btn.show { visibility: visible; }
 
-  /* 도감 */
-  .dex-stats { display: flex; justify-content: space-between; margin-bottom: 18px; font-family: var(--display); font-size: 1.2rem; }
-  .dex-stats b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.1rem; }
-  .dex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .dex-cell {
-    aspect-ratio: 1; border-radius: 16px;
-    background: var(--cream-deep);
+  /* === 도감 (포켓몬도감 스타일) === */
+  .dex-list {
+    display: flex; flex-direction: column;
+    gap: 8px;
+  }
+  .dex-row {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .dex-row.locked {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--divider-deep);
+    color: var(--ink-mute);
+  }
+  .dex-num {
+    font-family: var(--num);
+    font-weight: 800; font-size: 12px;
+    color: var(--ink-mute);
+    font-feature-settings: "tnum";
+    width: 36px;
+    letter-spacing: 0;
+  }
+  .dex-spr {
+    width: 44px; height: 44px;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-sm);
     display: grid; place-items: center;
-    font-size: 1.7rem; border: 0; color: var(--ink);
-    cursor: pointer; position: relative;
-    min-height: 64px; line-height: 1;
+    font-size: 26px;
+    flex-shrink: 0;
   }
-  .dex-cell.r { background: var(--rare-r); }
-  .dex-cell.e { background: var(--rare-e); }
-  .dex-cell.l { background: var(--rare-l); }
-  .dex-cell.locked { background: var(--cream-deep); color: var(--ink-soft); font-family: var(--display); opacity: .6; }
-  .dex-cell.new::before {
-    content: "NEW"; position: absolute; top: 4px; right: 4px;
-    font-family: var(--body); font-size: .55rem; font-weight: 700;
-    background: var(--berry); color: white;
-    padding: 2px 6px; border-radius: 6px; letter-spacing: 0.04em;
+  .dex-row.locked .dex-spr { opacity: .25; filter: grayscale(1); }
+  .dex-info { flex: 1; min-width: 0; }
+  .dex-name {
+    font-weight: 800; font-size: 14px;
+    letter-spacing: -0.01em;
   }
-  .dex-cell svg { width: 70%; height: 70%; }
+  .dex-need {
+    font-size: 11px; color: var(--ink-mute);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .dex-status {
+    font-size: 10px; font-weight: 800;
+    color: var(--t-grass);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .dex-row.locked .dex-status { color: var(--ink-mute); }
 
-  .profile { text-align: center; margin: 8px 0 20px; }
-  .profile h2 { margin: 0 0 4px; font-size: 1.6rem; font-family: var(--display); }
-  .profile small { color: var(--ink-soft); font-size: .9rem; }
+  /* === 토템 — 타입 카드 그룹 === */
+  .totem-headline {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .totem-headline .label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    opacity: .7;
+  }
+  .totem-headline .mult-now {
+    font-size: 28px; font-weight: 900;
+    line-height: 1; letter-spacing: -0.03em;
+    font-feature-settings: "tnum";
+  }
+  .totem-headline .right {
+    text-align: right;
+  }
+  .totem-headline .equipped-name {
+    font-size: 14px; font-weight: 700;
+    margin-top: 4px;
+  }
+  .totem-headline .equipped-name .none {
+    opacity: .5; font-weight: 600;
+  }
 
-  .stat-list { list-style: none; margin: 0 0 22px; padding: 16px 20px; background: var(--cream-deep); border-radius: 18px; }
-  .stat-list li { display: flex; justify-content: space-between; padding: 10px 0; font-size: .95rem; border-bottom: 1px solid var(--divider); }
-  .stat-list li:last-child { border: 0; }
-  .stat-list li b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.05rem; letter-spacing: 0.02em; }
+  .totem-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .totem-cell {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+    text-align: left;
+    font-family: var(--display);
+  }
+  .totem-cell.locked {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--divider-deep);
+    cursor: default;
+  }
+  .totem-cell.equipped {
+    border-color: var(--ink);
+    border-width: 2px;
+    padding: 11px;
+  }
+  .tc-icon {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: var(--r-sm);
+    flex-shrink: 0;
+  }
+  .tc-icon svg { width: 22px; height: 22px; color: #fff; }
+  .totem-cell.locked .tc-icon { background: var(--divider) !important; }
+  .totem-cell.locked .tc-icon svg { color: var(--ink-mute); opacity: .5; }
+  .tc-info { flex: 1; min-width: 0; }
+  .tc-name {
+    font-size: 13px; font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 3px;
+  }
+  .totem-cell.locked .tc-name { color: var(--ink-mute); }
+  .tc-mult {
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-mute);
+    font-feature-settings: "tnum";
+  }
+  .totem-cell.equipped .tc-mult { color: var(--pri); }
+  .tc-type {
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
 
+  /* type background colors */
+  .bg-grass { background: var(--t-grass); }
+  .bg-fire  { background: var(--t-fire); }
+  .bg-water { background: var(--t-water); }
+  .bg-bolt  { background: var(--t-bolt); color: var(--ink) !important; }
+  .bg-mind  { background: var(--t-mind); }
+  .bg-rock  { background: var(--t-rock); }
+
+  /* === Me === */
+  .stat-table {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    list-style: none; padding: 0; margin: 0 0 18px;
+  }
+  .stat-table li {
+    display: flex; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--divider);
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .stat-table li:last-child { border-bottom: none; }
+  .stat-table li b {
+    color: var(--ink); font-weight: 800;
+    font-feature-settings: "tnum";
+  }
   .reset-btn {
-    width: 100%; min-height: 48px;
-    background: transparent; color: var(--ink-soft);
-    border: 2px dashed var(--ink-soft);
-    border-radius: 14px;
-    font-family: var(--body); font-size: .9rem;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--divider-deep);
+    color: var(--ink-soft);
+    padding: 12px;
+    border-radius: var(--r-md);
+    font-family: var(--display);
+    font-weight: 600; font-size: 13px;
     cursor: pointer;
   }
+  .reset-btn:active { background: var(--bg); }
 
+  /* === Tabbar === */
   .tabbar {
-    position: fixed; bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 100%; max-width: 480px;
-    background: var(--cream);
-    border-top: 1px solid var(--cream-deep);
-    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--panel);
+    border-top: 1px solid var(--divider);
+    display: flex; justify-content: space-around;
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+    max-width: 480px; margin: 0 auto;
     z-index: 50;
   }
   .tabbar button {
-    background: transparent; border: 0;
-    padding: 6px 4px;
-    display: grid; justify-items: center; gap: 4px;
-    color: var(--ink-soft); cursor: pointer;
-    font-family: var(--body); font-size: .72rem; font-weight: 600;
-    min-height: 56px;
+    background: none; border: none;
+    flex: 1; padding: 8px 4px;
+    color: var(--ink-mute);
+    font-family: var(--display);
+    font-weight: 700; font-size: 10px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    text-transform: uppercase;
   }
-  .tabbar button[aria-selected="true"] { color: var(--berry); }
-  .tabbar svg { width: 22px; height: 22px; }
+  .tabbar button svg { width: 22px; height: 22px; }
+  .tabbar button[aria-selected="true"] {
+    color: var(--ink);
+  }
+  .tabbar button[aria-selected="true"] svg { color: var(--pri); }
 
-  /* 캐릭터 idle 애니메이션 */
-  .toto .body-grp { transform-origin: 60px 100px; animation: breathe 3.2s ease-in-out infinite; }
-  .toto .ear-l { transform-origin: 38px 32px; animation: earwiggle 8s ease-in-out infinite; }
-  .toto .eyes { transition: transform .35s var(--ease-out); transform-origin: 60px 58px; animation: blink 5.4s step-end infinite; }
-  @keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.025); } }
-  @keyframes earwiggle { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(10deg); } 94% { transform: rotate(-3deg); } 98% { transform: rotate(0); } }
-  @keyframes blink { 0%, 92%, 100% { opacity: 1; } 94%, 96% { opacity: 0; } }
-
-  .toto[data-mood="sleepy"] .eyes { animation: none; opacity: .55; }
-  .toto[data-mood="hungry"] .mouth-h { display: inline; }
-  .toto .mouth-h { display: none; }
-  .toto[data-mood="hungry"] .mouth-default { display: none; }
-  .toto[data-mood="sleepy"] .mouth-s { display: inline; }
-  .toto .mouth-s { display: none; }
-  .toto[data-mood="sleepy"] .mouth-default { display: none; }
-
-  /* 레벨업 모달 */
-  .levelup-overlay {
+  /* === Modal (드랍 / 레벨업) === */
+  .ov {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.5);
+    background: rgba(20,23,31,.6);
     display: none; place-items: center;
-    z-index: 100;
-    padding: 20px;
+    z-index: 100; padding: 20px;
   }
-  .levelup-overlay.show { display: grid; }
-  .levelup-card {
-    background: var(--cream);
-    border-radius: 28px;
-    padding: 32px 28px;
+  .ov.show { display: grid; animation: fade .15s var(--ease); }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .ov-card {
+    background: var(--panel);
+    border-radius: var(--r-md);
+    padding: 0;
+    max-width: 320px; width: 100%;
+    overflow: hidden;
+    animation: slide .2s var(--ease-quart);
+  }
+  @keyframes slide {
+    from { transform: translateY(8px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .ov-banner {
+    background: var(--ink);
+    color: #fff;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 8px 16px;
     text-align: center;
-    max-width: 360px; width: 100%;
-    border: 4px solid var(--ink);
-    box-shadow: 0 8px 0 var(--berry-deep);
-    animation: pop .45s var(--ease-out);
   }
-  @keyframes pop {
-    0% { transform: scale(.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+  .ov-banner.lvup { background: var(--pri); }
+  .ov-body { padding: 22px 22px 18px; text-align: center; }
+  .ov-icon {
+    width: 56px; height: 56px;
+    margin: 4px auto 12px;
+    display: grid; place-items: center;
+    border-radius: var(--r-md);
   }
-  .levelup-card h3 {
-    font-family: var(--display); font-size: 1.8rem;
-    margin: 0 0 6px; color: var(--berry);
+  .ov-icon svg { width: 36px; height: 36px; color: #fff; }
+  .ov-name {
+    font-size: 18px; font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
   }
-  .levelup-card .lv-num {
-    font-family: var(--num); font-size: 4rem;
-    color: var(--berry); line-height: 1; margin: 8px 0 12px;
+  .ov-mult {
+    font-size: 13px; font-weight: 700;
+    color: var(--pri);
+    margin-bottom: 16px;
+    font-feature-settings: "tnum";
   }
-  .levelup-card p { margin: 0 0 22px; color: var(--ink-soft); font-size: .95rem; }
-  .levelup-card svg { width: 130px; height: 130px; }
+  .ov-btns {
+    display: flex; gap: 8px;
+    padding: 0 16px 16px;
+  }
+  .ov-btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: var(--r-sm);
+    font-family: var(--display);
+    font-weight: 800; font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+  .ov-btn-pri { background: var(--ink); color: #fff; }
+  .ov-btn-sec { background: var(--bg); color: var(--ink-soft); }
 
+  /* === Toast === */
   .toast {
     position: fixed;
     top: calc(70px + env(safe-area-inset-top));
     left: 50%; transform: translateX(-50%) translateY(-200%);
-    background: var(--ink); color: var(--cream);
-    padding: 12px 20px; border-radius: 14px;
-    font-family: var(--body); font-weight: 600;
-    z-index: 200; max-width: 420px;
-    transition: transform .35s var(--ease-out);
+    background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: var(--r-sm);
+    font-weight: 700; font-size: 12px;
+    letter-spacing: -0.01em;
+    z-index: 200; max-width: 380px;
+    transition: transform .25s var(--ease-quart);
     pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* === Levelup card === */
+  .lvup-num {
+    font-size: 56px; font-weight: 900;
+    color: var(--pri);
+    line-height: 1; letter-spacing: -0.04em;
+    font-feature-settings: "tnum";
+    margin: 8px 0 8px;
+  }
+  .lvup-msg { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; font-weight: 600; }
+
   @media (prefers-reduced-motion: reduce) {
-    .toto .body-grp, .toto .ear-l { animation: none !important; }
-    .toto .eyes { transition: none !important; transform: none !important; animation: blink 5.4s step-end infinite; }
-    .levelup-card { animation: none; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
-
-  @media (max-height: 700px) {
-    .toto { width: 60%; height: 60%; }
-    .stage { aspect-ratio: 1.15; }
-    .name-line { margin-bottom: 12px; }
-    .mission-call { padding: 18px; }
-  }
-
-  /* ── 토템 시스템 ── */
-  :root {
-    /* tier 1~4 — berry 톤 명도/채도 변주 (브랜드와 충돌 X) */
-    --tier-1: oklch(72% 0.05 10);
-    --tier-2: oklch(64% 0.12 10);
-    --tier-3: oklch(56% 0.18 10);
-    --tier-4: oklch(48% 0.22 10);
-    /* 모서리 토큰 (4종만) */
-    --r-sm: 12px;
-    --r-md: 16px;
-    --r-lg: 24px;
-    --r-pill: 999px;
-  }
-
-  /* 홈 화면 토템 슬롯 (스테이지 우상단) */
-  .stage { position: relative; }
-  .home-totem-slot {
-    position: absolute;
-    top: 10px; right: 10px;
-    width: 56px; height: 56px;
-    border-radius: var(--r-md);
-    background: #fff;
-    border: 2px solid var(--divider);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    cursor: pointer;
-    z-index: 5;
-  }
-  .home-totem-slot.equipped { border-color: var(--berry); }
-  .home-totem-slot.empty { border-style: dashed; opacity: .55; }
-  .home-totem-slot .t-icon-svg { width: 28px; height: 28px; color: var(--ink); }
-  .home-totem-slot.equipped .t-icon-svg { color: var(--berry-deep); }
-  .home-totem-slot .t-icon-plus { font-size: 22px; color: var(--ink-soft); line-height: 1; }
-  .home-totem-slot .t-mult {
-    font-family: var(--num);
-    font-size: 10px;
-    color: var(--berry);
-    margin-top: 1px;
-  }
-  .home-totem-slot .t-empty-label {
-    font-size: 9px; color: var(--ink-soft);
-    margin-top: 2px;
-  }
-
-  /* 토템 화면 */
-  .screen.totems { padding: 0 20px 24px; }
-  body[data-screen="totems"] .screen.totems { display: block; }
-
-  .totems-headline {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin: 4px 4px 18px;
-  }
-  .totems-headline .mult-now {
-    font-family: var(--num);
-    font-size: 28px;
-    color: var(--berry);
-    line-height: 1;
-  }
-  .totems-headline .owned-now {
-    font-size: 12px; color: var(--ink-soft);
-  }
-
-  .totem-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .totem-cell {
-    aspect-ratio: 1;
-    background: #fff;
-    border: 1.5px solid var(--divider);
-    border-radius: var(--r-md);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    cursor: pointer; position: relative; padding: 6px 4px 4px;
-    font-family: var(--body); color: var(--ink);
-  }
-  .totem-cell.locked {
-    background: var(--cream-deep); cursor: default;
-    border-color: transparent;
-  }
-  .totem-cell.locked .tc-icon-svg { color: var(--divider); }
-  .totem-cell.locked .tc-name { color: var(--ink-soft); opacity: 0.5; }
-  .totem-cell.equipped { border-color: var(--berry); border-width: 2px; }
-  .tc-icon-svg { width: 32px; height: 32px; margin-bottom: 4px; }
-  .tc-icon-svg.tier-1 { color: var(--tier-1); }
-  .tc-icon-svg.tier-2 { color: var(--tier-2); }
-  .tc-icon-svg.tier-3 { color: var(--tier-3); }
-  .tc-icon-svg.tier-4 { color: var(--tier-4); }
-  .totem-cell.equipped .tc-icon-svg { color: var(--berry-deep); }
-  .tc-name {
-    font-size: 11px; text-align: center; line-height: 1.15;
-    margin-bottom: 2px;
-  }
-  .tc-mult {
-    font-family: var(--num);
-    font-size: 11px;
-    color: var(--ink-soft);
-    letter-spacing: .3px;
-  }
-  .totem-cell.equipped .tc-mult { color: var(--berry); }
-  .totem-cell.locked .tc-mult { display: none; }
-
-  /* 드랍 모달 — 절제: 보더 두꺼움/그림자 제거, 단일 진입 모션 */
-  .drop-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.45);
-    display: none; place-items: center;
-    z-index: 150; padding: 20px;
-  }
-  .drop-overlay.show { display: grid; }
-  .drop-card {
-    background: var(--cream);
-    border-radius: var(--r-lg);
-    padding: 28px 22px 20px;
-    max-width: 320px; width: 100%;
-    text-align: center;
-    border: 1px solid var(--divider);
-    animation: pop .25s var(--ease-out);
-  }
-  .drop-card .hint { font-size: 12px; color: var(--ink-soft); }
-  .drop-card .icon-svg {
-    width: 64px; height: 64px;
-    margin: 12px auto 14px;
-    display: block;
-  }
-  .drop-card .icon-svg.tier-1 { color: var(--tier-1); }
-  .drop-card .icon-svg.tier-2 { color: var(--tier-2); }
-  .drop-card .icon-svg.tier-3 { color: var(--tier-3); }
-  .drop-card .icon-svg.tier-4 { color: var(--tier-4); }
-  .drop-card .name {
-    font-size: 18px; margin-bottom: 4px;
-  }
-  .drop-card .mult {
-    font-family: var(--num); font-size: 24px;
-    color: var(--berry); margin: 0 0 18px;
-  }
-  .drop-card .btn-row {
-    display: flex; gap: 8px;
-  }
-  .drop-card .btn {
-    flex: 1; padding: 12px 14px;
-    border: none; border-radius: var(--r-sm);
-    font-family: var(--display); font-size: 14px;
-    cursor: pointer;
-  }
-  .drop-card .btn-prim { background: var(--berry); color: #fff; }
-  .drop-card .btn-sec  { background: transparent; color: var(--ink-soft); }
-
-  /* 탭바 5개 폭 조정 */
-  .tabbar { padding-left: 6px; padding-right: 6px; }
-  .tabbar button { font-size: 11px; }
 </style>
 </head>
 <body data-screen="home">
@@ -525,177 +699,174 @@
 <a href="#main" class="skip">본문으로 건너뛰기</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="toto" viewBox="0 0 120 120">
-      <g class="body-grp">
-        <g class="ear-l">
-          <ellipse cx="38" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
-          <ellipse cx="38" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
-        </g>
-        <g class="ear-r">
-          <ellipse cx="82" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
-          <ellipse cx="82" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
-        </g>
-        <ellipse cx="60" cy="62" rx="34" ry="32" fill="var(--pal-fur)" stroke="var(--ink)" stroke-width="2.5"/>
-        <ellipse cx="60" cy="78" rx="20" ry="13" fill="var(--pal-belly)"/>
-        <circle cx="36" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
-        <circle cx="84" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
-        <g class="eyes">
-          <ellipse cx="48" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
-          <ellipse cx="72" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
-          <circle cx="49.5" cy="56.5" r="1.5" fill="white"/>
-          <circle cx="73.5" cy="56.5" r="1.5" fill="white"/>
-        </g>
-        <path class="mouth-default" d="M 56 70 Q 60 73 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
-        <ellipse class="mouth-h" cx="60" cy="72" rx="3.5" ry="3" fill="var(--ink)"/>
-        <path class="mouth-s" d="M 56 70 Q 60 71.5 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
-      </g>
-    </symbol>
+<defs>
+  <!-- 버디(작은 마스코트 = 토토) — 단순화된 일러스트 -->
+  <symbol id="buddy" viewBox="0 0 48 48">
+    <circle cx="24" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="2"/>
+    <ellipse cx="14" cy="14" rx="4" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
+    <ellipse cx="34" cy="14" rx="4" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
+    <circle cx="19" cy="24" r="1.6" fill="currentColor"/>
+    <circle cx="29" cy="24" r="1.6" fill="currentColor"/>
+    <path d="M 21 30 Q 24 32 27 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
 
-    <symbol id="wordmark" viewBox="0 0 220 60">
-      <text x="2" y="34" font-family="Fredoka" font-weight="700" font-size="28" fill="var(--ink)" letter-spacing="-0.5">word</text>
-      <circle cx="80" cy="14" r="2.4" fill="var(--berry)"/>
-      <text x="80" y="36" font-family="Bagel Fat One" font-size="30" fill="var(--berry)" letter-spacing="-0.5">gacha</text>
-      <text x="2" y="52" font-family="Jua" font-size="11" fill="var(--ink-soft)">단어 가챠</text>
-    </symbol>
+  <!-- Tab icons — sharp/geometric -->
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M 4 11 L 12 4 L 20 11 L 20 20 L 14 20 L 14 14 L 10 14 L 10 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-mission" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 8 10 L 16 10 M 8 14 L 13 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="ic-dex" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 9 L 20 9" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="6.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="ic-totem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 12 L 20 12" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-me" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 
-    <symbol id="ic-home" viewBox="0 0 24 24"><path d="M 4 12 L 12 5 L 20 12 L 20 20 L 14 20 L 14 14 L 10 14 L 10 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-mission" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M 8 11 L 11 14 L 16 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-dex" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
-    <symbol id="ic-me" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-totem" viewBox="0 0 24 24"><path d="M 9 3 L 15 3 L 14 7 L 10 7 Z M 8 7 L 16 7 L 15 11 L 9 11 Z M 7 11 L 17 11 L 16 16 L 8 16 Z M 9 16 L 15 16 L 14 21 L 10 21 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-
-    <!-- 토템 SVG (자체 라인아트, 단색) -->
-    <symbol id="t-leaf" viewBox="0 0 40 40">
-      <path d="M 20 6 C 10 14 8 26 14 33 C 22 30 30 22 30 10 C 26 9 22 8 20 6 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-      <path d="M 20 10 L 17 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="t-flame" viewBox="0 0 40 40">
-      <path d="M 20 6 C 14 14 10 18 12 26 C 13 32 17 34 20 34 C 23 34 27 32 28 26 C 30 20 26 18 24 14 C 22 18 22 22 20 22 C 18 20 22 12 20 6 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="t-drop" viewBox="0 0 40 40">
-      <path d="M 20 6 C 12 16 10 22 12 28 C 14 33 17 35 20 35 C 23 35 26 33 28 28 C 30 22 28 16 20 6 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-      <path d="M 16 26 C 16 30 18 32 20 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="t-star" viewBox="0 0 40 40">
-      <path d="M 20 5 L 24 16 L 35 16 L 26 23 L 30 34 L 20 27 L 10 34 L 14 23 L 5 16 L 16 16 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="t-bolt" viewBox="0 0 40 40">
-      <path d="M 22 4 L 10 22 L 18 22 L 14 36 L 30 16 L 22 16 L 26 4 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="t-moon" viewBox="0 0 40 40">
-      <path d="M 28 6 C 18 8 12 16 12 24 C 12 31 18 35 26 34 C 19 32 16 26 16 22 C 16 16 20 10 28 6 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="t-arrow" viewBox="0 0 40 40">
-      <path d="M 6 34 L 30 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M 22 8 L 32 8 L 32 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="6" cy="34" r="2.4" fill="currentColor"/>
-    </symbol>
-    <symbol id="t-egg" viewBox="0 0 40 40">
-      <ellipse cx="20" cy="22" rx="12" ry="15" fill="none" stroke="currentColor" stroke-width="2.4"/>
-      <path d="M 12 18 L 16 22 L 20 18 L 24 22 L 28 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M 6 17 Q 6 10 12 10 Q 18 10 18 17 L 19 19 L 5 19 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M 10 20 Q 12 22 14 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-  </defs>
+  <!-- Totem icons -->
+  <symbol id="t-leaf" viewBox="0 0 32 32">
+    <path d="M 16 5 C 8 11 7 21 11 27 C 18 25 25 18 25 8 C 22 7 19 6 16 5 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 16 9 L 13 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="t-flame" viewBox="0 0 32 32">
+    <path d="M 16 4 C 11 11 8 14 10 21 C 11 26 14 28 16 28 C 18 28 21 26 22 21 C 24 16 20 14 19 11 C 18 14 18 17 16 17 C 14 16 18 9 16 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="t-drop" viewBox="0 0 32 32">
+    <path d="M 16 4 C 9 13 8 18 10 23 C 12 27 14 28 16 28 C 18 28 20 27 22 23 C 24 18 23 13 16 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="t-star" viewBox="0 0 32 32">
+    <path d="M 16 4 L 19 12 L 28 12 L 21 18 L 24 27 L 16 22 L 8 27 L 11 18 L 4 12 L 13 12 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="t-bolt" viewBox="0 0 32 32">
+    <path d="M 18 3 L 8 17 L 14 17 L 11 29 L 24 13 L 18 13 L 21 3 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="t-moon" viewBox="0 0 32 32">
+    <path d="M 22 4 C 14 6 9 12 9 18 C 9 24 14 28 22 27 C 16 25 13 21 13 17 C 13 12 16 8 22 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="t-arrow" viewBox="0 0 32 32">
+    <path d="M 5 27 L 25 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 17 6 L 27 6 L 27 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="t-egg" viewBox="0 0 32 32">
+    <ellipse cx="16" cy="18" rx="10" ry="12" fill="none" stroke="currentColor" stroke-width="2"/>
+    <path d="M 9 14 L 13 18 L 16 14 L 19 18 L 23 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+  </symbol>
+</defs>
 </svg>
 
 <div class="app" id="main" tabindex="-1">
 
   <header class="topbar">
-    <h1 style="margin:0">
-      <a href="#" aria-label="Word Gacha 홈" onclick="goto('home');return false;" style="display:block">
-        <svg class="wordmark" viewBox="0 0 220 60" aria-hidden="true"><use href="#wordmark"/></svg>
-      </a>
-    </h1>
+    <div class="wordmark">
+      WORD<span class="accent">·</span>GACHA
+      <span class="sub">Vocab Trainer</span>
+    </div>
+    <div class="trainer-id">ID #<span id="trainer-id">000</span></div>
   </header>
 
-  <!-- ─── 홈 ─── -->
+  <!-- ─── HOME ─── -->
   <section class="screen home" aria-labelledby="home-h">
     <h2 id="home-h" class="visually-hidden">홈</h2>
 
-    <div class="stage" aria-label="토토와 함께하는 공간">
-      <button class="home-totem-slot empty" id="home-totem-slot" type="button"
-              onclick="goto('totems')" aria-label="장착한 토템">
-        <span class="t-icon-plus" id="home-totem-plus">＋</span>
-        <svg class="t-icon-svg" id="home-totem-svg" aria-hidden="true" hidden><use id="home-totem-svg-use" href=""/></svg>
-        <span class="t-empty-label" id="home-totem-empty">토템</span>
-        <span class="t-mult" id="home-totem-mult" hidden></span>
-      </button>
-      <svg class="toto" data-mood="happy" viewBox="0 0 120 120" role="img" aria-label="토토. 화면을 누르면 토토가 그쪽을 봐요.">
-        <use href="#toto"/>
-      </svg>
+    <div class="trainer-card">
+      <div class="tc-row">
+        <div class="tc-buddy" style="color: var(--ink)">
+          <svg aria-hidden="true"><use href="#buddy"/></svg>
+        </div>
+        <div class="tc-meta">
+          <div class="tc-name-row">
+            <span class="tc-name">토토</span>
+            <span class="tc-stage">ST.<span id="stage-num">1</span></span>
+          </div>
+          <div class="lv-row">
+            <span class="lv-badge">LV <span class="lv-num" id="lv-home">1</span></span>
+            <span class="lv-label">EXP</span>
+          </div>
+          <div class="exp-track">
+            <div class="exp-fill" id="exp-fill" style="width:0%"></div>
+          </div>
+          <div class="exp-text">
+            <span><span id="exp-home">0</span> / 100</span>
+            <span class="totem-on" id="totem-on" hidden>×<span id="totem-on-val">1.5</span> BOOST</span>
+          </div>
+        </div>
+        <button class="tc-slot empty" id="home-slot" type="button"
+                onclick="goto('totems')" aria-label="장착 토템">
+          <span class="plus" id="home-slot-plus">＋</span>
+          <svg id="home-slot-svg" hidden aria-hidden="true"><use id="home-slot-use" href=""/></svg>
+          <span class="tc-slot-mult" id="home-slot-mult" hidden>×1.5</span>
+        </button>
+      </div>
     </div>
 
-    <p class="name-line">
-      토토
-      <small>함께한 지 <span class="n" id="days">1</span>일째 · LV.<span class="n" id="lv-home">1</span></small>
-    </p>
-
-    <div class="progress-line">
-      <div class="progress-row"><span>다음 LV까지</span><span><b id="exp-home">0</b> / 100</span></div>
-      <progress id="prog-home" value="0" max="100" aria-label="레벨 진행률"></progress>
+    <div class="home-stats">
+      <div class="cell"><div class="v" id="hs-words">0</div><div class="l">외운 단어</div></div>
+      <div class="cell"><div class="v" id="hs-friends">1</div><div class="l">친구</div></div>
+      <div class="cell"><div class="v" id="hs-totems">0</div><div class="l">토템</div></div>
+      <div class="cell"><div class="v" id="hs-days">1</div><div class="l">일차</div></div>
     </div>
 
-    <div class="mission-call">
-      <p id="mission-msg">단어를 외우고<br>토토를 키워주세요</p>
-      <button class="cta" type="button" onclick="goto('mission')">학습하러 가기 →</button>
-    </div>
+    <button class="cta cta-pri" type="button" onclick="goto('mission')">
+      <span>오늘의 단어 풀기</span>
+      <span class="arr">→</span>
+    </button>
   </section>
 
-  <!-- ─── 미션 (퀴즈) ─── -->
+  <!-- ─── MISSION ─── -->
   <section class="screen mission" aria-labelledby="mission-h">
-    <h2 id="mission-h" class="screen-title">오늘의 단어</h2>
-    <p class="screen-sub" id="quiz-sub">뜻을 골라보세요</p>
+    <h2 id="mission-h" class="screen-h">단어</h2>
+    <p class="screen-sub">알맞은 뜻을 골라요</p>
 
     <div class="quiz-meta">
       <span>EXP <b id="exp-mission">0</b></span>
       <span>외운 단어 <b id="mastered-mission">0</b></span>
     </div>
 
-    <div class="quiz" aria-live="polite">
-      <p class="word-en" id="word-en">—</p>
-      <p class="word-hint">알맞은 뜻을 골라요</p>
-      <div class="choices" id="choices"></div>
-      <div class="feedback" id="feedback" role="status"></div>
+    <div class="word-card">
+      <div class="word-num" id="word-num">#01</div>
+      <div class="word-en" id="word-en">—</div>
+      <div class="word-hint">뜻을 골라보세요</div>
     </div>
 
-    <button class="cta next-btn" id="next-btn" type="button" onclick="nextQuiz()">다음 단어 →</button>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback" role="status"></div>
+    <button class="cta next-btn" id="next-btn" type="button" onclick="nextQuiz()">
+      <span>다음 단어</span>
+      <span class="arr">→</span>
+    </button>
   </section>
 
-  <!-- ─── 도감 ─── -->
+  <!-- ─── DEX ─── -->
   <section class="screen dex" aria-labelledby="dex-h">
-    <h2 id="dex-h" class="screen-title">친구 도감</h2>
-    <div class="dex-stats">
-      <span>모은 친구 <b id="dex-count">1</b> / 6</span>
-      <span>외운 단어 <b id="mastered-dex">0</b></span>
-    </div>
-    <div class="dex-grid" id="dex-grid"></div>
+    <h2 id="dex-h" class="screen-h">친구 도감</h2>
+    <p class="screen-sub">단어를 모으면 친구가 늘어나요 · <span id="dex-count">1</span>/6</p>
+    <div class="dex-list" id="dex-list"></div>
   </section>
 
-  <!-- ─── 토템 ─── -->
+  <!-- ─── TOTEMS ─── -->
   <section class="screen totems" aria-labelledby="totems-h">
-    <h2 id="totems-h" class="screen-title">토템</h2>
+    <h2 id="totems-h" class="screen-h">토템</h2>
     <p class="screen-sub">하나 장착하면 EXP가 배수로 적립돼요</p>
 
-    <div class="totems-headline">
-      <div class="mult-now" id="totem-mult-now">×1.0</div>
-      <div class="owned-now" id="totem-owned">0 / 8</div>
+    <div class="totem-headline">
+      <div>
+        <div class="label">현재 배수</div>
+        <div class="mult-now" id="totem-mult-now">×1.0</div>
+      </div>
+      <div class="right">
+        <div class="label"><span id="totem-owned">0</span>/8 보유</div>
+        <div class="equipped-name" id="totem-eq-name"><span class="none">미장착</span></div>
+      </div>
     </div>
 
     <div class="totem-grid" id="totem-grid"></div>
   </section>
 
-  <!-- ─── 나 ─── -->
+  <!-- ─── ME ─── -->
   <section class="screen me" aria-labelledby="me-h">
-    <div class="profile">
-      <h2 id="me-h">학생</h2>
-      <small>Word Gacha 친구</small>
-    </div>
-    <ul class="stat-list">
-      <li><span>현재 레벨</span><b>LV.<span id="lv-me">1</span></b></li>
+    <h2 id="me-h" class="screen-h">기록</h2>
+    <p class="screen-sub">이번 트레이너의 누적 데이터</p>
+
+    <ul class="stat-table">
+      <li><span>레벨</span><b>LV.<span id="lv-me">1</span></b></li>
       <li><span>총 EXP</span><b id="totalexp-me">0</b></li>
-      <li><span>외운 단어</span><b><span id="mastered-me">0</span>개</b></li>
-      <li><span>모은 친구</span><b><span id="dex-me">1</span>마리</b></li>
+      <li><span>외운 단어</span><b><span id="mastered-me">0</span></b></li>
+      <li><span>모은 친구</span><b><span id="dex-me">1</span> / 6</b></li>
+      <li><span>토템</span><b><span id="totem-me">0</span> / 8</b></li>
       <li><span>함께한 날</span><b><span id="days-me">1</span>일</b></li>
     </ul>
     <button class="reset-btn" type="button" onclick="resetGame()">처음부터 다시 시작</button>
@@ -705,316 +876,117 @@
 
 <nav class="tabbar" role="tablist" aria-label="주요 메뉴">
   <button role="tab" data-screen="home" aria-selected="true" onclick="goto('home')"><svg aria-hidden="true"><use href="#ic-home"/></svg>홈</button>
-  <button role="tab" data-screen="mission" aria-selected="false" onclick="goto('mission')"><svg aria-hidden="true"><use href="#ic-mission"/></svg>학습</button>
+  <button role="tab" data-screen="mission" aria-selected="false" onclick="goto('mission')"><svg aria-hidden="true"><use href="#ic-mission"/></svg>단어</button>
   <button role="tab" data-screen="dex" aria-selected="false" onclick="goto('dex')"><svg aria-hidden="true"><use href="#ic-dex"/></svg>도감</button>
   <button role="tab" data-screen="totems" aria-selected="false" onclick="goto('totems')"><svg aria-hidden="true"><use href="#ic-totem"/></svg>토템</button>
-  <button role="tab" data-screen="me" aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>나</button>
+  <button role="tab" data-screen="me" aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>기록</button>
 </nav>
 
-<!-- 토템 드랍 모달 -->
-<div class="drop-overlay" id="drop-overlay" role="dialog" aria-modal="true" aria-labelledby="drop-name" onclick="closeDrop()">
-  <div class="drop-card" onclick="event.stopPropagation()">
-    <div class="hint">새 토템</div>
-    <svg class="icon-svg tier-1" id="drop-icon" aria-hidden="true"><use href="#t-leaf"/></svg>
-    <div class="name" id="drop-name">새싹</div>
-    <div class="mult" id="drop-mult">×1.5</div>
-    <div class="btn-row">
-      <button class="btn btn-sec" type="button" onclick="closeDrop()">나중에</button>
-      <button class="btn btn-prim" type="button" onclick="equipDropped()">장착</button>
+<!-- Drop modal -->
+<div class="ov" id="drop-ov" role="dialog" aria-modal="true" aria-labelledby="drop-name" onclick="closeDrop()">
+  <div class="ov-card" onclick="event.stopPropagation()">
+    <div class="ov-banner">새 토템 획득</div>
+    <div class="ov-body">
+      <div class="ov-icon bg-grass" id="drop-icon-wrap">
+        <svg id="drop-icon" aria-hidden="true"><use href="#t-leaf"/></svg>
+      </div>
+      <div class="ov-name" id="drop-name">새싹</div>
+      <div class="ov-mult">EXP ×<span id="drop-mult">1.5</span></div>
+    </div>
+    <div class="ov-btns">
+      <button class="ov-btn ov-btn-sec" type="button" onclick="closeDrop()">나중에</button>
+      <button class="ov-btn ov-btn-pri" type="button" onclick="equipDropped()">장착</button>
     </div>
   </div>
 </div>
 
-<div class="levelup-overlay" id="levelup" role="dialog" aria-modal="true" aria-labelledby="lu-title" onclick="closeLevelup()">
-  <div class="levelup-card" onclick="event.stopPropagation()">
-    <h3 id="lu-title">레벨 업!</h3>
-    <div class="lv-num">LV.<span id="lu-lv">2</span></div>
-    <svg viewBox="0 0 120 120" aria-hidden="true"><use href="#toto"/></svg>
-    <p id="lu-msg">새 친구가 도감에 추가되었어요</p>
-    <button class="cta" type="button" onclick="closeLevelup()">계속하기</button>
+<!-- Levelup modal -->
+<div class="ov" id="lvup-ov" role="dialog" aria-modal="true" onclick="closeLevelup()">
+  <div class="ov-card" onclick="event.stopPropagation()">
+    <div class="ov-banner lvup">LEVEL UP</div>
+    <div class="ov-body">
+      <div class="lvup-num">LV.<span id="lu-lv">2</span></div>
+      <p class="lvup-msg" id="lu-msg">토토와 더 친해졌어요</p>
+    </div>
+    <div class="ov-btns">
+      <button class="ov-btn ov-btn-pri" type="button" onclick="closeLevelup()" style="flex:1">계속</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-  // ── 단어장 ──
+  // ── 단어 데이터 ──
   const VOCAB = [
-    { en: "meadow",     ko: "목초지",   choices: ["산", "바다", "사막"] },
-    { en: "whisper",    ko: "속삭이다", choices: ["외치다", "노래하다", "웃다"] },
-    { en: "gentle",     ko: "부드러운", choices: ["거친", "차가운", "매운"] },
-    { en: "brave",      ko: "용감한",   choices: ["겁많은", "졸린", "화난"] },
-    { en: "secret",     ko: "비밀",     choices: ["선물", "약속", "편지"] },
-    { en: "forest",     ko: "숲",       choices: ["강", "마을", "동굴"] },
-    { en: "friend",     ko: "친구",     choices: ["선생님", "가족", "이웃"] },
-    { en: "promise",    ko: "약속",     choices: ["거짓말", "이야기", "꿈"] },
-    { en: "adventure",  ko: "모험",     choices: ["휴식", "공부", "놀이"] },
-    { en: "quiet",      ko: "조용한",   choices: ["시끄러운", "밝은", "더운"] },
+    { en: "apple",   ko: "사과",   choices: ["바나나","포도","수박"] },
+    { en: "book",    ko: "책",     choices: ["가방","연필","의자"] },
+    { en: "happy",   ko: "행복한", choices: ["슬픈","화난","무서운"] },
+    { en: "river",   ko: "강",     choices: ["산","바다","숲"] },
+    { en: "future",  ko: "미래",   choices: ["과거","현재","어제"] },
+    { en: "brave",   ko: "용감한", choices: ["겁많은","조용한","느린"] },
+    { en: "promise", ko: "약속",   choices: ["거짓말","비밀","계획"] },
+    { en: "memory",  ko: "기억",   choices: ["꿈","상상","생각"] },
+    { en: "journey", ko: "여행",   choices: ["휴식","도착","출발"] },
+    { en: "silence", ko: "침묵",   choices: ["소음","대화","음악"] },
   ];
 
-  // ── 도감 친구들 (단어 외운 개수에 따라 잠금 해제) ──
+  // ── 친구 도감 (#47: 마지막은 초록 티라노) ──
   const FRIENDS = [
-    { id: "toto",   emoji: null, name: "토토",   need: 0,  rare: "" },
-    { id: "mimi",   emoji: "🐱", name: "미미",   need: 2,  rare: "" },
-    { id: "choco",  emoji: "🐰", name: "초코",   need: 4,  rare: "" },
-    { id: "vani",   emoji: "🦊", name: "바닐라", need: 6,  rare: "r" },
-    { id: "uni",    emoji: "🦄", name: "유니콘", need: 8,  rare: "e" },
-    { id: "trex",   emoji: "🦖", name: "티라노", need: 10, rare: "l" },
+    { id:"toto",  emoji:"●", name:"토토",   need:0,  type:"mind",  desc:"시작을 함께한 친구" },
+    { id:"mimi",  emoji:"🐱", name:"미미",   need:2,  type:"mind",  desc:"호기심 많은 고양이" },
+    { id:"choco", emoji:"🐰", name:"초코",   need:4,  type:"grass", desc:"부지런한 토끼" },
+    { id:"vani",  emoji:"🦊", name:"바닐라", need:6,  type:"fire",  desc:"빠른 발을 가진 여우" },
+    { id:"uni",   emoji:"🦄", name:"유니콘", need:8,  type:"mind",  desc:"전설 속의 친구" },
+    { id:"trex",  emoji:"🦖", name:"티라노", need:10, type:"grass", desc:"가장 강한 동료" },
   ];
 
-  // ── 토템 카탈로그 ──
-  // tier: 1~4 (배수와 1:1, 라벨 없음 — 시각만)
+  // ── 토템 (타입 + 배수) ──
   const TOTEMS = [
-    { id:'tot-001', name:'새싹',     svg:'t-leaf',    tier:1, mult:1.5 },
-    { id:'tot-002', name:'불꽃',     svg:'t-flame',   tier:1, mult:1.5 },
-    { id:'tot-003', name:'물방울',   svg:'t-drop',    tier:1, mult:1.5 },
-    { id:'tot-004', name:'별',       svg:'t-star',    tier:2, mult:2.0 },
-    { id:'tot-005', name:'번개',     svg:'t-bolt',    tier:2, mult:2.0 },
-    { id:'tot-006', name:'달',       svg:'t-moon',    tier:3, mult:2.5 },
-    { id:'tot-007', name:'화살',     svg:'t-arrow',   tier:3, mult:2.5 },
-    { id:'tot-008', name:'금빛 알',  svg:'t-egg',     tier:4, mult:3.0 },
+    { id:'tot-001', name:'새싹',    svg:'t-leaf',  type:'grass', mult:1.5 },
+    { id:'tot-002', name:'불꽃',    svg:'t-flame', type:'fire',  mult:1.5 },
+    { id:'tot-003', name:'물방울',  svg:'t-drop',  type:'water', mult:1.5 },
+    { id:'tot-004', name:'별',      svg:'t-star',  type:'mind',  mult:2.0 },
+    { id:'tot-005', name:'번개',    svg:'t-bolt',  type:'bolt',  mult:2.0 },
+    { id:'tot-006', name:'달',      svg:'t-moon',  type:'mind',  mult:2.5 },
+    { id:'tot-007', name:'화살',    svg:'t-arrow', type:'rock',  mult:2.5 },
+    { id:'tot-008', name:'금빛 알', svg:'t-egg',   type:'fire',  mult:3.0 },
   ];
-  function getTotem(id) { return TOTEMS.find(t => t.id === id); }
-  function currentMult() {
-    const t = state.equippedTotem ? getTotem(state.equippedTotem) : null;
-    return t ? t.mult : 1.0;
-  }
+  const TYPE_LABEL = { grass:'풀', fire:'불', water:'물', bolt:'전기', mind:'마음', rock:'땅' };
+  const getTotem = id => TOTEMS.find(t => t.id === id);
+  const currentMult = () => state.equippedTotem ? getTotem(state.equippedTotem).mult : 1.0;
 
   // ── 상태 ──
   const STORAGE_KEY = "wg_state_v1";
   const DEFAULT_STATE = {
-    exp: 0,
-    lv: 1,
-    totalExp: 0,
-    mastered: {},      // { en: count }
-    seenDex: ["toto"], // 본 적 있는 친구 (NEW 배지 제거용)
+    exp: 0, lv: 1, totalExp: 0,
+    mastered: {},
+    seenDex: ["toto"],
     quizIdx: 0,
     startDate: Date.now(),
-    ownedTotems: [],   // string[] (totem id)
-    equippedTotem: null, // string | null
-    totemBonus: 0,     // 토템 배수로 추가 적립된 누적 EXP
-    pendingDrop: null, // 모달에 띄울 totem id
+    ownedTotems: [],
+    equippedTotem: null,
+    pendingDrop: null,
   };
-
   let state = load();
 
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return { ...DEFAULT_STATE };
-      const parsed = JSON.parse(raw);
-      return { ...DEFAULT_STATE, ...parsed };
-    } catch (e) {
-      return { ...DEFAULT_STATE };
-    }
+      return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+    } catch (_) { return { ...DEFAULT_STATE }; }
   }
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-  }
+  function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(_) {} }
   function resetGame() {
-    if (!confirm("정말 처음부터 다시 시작할까요? 모든 진행이 사라져요.")) return;
+    if (!confirm("모든 진행을 초기화할까요?")) return;
     state = { ...DEFAULT_STATE, startDate: Date.now() };
-    save();
-    renderAll();
-    goto("home");
+    save(); renderAll(); goto("home");
   }
-
-  // ── 화면 전환 ──
-  function goto(name) {
-    document.body.dataset.screen = name;
-    document.querySelectorAll('.tabbar button').forEach(b => {
-      b.setAttribute('aria-selected', b.dataset.screen === name ? 'true' : 'false');
-    });
-    if (name === "mission") loadQuiz();
-    if (name === "dex") {
-      // 도감 진입 시 NEW 배지 모두 본 것으로 처리
-      const unlocked = FRIENDS.filter(f => masteredCount() >= f.need).map(f => f.id);
-      unlocked.forEach(id => { if (!state.seenDex.includes(id)) state.seenDex.push(id); });
-      save();
-      renderDex();
-    }
-    if (name === "totems") renderTotems();
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }
-
-  // ── 퀴즈 ──
-  let currentChoices = [];
-  let answered = false;
-
-  function loadQuiz() {
-    answered = false;
-    document.getElementById("feedback").className = "feedback";
-    document.getElementById("next-btn").classList.remove("show");
-
-    const word = VOCAB[state.quizIdx % VOCAB.length];
-    document.getElementById("word-en").textContent = word.en;
-
-    const all = [word.ko, ...word.choices];
-    currentChoices = shuffle(all);
-
-    const container = document.getElementById("choices");
-    container.innerHTML = "";
-    currentChoices.forEach((c) => {
-      const btn = document.createElement("button");
-      btn.className = "choice";
-      btn.type = "button";
-      btn.textContent = c;
-      btn.onclick = () => answerQuiz(c, word);
-      container.appendChild(btn);
-    });
-    updateMissionStats();
-  }
-
-  function answerQuiz(picked, word) {
-    if (answered) return;
-    answered = true;
-
-    const correct = picked === word.ko;
-    const buttons = document.querySelectorAll(".choice");
-    buttons.forEach(b => {
-      b.disabled = true;
-      if (b.textContent === word.ko) b.classList.add("correct");
-      else if (b.textContent === picked) b.classList.add("wrong");
-    });
-
-    const fb = document.getElementById("feedback");
-    const mult = currentMult();
-    if (correct) {
-      const base = 20;
-      const gained = Math.round(base * mult);
-      state.exp += gained;
-      state.totalExp += gained;
-      state.totemBonus += (gained - base);
-      state.mastered[word.en] = (state.mastered[word.en] || 0) + 1;
-      fb.innerHTML = mult > 1
-        ? `정답! +${gained} EXP <small style="opacity:.8">(토템 ×${mult})</small> 🎉`
-        : `정답! +${gained} EXP 🎉`;
-      fb.className = "feedback ok show";
-    } else {
-      const base = 5;
-      const gained = Math.round(base * mult);
-      state.exp += gained;
-      state.totalExp += gained;
-      state.totemBonus += (gained - base);
-      fb.innerHTML = `아쉬워요! 답은 <b>${word.ko}</b> · +${gained} EXP`;
-      fb.className = "feedback no show";
-    }
-
-    // 새 친구 잠금 해제 체크
-    const beforeUnlocked = FRIENDS.filter(f => (masteredCount() - (correct ? 1 : 0)) >= f.need).length;
-    const afterUnlocked = FRIENDS.filter(f => masteredCount() >= f.need).length;
-    const newFriend = afterUnlocked > beforeUnlocked ? FRIENDS[afterUnlocked - 1] : null;
-
-    // 레벨업 체크
-    let leveledUp = false;
-    while (state.exp >= 100) {
-      state.exp -= 100;
-      state.lv += 1;
-      leveledUp = true;
-    }
-
-    // 토템 드랍 판정
-    let dropped = null;
-    if (leveledUp) {
-      dropped = rollTotem('levelup'); // 레벨업 시 확정
-    } else if (correct) {
-      dropped = rollTotem('correct'); // 정답 시 8% 확률
-    }
-
-    save();
-    renderAll();
-
-    document.getElementById("next-btn").classList.add("show");
-
-    if (leveledUp) {
-      setTimeout(() => showLevelup(newFriend), 600);
-      if (dropped) setTimeout(() => showDrop(dropped), 1800);
-    } else if (newFriend) {
-      setTimeout(() => toast(`새 친구! ${newFriend.name}이(가) 도감에 추가됐어요`), 600);
-      if (dropped) setTimeout(() => showDrop(dropped), 1600);
-    } else if (dropped) {
-      setTimeout(() => showDrop(dropped), 600);
-    }
-  }
-
-  // ── 토템 드랍 ──
-  function rollTotem(trigger) {
-    const unowned = TOTEMS.filter(t => !state.ownedTotems.includes(t.id));
-    if (unowned.length === 0) return null;
-
-    if (trigger === 'levelup') {
-      const r = Math.random();
-      let tier;
-      if (state.lv >= 5 && r < 0.10)      tier = 4;
-      else if (state.lv >= 3 && r < 0.30) tier = 3;
-      else if (r < 0.55)                  tier = 2;
-      else                                tier = 1;
-      const pool = unowned.filter(t => t.tier === tier);
-      return pool.length ? pool[Math.floor(Math.random() * pool.length)] : unowned[0];
-    }
-
-    if (trigger === 'correct') {
-      if (Math.random() > 0.08) return null;
-      const r = Math.random();
-      const tier = (r < 0.05) ? 3 : (r < 0.25) ? 2 : 1;
-      let pool = unowned.filter(t => t.tier === tier);
-      if (pool.length === 0) pool = unowned.filter(t => t.tier === 1);
-      if (pool.length === 0) pool = unowned;
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
-    return null;
-  }
-
-  function showDrop(totem) {
-    state.pendingDrop = totem.id;
-    save();
-    const iconEl = document.getElementById('drop-icon');
-    iconEl.setAttribute('class', `icon-svg tier-${totem.tier}`);
-    iconEl.querySelector('use').setAttribute('href', '#' + totem.svg);
-    document.getElementById('drop-name').textContent = totem.name;
-    document.getElementById('drop-mult').textContent = `×${totem.mult}`;
-    document.getElementById('drop-overlay').classList.add('show');
-  }
-  function closeDrop() {
-    if (state.pendingDrop && !state.ownedTotems.includes(state.pendingDrop)) {
-      state.ownedTotems.push(state.pendingDrop);
-    }
-    state.pendingDrop = null;
-    save(); renderAll();
-    document.getElementById('drop-overlay').classList.remove('show');
-  }
-  function equipDropped() {
-    if (!state.pendingDrop) { closeDrop(); return; }
-    const id = state.pendingDrop;
-    if (!state.ownedTotems.includes(id)) state.ownedTotems.push(id);
-    state.equippedTotem = id;
-    state.pendingDrop = null;
-    save(); renderAll();
-    document.getElementById('drop-overlay').classList.remove('show');
-    const t = getTotem(id);
-    toast(`${t.name} 장착! EXP ×${t.mult}`);
-  }
-
-  function toggleEquipTotem(id) {
-    if (!state.ownedTotems.includes(id)) return;
-    state.equippedTotem = (state.equippedTotem === id) ? null : id;
-    save(); renderAll();
-    if (state.equippedTotem) {
-      const t = getTotem(id);
-      toast(`${t.name} 장착! EXP ×${t.mult}`);
-    } else {
-      toast('토템 해제');
-    }
-  }
-
-  function nextQuiz() {
-    state.quizIdx += 1;
-    save();
-    loadQuiz();
-  }
-
-  function masteredCount() {
-    return Object.keys(state.mastered).length;
+  function masteredCount() { return Object.keys(state.mastered).length; }
+  function unlockedFriends() { return FRIENDS.filter(f => masteredCount() >= f.need); }
+  function daysSince() {
+    return Math.max(1, Math.floor((Date.now() - state.startDate) / 86400000) + 1);
   }
   function shuffle(arr) {
     const a = [...arr];
@@ -1024,126 +996,260 @@
     }
     return a;
   }
+  function trainerId() {
+    const seed = state.startDate % 1000;
+    return String(seed).padStart(3, '0');
+  }
 
-  // ── 레벨업 모달 ──
+  // ── 라우팅 ──
+  function goto(name) {
+    document.body.dataset.screen = name;
+    document.querySelectorAll('.tabbar button').forEach(b => {
+      b.setAttribute('aria-selected', b.dataset.screen === name ? 'true' : 'false');
+    });
+    if (name === "mission") loadQuiz();
+    if (name === "dex") {
+      unlockedFriends().forEach(f => { if (!state.seenDex.includes(f.id)) state.seenDex.push(f.id); });
+      save();
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  // ── 퀴즈 ──
+  let answered = false;
+  function loadQuiz() {
+    answered = false;
+    const fb = document.getElementById("feedback");
+    fb.className = "feedback";
+    document.getElementById("next-btn").classList.remove("show");
+    const idx = state.quizIdx % VOCAB.length;
+    const word = VOCAB[idx];
+    document.getElementById("word-num").textContent = "#" + String(idx + 1).padStart(2, '0');
+    document.getElementById("word-en").textContent = word.en;
+    const all = shuffle([word.ko, ...word.choices]);
+    const c = document.getElementById("choices");
+    c.innerHTML = "";
+    all.forEach((opt, i) => {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.type = "button";
+      b.innerHTML = `<span class="key">${i+1}</span><span>${opt}</span>`;
+      b.onclick = () => answerQuiz(opt, word, b);
+      c.appendChild(b);
+    });
+    updateMissionStats();
+  }
+
+  function answerQuiz(picked, word, btn) {
+    if (answered) return;
+    answered = true;
+    const correct = picked === word.ko;
+    document.querySelectorAll(".choice").forEach(b => {
+      b.disabled = true;
+      const txt = b.querySelector('span:last-child').textContent;
+      if (txt === word.ko) b.classList.add("correct");
+      else if (b === btn && !correct) b.classList.add("wrong");
+    });
+
+    const fb = document.getElementById("feedback");
+    const mult = currentMult();
+    if (correct) {
+      const base = 20, gained = Math.round(base * mult);
+      state.exp += gained; state.totalExp += gained;
+      state.mastered[word.en] = (state.mastered[word.en] || 0) + 1;
+      fb.innerHTML = mult > 1
+        ? `정답 <small>·</small> +${gained} EXP <small>(×${mult})</small>`
+        : `정답 <small>·</small> +${gained} EXP`;
+      fb.className = "feedback ok show";
+    } else {
+      const base = 5, gained = Math.round(base * mult);
+      state.exp += gained; state.totalExp += gained;
+      fb.innerHTML = `정답: <b>${word.ko}</b> <small>·</small> +${gained} EXP`;
+      fb.className = "feedback no show";
+    }
+
+    const before = unlockedFriends().length;
+    let leveledUp = false;
+    while (state.exp >= 100) { state.exp -= 100; state.lv++; leveledUp = true; }
+    const after = unlockedFriends().length;
+    const newFriend = after > before ? FRIENDS[after - 1] : null;
+
+    let dropped = null;
+    if (leveledUp) dropped = rollTotem('levelup');
+    else if (correct) dropped = rollTotem('correct');
+
+    save(); renderAll();
+    document.getElementById("next-btn").classList.add("show");
+
+    if (leveledUp) {
+      setTimeout(() => showLevelup(newFriend), 500);
+      if (dropped) setTimeout(() => showDrop(dropped), 1700);
+    } else if (newFriend) {
+      setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 500);
+      if (dropped) setTimeout(() => showDrop(dropped), 1500);
+    } else if (dropped) {
+      setTimeout(() => showDrop(dropped), 500);
+    }
+  }
+  function nextQuiz() { state.quizIdx++; save(); loadQuiz(); }
+
+  // ── 드랍 / 모달 ──
+  function rollTotem(trigger) {
+    const unowned = TOTEMS.filter(t => !state.ownedTotems.includes(t.id));
+    if (!unowned.length) return null;
+    if (trigger === 'levelup') {
+      const r = Math.random();
+      let target;
+      if (state.lv >= 5 && r < 0.10) target = 3.0;
+      else if (state.lv >= 3 && r < 0.30) target = 2.5;
+      else if (r < 0.55) target = 2.0;
+      else target = 1.5;
+      const pool = unowned.filter(t => t.mult === target);
+      return pool.length ? pool[Math.floor(Math.random() * pool.length)] : unowned[0];
+    }
+    if (trigger === 'correct') {
+      if (Math.random() > 0.08) return null;
+      const r = Math.random();
+      const target = r < 0.05 ? 2.5 : r < 0.25 ? 2.0 : 1.5;
+      let pool = unowned.filter(t => t.mult === target);
+      if (!pool.length) pool = unowned.filter(t => t.mult === 1.5);
+      if (!pool.length) pool = unowned;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    return null;
+  }
+  function showDrop(t) {
+    state.pendingDrop = t.id; save();
+    const wrap = document.getElementById('drop-icon-wrap');
+    wrap.className = 'ov-icon bg-' + t.type;
+    document.getElementById('drop-icon').querySelector('use').setAttribute('href', '#' + t.svg);
+    document.getElementById('drop-name').textContent = t.name;
+    document.getElementById('drop-mult').textContent = t.mult.toFixed(1);
+    document.getElementById('drop-ov').classList.add('show');
+  }
+  function closeDrop() {
+    if (state.pendingDrop && !state.ownedTotems.includes(state.pendingDrop)) {
+      state.ownedTotems.push(state.pendingDrop);
+    }
+    state.pendingDrop = null;
+    save(); renderAll();
+    document.getElementById('drop-ov').classList.remove('show');
+  }
+  function equipDropped() {
+    if (!state.pendingDrop) { closeDrop(); return; }
+    const id = state.pendingDrop;
+    if (!state.ownedTotems.includes(id)) state.ownedTotems.push(id);
+    state.equippedTotem = id;
+    state.pendingDrop = null;
+    save(); renderAll();
+    document.getElementById('drop-ov').classList.remove('show');
+    const t = getTotem(id);
+    toast(`${t.name} 장착 · ×${t.mult}`);
+  }
+  function toggleEquipTotem(id) {
+    if (!state.ownedTotems.includes(id)) return;
+    state.equippedTotem = state.equippedTotem === id ? null : id;
+    save(); renderAll();
+    if (state.equippedTotem) toast(`${getTotem(id).name} 장착 · ×${getTotem(id).mult}`);
+    else toast('해제됨');
+  }
   function showLevelup(newFriend) {
-    document.getElementById("lu-lv").textContent = state.lv;
-    document.getElementById("lu-msg").textContent = newFriend
-      ? `새 친구 ${newFriend.name}이(가) 도감에 추가됐어요`
-      : "토토와 더 친해졌어요";
-    document.getElementById("levelup").classList.add("show");
+    document.getElementById('lu-lv').textContent = state.lv;
+    document.getElementById('lu-msg').textContent = newFriend
+      ? `친구 추가: ${newFriend.name}`
+      : '경험치를 채웠어요';
+    document.getElementById('lvup-ov').classList.add('show');
   }
-  function closeLevelup() {
-    document.getElementById("levelup").classList.remove("show");
-  }
+  function closeLevelup() { document.getElementById('lvup-ov').classList.remove('show'); }
 
-  // ── 토스트 ──
-  let toastTimer = null;
+  let toastT = null;
   function toast(msg) {
-    const el = document.getElementById("toast");
+    const el = document.getElementById('toast');
     el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+    el.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => el.classList.remove('show'), 2000);
   }
 
   // ── 렌더 ──
-  function daysSince() {
-    const ms = Date.now() - state.startDate;
-    return Math.max(1, Math.floor(ms / (1000 * 60 * 60 * 24)) + 1);
-  }
-
-  function renderHome() {
-    document.getElementById("days").textContent = daysSince();
-    document.getElementById("lv-home").textContent = state.lv;
-    document.getElementById("exp-home").textContent = state.exp;
-    document.getElementById("prog-home").value = state.exp;
-
-    const need = Math.max(0, 100 - state.exp);
-    const msg = need === 0
-      ? `곧 LV.${state.lv + 1} 달성!`
-      : `EXP <b>${need}</b> 더 모으면<br>토토가 자라요`;
-    document.getElementById("mission-msg").innerHTML = msg;
-
-    // 표정: exp가 적으면 hungry, 90+면 happy, 그 외 default
-    const toto = document.querySelector(".home .toto");
-    if (toto) {
-      if (state.exp >= 90) toto.dataset.mood = "happy";
-      else if (state.exp < 20) toto.dataset.mood = "hungry";
-      else toto.dataset.mood = "happy";
-    }
-  }
-
   function updateMissionStats() {
     document.getElementById("exp-mission").textContent = state.exp;
     document.getElementById("mastered-mission").textContent = masteredCount();
   }
+  function renderHome() {
+    document.getElementById("trainer-id").textContent = trainerId();
+    document.getElementById("lv-home").textContent = state.lv;
+    document.getElementById("exp-home").textContent = state.exp;
+    document.getElementById("exp-fill").style.width = state.exp + "%";
+    document.getElementById("stage-num").textContent = Math.min(3, Math.ceil(state.lv / 3));
+    const m = currentMult();
+    const onEl = document.getElementById('totem-on');
+    if (m > 1) {
+      onEl.hidden = false;
+      document.getElementById('totem-on-val').textContent = m.toFixed(1);
+    } else {
+      onEl.hidden = true;
+    }
+    document.getElementById('hs-words').textContent = masteredCount();
+    document.getElementById('hs-friends').textContent = unlockedFriends().length;
+    document.getElementById('hs-totems').textContent = state.ownedTotems.length;
+    document.getElementById('hs-days').textContent = daysSince();
 
-  function renderDex() {
-    const grid = document.getElementById("dex-grid");
-    grid.innerHTML = "";
-    let unlockedCount = 0;
-    FRIENDS.forEach(f => {
-      const unlocked = masteredCount() >= f.need;
-      if (unlocked) unlockedCount++;
-      const isNew = unlocked && !state.seenDex.includes(f.id);
-      const btn = document.createElement("button");
-      btn.className = "dex-cell" + (f.rare ? " " + f.rare : "") + (unlocked ? "" : " locked") + (isNew ? " new" : "");
-      btn.setAttribute("aria-label", unlocked ? f.name : `잠긴 친구 (단어 ${f.need}개 필요)`);
-      if (unlocked) {
-        if (f.id === "toto") {
-          btn.innerHTML = `<svg viewBox="0 0 120 120" aria-hidden="true"><use href="#toto"/></svg>`;
-        } else {
-          btn.textContent = f.emoji;
-        }
-      } else {
-        btn.textContent = "?";
-      }
-      grid.appendChild(btn);
-    });
-    document.getElementById("dex-count").textContent = unlockedCount;
-    document.getElementById("mastered-dex").textContent = masteredCount();
-  }
-
-  function renderMe() {
-    document.getElementById("lv-me").textContent = state.lv;
-    document.getElementById("totalexp-me").textContent = state.totalExp;
-    document.getElementById("mastered-me").textContent = masteredCount();
-    document.getElementById("dex-me").textContent = FRIENDS.filter(f => masteredCount() >= f.need).length;
-    document.getElementById("days-me").textContent = daysSince();
-  }
-
-  function renderHomeTotem() {
-    const slot = document.getElementById('home-totem-slot');
-    const plus = document.getElementById('home-totem-plus');
-    const svg = document.getElementById('home-totem-svg');
-    const svgUse = document.getElementById('home-totem-svg-use');
-    const empty = document.getElementById('home-totem-empty');
-    const mult = document.getElementById('home-totem-mult');
-    if (!slot) return;
+    // 슬롯
+    const slot = document.getElementById('home-slot');
+    const plus = document.getElementById('home-slot-plus');
+    const svg = document.getElementById('home-slot-svg');
+    const use = document.getElementById('home-slot-use');
+    const mult = document.getElementById('home-slot-mult');
     if (state.equippedTotem) {
       const t = getTotem(state.equippedTotem);
       slot.classList.add('equipped'); slot.classList.remove('empty');
-      slot.setAttribute('aria-label', `${t.name} 장착됨, EXP ×${t.mult}`);
-      plus.hidden = true;
-      svg.hidden = false;
-      svgUse.setAttribute('href', '#' + t.svg);
-      empty.hidden = true;
-      mult.hidden = false;
-      mult.textContent = `×${t.mult}`;
+      slot.setAttribute('aria-label', `${t.name} 장착됨`);
+      plus.hidden = true; svg.hidden = false;
+      use.setAttribute('href', '#' + t.svg);
+      mult.hidden = false; mult.textContent = `×${t.mult}`;
     } else {
       slot.classList.remove('equipped'); slot.classList.add('empty');
       slot.setAttribute('aria-label', '토템 미장착');
-      plus.hidden = false;
-      svg.hidden = true;
-      empty.hidden = false;
-      mult.hidden = true;
+      plus.hidden = false; svg.hidden = true; mult.hidden = true;
     }
   }
 
+  function renderDex() {
+    const list = document.getElementById('dex-list');
+    list.innerHTML = '';
+    let unlocked = 0;
+    FRIENDS.forEach((f, i) => {
+      const ok = masteredCount() >= f.need;
+      if (ok) unlocked++;
+      const row = document.createElement('div');
+      row.className = 'dex-row' + (ok ? '' : ' locked');
+      row.innerHTML = `
+        <div class="dex-num">No.${String(i+1).padStart(3,'0')}</div>
+        <div class="dex-spr">${ok ? f.emoji : '?'}</div>
+        <div class="dex-info">
+          <div class="dex-name">
+            ${ok ? f.name : '???'}
+            ${ok ? `<span class="tc-type bg-${f.type}">${TYPE_LABEL[f.type]}</span>` : ''}
+          </div>
+          <div class="dex-need">${ok ? f.desc : `단어 ${f.need}개 모으기`}</div>
+        </div>
+        <div class="dex-status">${ok ? '획득' : '미발견'}</div>
+      `;
+      list.appendChild(row);
+    });
+    document.getElementById('dex-count').textContent = unlocked;
+  }
+
   function renderTotems() {
-    document.getElementById('totem-owned').textContent = `${state.ownedTotems.length} / ${TOTEMS.length} 보유`;
-    document.getElementById('totem-mult-now').textContent = `×${currentMult().toFixed(1)}`;
+    document.getElementById('totem-mult-now').textContent = '×' + currentMult().toFixed(1);
+    document.getElementById('totem-owned').textContent = state.ownedTotems.length;
+    const eqEl = document.getElementById('totem-eq-name');
+    if (state.equippedTotem) {
+      eqEl.innerHTML = getTotem(state.equippedTotem).name;
+    } else {
+      eqEl.innerHTML = '<span class="none">미장착</span>';
+    }
 
     const grid = document.getElementById('totem-grid');
     grid.innerHTML = '';
@@ -1156,52 +1262,36 @@
       cell.setAttribute('aria-label',
         owned ? `${t.name}${equipped ? ' (장착됨)' : ''}, EXP ×${t.mult}` : '잠긴 토템');
       cell.innerHTML = `
-        <svg class="tc-icon-svg tier-${t.tier}" aria-hidden="true"><use href="#${t.svg}"/></svg>
-        <span class="tc-name">${owned ? t.name : '???'}</span>
-        <span class="tc-mult">×${t.mult}</span>
+        <div class="tc-icon bg-${t.type}">
+          <svg aria-hidden="true"><use href="#${t.svg}"/></svg>
+        </div>
+        <div class="tc-info">
+          <div class="tc-name">${owned ? t.name : '???'}</div>
+          <div class="tc-mult">${owned ? '×' + t.mult.toFixed(1) : '미발견'}</div>
+        </div>
       `;
       if (owned) cell.onclick = () => toggleEquipTotem(t.id);
       grid.appendChild(cell);
     });
   }
 
+  function renderMe() {
+    document.getElementById('lv-me').textContent = state.lv;
+    document.getElementById('totalexp-me').textContent = state.totalExp;
+    document.getElementById('mastered-me').textContent = masteredCount();
+    document.getElementById('dex-me').textContent = unlockedFriends().length;
+    document.getElementById('totem-me').textContent = state.ownedTotems.length;
+    document.getElementById('days-me').textContent = daysSince();
+  }
+
   function renderAll() {
     renderHome();
-    renderHomeTotem();
     updateMissionStats();
     renderDex();
     renderTotems();
     renderMe();
   }
 
-  // ── 시선 추적 ──
-  (function () {
-    const stage = document.querySelector('.stage');
-    const eyes = document.querySelector('.home .toto .eyes');
-    if (!stage || !eyes) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    function track(e) {
-      const r = stage.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = (e.clientX - cx) / r.width;
-      const dy = (e.clientY - cy) / r.height;
-      const x = Math.max(-3, Math.min(3, dx * 8));
-      const y = Math.max(-2, Math.min(2, dy * 6));
-      eyes.style.transform = `translate(${x}px, ${y}px)`;
-    }
-    stage.addEventListener('pointermove', track);
-    stage.addEventListener('pointerleave', () => { eyes.style.transform = ''; });
-
-    setInterval(() => {
-      if (eyes.style.transform) return;
-      eyes.style.transform = 'translate(0, 1.5px)';
-      setTimeout(() => { eyes.style.transform = ''; }, 900);
-    }, 5200);
-  })();
-
-  // ── 초기화 ──
   renderAll();
 </script>
 </body>
