@@ -28,6 +28,8 @@
     --t-bolt:     #e8b521;
     --t-mind:     #b73d8a;
     --t-rock:     #6f5b48;
+    --t-grass-soft: #ecf6ef;
+    --t-water-soft: #eaf2fb;
 
     --r-sm: 4px;
     --r-md: 8px;
@@ -447,7 +449,7 @@
     text-transform: uppercase; letter-spacing: 0.05em;
   }
   .tb-tag.unit { background: #e0ecf9; color: var(--t-water); }
-  .tb-tag.pos  { background: #ecf6ef; color: var(--t-grass); }
+  .tb-tag.pos  { background: var(--t-grass-soft); color: var(--t-grass); }
   .tb-en {
     font-size: 22px; font-weight: 900;
     letter-spacing: -0.03em;
@@ -1270,7 +1272,7 @@
   }
   .mood-badge.happy { border-color: var(--t-grass); }
   .mood-badge.sad { border-color: var(--t-water); }
-  .mood-badge.fire { border-color: var(--pri); background: var(--pri); }
+  .mood-badge.fire { border-color: var(--pri); background: var(--pri); color: #fff; }
   /* 친밀도 표시 */
   .bond-row {
     display: flex; align-items: center; gap: 6px;
@@ -1330,8 +1332,8 @@
     transition: opacity .2s, transform .2s var(--ease-quart);
   }
   .qb-bubble.show { opacity: 1; transform: translateX(0); }
-  .qb-bubble.cheer { color: var(--t-grass); border-color: var(--t-grass); background: #ecf6ef; }
-  .qb-bubble.sad { color: var(--t-water); border-color: var(--t-water); background: #eaf2fb; }
+  .qb-bubble.cheer { color: var(--t-grass); border-color: var(--t-grass); background: var(--t-grass-soft); }
+  .qb-bubble.sad { color: var(--t-water); border-color: var(--t-water); background: var(--t-water-soft); }
   .qb-bubble::before {
     content: '';
     position: absolute;
