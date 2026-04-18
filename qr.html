@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
   :root {
     --cream:        oklch(97% 0.018 78);
@@ -314,36 +314,58 @@
   const APP_URL = "https://sigongjoa.github.io/word-gacha-mockup/";
   document.getElementById("url-text").textContent = APP_URL.replace(/^https:\/\//, "");
 
-  // QR 생성 (오류복원율 H = 30%, 가운데 토토 박을 여유)
-  QRCode.toString(APP_URL, {
-    type: "svg",
-    errorCorrectionLevel: "H",
-    margin: 1,
-    width: 360,
-    color: {
-      dark: "#3d2747",   // ink 근사값
-      light: "#00000000"
-    }
-  }, (err, svg) => {
-    if (err) { document.getElementById("qr").textContent = APP_URL; return; }
-    document.getElementById("qr").innerHTML = svg;
-
-    // 가운데 토토 오버레이
+  // QR 생성: qrcode-generator (오류복원율 H = 30%, 가운데 토토 박을 여유)
+  function renderQR() {
     const container = document.getElementById("qr");
-    container.style.position = "relative";
-    const overlay = document.createElement("div");
-    overlay.style.cssText = `
-      position: absolute; inset: 0; margin: auto;
-      width: 28%; height: 28%;
-      background: white;
-      border: 3px solid var(--ink);
-      border-radius: 50%;
-      display: grid; place-items: center;
-      padding: 4%;
-    `;
-    overlay.innerHTML = `<svg viewBox="0 0 120 120" style="width:100%;height:100%"><use href="#toto"/></svg>`;
-    container.appendChild(overlay);
-  });
+    try {
+      const qr = qrcode(0, 'H');
+      qr.addData(APP_URL);
+      qr.make();
+
+      const count = qr.getModuleCount();
+      const cell = 10;
+      const size = count * cell;
+      let rects = "";
+      for (let r = 0; r < count; r++) {
+        for (let c = 0; c < count; c++) {
+          if (qr.isDark(r, c)) {
+            rects += `<rect x="${c * cell}" y="${r * cell}" width="${cell}" height="${cell}"/>`;
+          }
+        }
+      }
+      container.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" style="width:100%;height:100%;display:block;fill:#3d2747">
+          ${rects}
+        </svg>`;
+
+      // 가운데 토토 오버레이
+      container.style.position = "relative";
+      const overlay = document.createElement("div");
+      overlay.style.cssText = `
+        position: absolute; inset: 0; margin: auto;
+        width: 26%; height: 26%;
+        background: white;
+        border: 3px solid #3d2747;
+        border-radius: 50%;
+        display: grid; place-items: center;
+        padding: 4%;
+      `;
+      overlay.innerHTML = `<svg viewBox="0 0 120 120" style="width:100%;height:100%"><use href="#toto"/></svg>`;
+      container.appendChild(overlay);
+    } catch (e) {
+      console.error("QR render error", e);
+      container.textContent = APP_URL;
+    }
+  }
+
+  if (typeof qrcode === "function") {
+    renderQR();
+  } else {
+    window.addEventListener("load", () => {
+      if (typeof qrcode === "function") renderQR();
+      else document.getElementById("qr").textContent = APP_URL;
+    });
+  }
 
   function copyURL() {
     navigator.clipboard.writeText(APP_URL).then(() => {
