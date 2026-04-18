@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fbf3e3">
+<title>Word Gacha · 단어 가챠</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* UI 3색만 */
+    --cream:        oklch(97% 0.018 78);
+    --cream-deep:   oklch(93% 0.04 78);
+    --divider:      oklch(88% 0.04 78);
+    --ink:          oklch(34% 0.05 330);
+    --ink-soft:     oklch(48% 0.05 330);     /* 4.5:1+ on cream */
+    --berry:        oklch(58% 0.20 10);
+    --berry-deep:   oklch(46% 0.22 10);
+
+    /* 캐릭터 전용 */
+    --pal-fur:        oklch(86% 0.09 50);
+    --pal-ear:        oklch(78% 0.13 28);
+    --pal-ear-inner:  oklch(86% 0.09 18);
+    --pal-belly:      oklch(95% 0.04 78);
+    --pal-cheek:      oklch(72% 0.18 18);
+    --pal-eye:        oklch(20% 0.04 330);
+
+    /* 도감 등급색 */
+    --rare-r:   oklch(83% 0.07 295);
+    --rare-e:   oklch(91% 0.10 86);
+    --rare-l:   oklch(86% 0.09 50);
+
+    /* 학생 타겟 폰트 시스템 (3종) */
+    --display: "Jua", system-ui, sans-serif;        /* 한글 헤드라인·캐릭터 이름 */
+    --body:    "Jua", system-ui, sans-serif;        /* 한글 본문 (Jua는 본문 가독성도 OK) */
+    --num:     "Bagel Fat One", "Jua", sans-serif;  /* 숫자·LV·진행률 강조 */
+    --en:      "Fredoka", "Jua", sans-serif;        /* 영단어 */
+
+    --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-soft: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --cream:      oklch(22% 0.02 330);
+      --cream-deep: oklch(28% 0.025 330);
+      --divider:    oklch(34% 0.03 330);
+      --ink:        oklch(94% 0.02 78);
+      --ink-soft:   oklch(76% 0.04 78);
+      --berry:      oklch(72% 0.18 12);
+      --berry-deep: oklch(58% 0.20 12);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100dvh;
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .visually-hidden { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .n { font-family: var(--num); font-weight: normal; letter-spacing: 0.02em; color: var(--ink); }
+
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 3px dashed var(--berry);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+
+  .skip {
+    position: absolute; left: -9999px;
+    padding: 10px 16px;
+    background: var(--berry); color: white;
+    border-radius: 10px; font-weight: 600;
+    text-decoration: none;
+  }
+  .skip:focus { left: 12px; top: 12px; z-index: 999; }
+
+  /* 앱 컨테이너 */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    position: relative;
+  }
+
+  /* 탑바 */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 6px;
+    height: 64px;
+  }
+  .wordmark { height: 40px; width: auto; display: block; }
+  .topbar .bell {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: transparent; border: 0;
+    display: grid; place-items: center;
+    color: var(--ink);
+    position: relative;
+    cursor: pointer;
+  }
+  .topbar .bell::after {
+    content: "";
+    position: absolute;
+    top: 11px; right: 11px;
+    width: 9px; height: 9px;
+    background: var(--berry);
+    border-radius: 50%;
+    border: 2px solid var(--cream);
+  }
+
+  /* 화면 토글 */
+  .screen { display: none; padding: 0 20px; }
+  body[data-screen="home"]    .screen.home    { display: block; }
+  body[data-screen="mission"] .screen.mission { display: block; }
+  body[data-screen="dex"]     .screen.dex     { display: block; }
+  body[data-screen="me"]      .screen.me      { display: block; }
+
+  /* ── 홈 화면 ─── */
+  .stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto 4px;
+    touch-action: none;
+  }
+  .stage::before {
+    content: "";
+    position: absolute;
+    width: 78%; aspect-ratio: 1;
+    background: var(--cream-deep);
+    border-radius: 50%;
+    z-index: 0;
+    transform: translateY(8%);
+  }
+  .toto {
+    position: relative;
+    width: 70%;
+    height: 70%;
+    z-index: 1;
+    will-change: transform;
+  }
+
+  .name-line {
+    text-align: center;
+    font-family: var(--display);
+    font-size: 1.7rem;
+    color: var(--ink);
+    line-height: 1.1;
+    margin: 0 0 18px;
+  }
+  .name-line small {
+    display: block;
+    font-family: var(--body);
+    font-size: .82rem;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .progress-line { margin: 0 0 22px; }
+  .progress-row {
+    display: flex; justify-content: space-between;
+    font-size: .85rem; color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .progress-row b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1rem; letter-spacing: 0.02em; }
+  progress {
+    width: 100%; height: 14px;
+    appearance: none; -webkit-appearance: none;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--cream-deep);
+    border: 0;
+    display: block;
+  }
+  progress::-webkit-progress-bar { background: var(--cream-deep); border-radius: 999px; }
+  progress::-webkit-progress-value { background: var(--berry); border-radius: 999px; transition: width .6s var(--ease-out); }
+  progress::-moz-progress-bar { background: var(--berry); border-radius: 999px; }
+
+  .mission-call {
+    background: var(--cream-deep);
+    border-radius: 24px;
+    padding: 22px 22px 24px;
+    text-align: center;
+  }
+  .mission-call p {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .mission-call b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.2em; letter-spacing: 0.02em; }
+
+  .cta {
+    display: block;
+    width: 100%;
+    min-height: 56px;
+    padding: 14px 20px;
+    background: var(--berry);
+    color: white;
+    border: 0;
+    border-radius: 18px;
+    font-family: var(--body);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--berry-deep);
+    transform: translateY(0);
+    transition: transform .12s var(--ease-soft), box-shadow .12s var(--ease-soft);
+  }
+  .cta:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--berry-deep);
+  }
+
+  /* ── 미션 화면 ─── */
+  .screen-title {
+    font-family: var(--display);
+    font-size: 2.1rem;
+    margin: 4px 0 2px;
+    line-height: 1;
+  }
+  .screen-sub {
+    color: var(--ink-soft);
+    font-size: .9rem;
+    margin: 0 0 22px;
+  }
+  .mission-card {
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    background: var(--cream);
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .mission-card .icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    background: var(--cream-deep);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .mission-card .meaning {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .mission-card .word {
+    font-family: var(--en);
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+  .mission-card .badge {
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: .78rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--cream-deep);
+    color: var(--ink-soft);
+  }
+  .mission-card.done .badge { background: var(--berry); color: white; }
+  .mission-card.done .icon { background: var(--berry); color: white; }
+  .mission-card.locked { opacity: .5; border-style: dashed; }
+
+  /* ── 도감 화면 ─── */
+  .dex-stats {
+    display: flex; justify-content: space-between;
+    margin-bottom: 18px;
+    font-family: var(--display);
+    font-size: 1.2rem;
+  }
+  .dex-stats b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.1rem; }
+  .dex-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .dex-cell {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    background: var(--cream-deep);
+    display: grid; place-items: center;
+    font-size: 1.7rem;
+    border: 0;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    min-height: 64px;
+    line-height: 1;
+  }
+  .dex-cell.r { background: var(--rare-r); }
+  .dex-cell.e { background: var(--rare-e); }
+  .dex-cell.l { background: var(--rare-l); }
+  .dex-cell.locked { background: var(--cream-deep); color: var(--ink-soft); font-family: var(--display); }
+  .dex-cell.new::before {
+    content: "NEW";
+    position: absolute;
+    top: 4px; right: 4px;
+    font-family: var(--body);
+    font-size: .55rem;
+    font-weight: 700;
+    background: var(--berry);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+  }
+  .dex-cell svg { width: 70%; height: 70%; }
+
+  /* ── 나 화면 ─── */
+  .profile { text-align: center; margin: 8px 0 20px; }
+  .profile h2 { margin: 0 0 4px; font-size: 1.6rem; font-family: var(--display); }
+  .profile small { color: var(--ink-soft); font-size: .9rem; }
+
+  .stat-list {
+    list-style: none;
+    margin: 0 0 22px;
+    padding: 16px 20px;
+    background: var(--cream-deep);
+    border-radius: 18px;
+  }
+  .stat-list li {
+    display: flex; justify-content: space-between;
+    padding: 10px 0;
+    font-size: .95rem;
+    border-bottom: 1px solid var(--divider);
+  }
+  .stat-list li:last-child { border: 0; }
+  .stat-list li b { color: var(--berry); font-family: var(--num); font-weight: normal; font-size: 1.05rem; letter-spacing: 0.02em; }
+
+  .maker-lock {
+    border: 3px dashed var(--ink-soft);
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+  .maker-lock h3 { margin: 0 0 4px; font-family: var(--display); font-size: 1.4rem; color: var(--ink); }
+  .maker-lock p { margin: 0; font-size: .85rem; }
+  .maker-lock .bar { height: 8px; background: var(--cream-deep); border-radius: 999px; margin: 14px 0 6px; overflow: hidden; }
+  .maker-lock .bar i { display: block; height: 100%; width: 38%; background: var(--berry); }
+  .maker-lock small { font-family: var(--num); font-size: .95rem; color: var(--ink); letter-spacing: 0.02em; }
+
+  /* ── 탭바 ─── */
+  .tabbar {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--cream);
+    border-top: 1px solid var(--cream-deep);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    z-index: 50;
+  }
+  .tabbar button {
+    background: transparent; border: 0;
+    padding: 6px 4px;
+    display: grid; justify-items: center; gap: 4px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: .72rem;
+    font-weight: 600;
+    min-height: 56px;
+  }
+  .tabbar button[aria-selected="true"] { color: var(--berry); }
+  .tabbar svg { width: 22px; height: 22px; }
+
+  /* ── 캐릭터 idle 애니메이션 (4 layer) ─── */
+  /* 1. 호흡 */
+  .toto .body-grp {
+    transform-origin: 60px 100px;
+    animation: breathe 3.2s ease-in-out infinite;
+  }
+  /* 2. 귀 */
+  .toto .ear-l {
+    transform-origin: 38px 32px;
+    animation: earwiggle 8s ease-in-out infinite;
+  }
+  /* 3. 시선 (JS 제어) */
+  .toto .eyes {
+    transition: transform .35s var(--ease-out);
+    transform-origin: 60px 58px;
+    animation: blink 5.4s step-end infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.025); }
+  }
+  @keyframes earwiggle {
+    0%, 86%, 100% { transform: rotate(0); }
+    90% { transform: rotate(10deg); }
+    94% { transform: rotate(-3deg); }
+    98% { transform: rotate(0); }
+  }
+  @keyframes blink {
+    0%, 92%, 100% { opacity: 1; }
+    94%, 96% { opacity: 0; }
+  }
+
+  /* mood 변형 (입은 JS로 path 교체, 눈은 CSS) */
+  .toto[data-mood="sleepy"] .eyes { animation: none; opacity: .55; }
+  .toto[data-mood="hungry"] .mouth-h { display: inline; }
+  .toto .mouth-h { display: none; }
+  .toto[data-mood="hungry"] .mouth-default { display: none; }
+  .toto[data-mood="sleepy"] .mouth-s { display: inline; }
+  .toto .mouth-s { display: none; }
+  .toto[data-mood="sleepy"] .mouth-default { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toto .body-grp, .toto .ear-l { animation: none !important; }
+    .toto .eyes { transition: none !important; transform: none !important; animation: blink 5.4s step-end infinite; }
+  }
+
+  /* 작은 화면 보정 */
+  @media (max-height: 700px) {
+    .toto { width: 60%; height: 60%; }
+    .stage { aspect-ratio: 1.15; }
+    .name-line { margin-bottom: 12px; }
+    .mission-call { padding: 18px; }
+  }
+</style>
+</head>
+<body data-screen="home">
+
+<a href="#main" class="skip">본문으로 건너뛰기</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+
+    <!-- 토토 캐릭터 -->
+    <symbol id="toto" viewBox="0 0 120 120">
+      <g class="body-grp">
+        <g class="ear-l">
+          <ellipse cx="38" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
+          <ellipse cx="38" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
+        </g>
+        <g class="ear-r">
+          <ellipse cx="82" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
+          <ellipse cx="82" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
+        </g>
+        <ellipse cx="60" cy="62" rx="34" ry="32" fill="var(--pal-fur)" stroke="var(--ink)" stroke-width="2.5"/>
+        <ellipse cx="60" cy="78" rx="20" ry="13" fill="var(--pal-belly)"/>
+        <circle cx="36" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
+        <circle cx="84" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
+        <g class="eyes">
+          <ellipse cx="48" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
+          <ellipse cx="72" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
+          <circle cx="49.5" cy="56.5" r="1.5" fill="white"/>
+          <circle cx="73.5" cy="56.5" r="1.5" fill="white"/>
+        </g>
+        <path class="mouth-default" d="M 56 70 Q 60 73 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
+        <ellipse class="mouth-h" cx="60" cy="72" rx="3.5" ry="3" fill="var(--ink)"/>
+        <path class="mouth-s" d="M 56 70 Q 60 71.5 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+    </symbol>
+
+    <!-- 워드마크: Fredoka 라틴 + Jua 한글 부제 -->
+    <symbol id="wordmark" viewBox="0 0 220 60">
+      <text x="2" y="34" font-family="Fredoka" font-weight="700" font-size="28" fill="var(--ink)" letter-spacing="-0.5">word</text>
+      <circle cx="80" cy="14" r="2.4" fill="var(--berry)"/>
+      <text x="80" y="36" font-family="Bagel Fat One" font-size="30" fill="var(--berry)" letter-spacing="-0.5">gacha</text>
+      <text x="2" y="52" font-family="Jua" font-size="11" fill="var(--ink-soft)">단어 가챠</text>
+    </symbol>
+
+    <symbol id="ic-home" viewBox="0 0 24 24">
+      <path d="M 4 12 L 12 5 L 20 12 L 20 20 L 14 20 L 14 14 L 10 14 L 10 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-mission" viewBox="0 0 24 24">
+      <rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M 8 11 L 11 14 L 16 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-dex" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+    </symbol>
+    <symbol id="ic-me" viewBox="0 0 24 24">
+      <circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-bell" viewBox="0 0 24 24">
+      <path d="M 6 17 Q 6 10 12 10 Q 18 10 18 17 L 19 19 L 5 19 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 10 20 Q 12 22 14 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+
+  </defs>
+</svg>
+
+<div class="app" id="main" tabindex="-1">
+
+  <header class="topbar">
+    <h1 style="margin:0">
+      <a href="#" aria-label="Word Gacha 홈" onclick="goto('home');return false;" style="display:block">
+        <svg class="wordmark" viewBox="0 0 220 60" aria-hidden="true"><use href="#wordmark"/></svg>
+      </a>
+    </h1>
+    <button class="bell" aria-label="알림 1건">
+      <svg width="24" height="24" aria-hidden="true"><use href="#ic-bell"/></svg>
+    </button>
+  </header>
+
+  <!-- ─── 홈 ─── -->
+  <section class="screen home" aria-labelledby="home-h">
+    <h2 id="home-h" class="visually-hidden">홈</h2>
+
+    <div class="stage" aria-label="토토와 함께하는 공간">
+      <svg class="toto" data-mood="happy" viewBox="0 0 120 120" role="img" aria-label="토토 (LV.2). 화면을 누르면 토토가 그쪽을 봐요.">
+        <use href="#toto"/>
+      </svg>
+    </div>
+
+    <p class="name-line">
+      토토
+      <small>함께한 지 <span class="n">6</span>일째 · <span class="n">LV.2</span></small>
+    </p>
+
+    <div class="progress-line">
+      <div class="progress-row"><span>다음 단계까지</span><span><b>67</b> / 100</span></div>
+      <progress value="67" max="100" aria-label="진화 진행률 67%"></progress>
+    </div>
+
+    <div class="mission-call">
+      <p>오늘 단어 <b>3개</b> 더 외우면<br>토토가 자라요</p>
+      <button class="cta" type="button" onclick="goto('mission')">학습하러 가기 →</button>
+    </div>
+  </section>
+
+  <!-- ─── 미션 ─── -->
+  <section class="screen mission" aria-labelledby="mission-h">
+    <h2 id="mission-h" class="screen-title">오늘의 단어</h2>
+    <p class="screen-sub">3개 중 1개 외움</p>
+
+    <article class="mission-card done">
+      <div class="icon" aria-hidden="true">✓</div>
+      <div>
+        <div class="meaning">목초지</div>
+        <div class="word">meadow</div>
+      </div>
+      <div class="badge">완료</div>
+    </article>
+
+    <article class="mission-card">
+      <div class="icon" aria-hidden="true">📖</div>
+      <div>
+        <div class="meaning">속삭이다</div>
+        <div class="word">whisper</div>
+      </div>
+      <div class="badge">진행</div>
+    </article>
+
+    <article class="mission-card locked" aria-label="잠긴 미션">
+      <div class="icon" aria-hidden="true">🔒</div>
+      <div>
+        <div class="meaning">잠겨 있어요</div>
+        <div class="word">앞 단어 완료 시 열림</div>
+      </div>
+      <div class="badge">대기</div>
+    </article>
+  </section>
+
+  <!-- ─── 도감 ─── -->
+  <section class="screen dex" aria-labelledby="dex-h">
+    <h2 id="dex-h" class="screen-title">친구 도감</h2>
+    <div class="dex-stats">
+      <span>모은 친구 <b>8</b> / 30</span>
+      <span>다음까지 <b>2</b>마리</span>
+    </div>
+    <div class="dex-grid">
+      <button class="dex-cell" aria-label="토토"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#toto"/></svg></button>
+      <button class="dex-cell" aria-label="미미">🐱</button>
+      <button class="dex-cell" aria-label="초코">🐰</button>
+      <button class="dex-cell r" aria-label="바닐라 (Rare)">🦊</button>
+      <button class="dex-cell r" aria-label="푸딩 (Rare)">🐻</button>
+      <button class="dex-cell e new" aria-label="유니콘 (Epic, 새로 획득)">🦄</button>
+      <button class="dex-cell" aria-label="삐약">🐤</button>
+      <button class="dex-cell r new" aria-label="고래 (Rare, 새로 획득)">🐳</button>
+      <button class="dex-cell locked" aria-label="잠긴 친구">?</button>
+      <button class="dex-cell locked" aria-label="잠긴 친구">?</button>
+      <button class="dex-cell locked l" aria-label="잠긴 전설 친구">?</button>
+      <button class="dex-cell locked l" aria-label="잠긴 전설 친구">?</button>
+    </div>
+  </section>
+
+  <!-- ─── 나 ─── -->
+  <section class="screen me" aria-labelledby="me-h">
+    <div class="profile">
+      <h2 id="me-h">김민준</h2>
+      <small>4학년 3반</small>
+    </div>
+    <ul class="stat-list">
+      <li><span>함께한 친구</span><b>8마리</b></li>
+      <li><span>외운 단어</span><b>312개</b></li>
+      <li><span>현재 친구</span><b>토토 LV.2</b></li>
+      <li><span>가장 오래된 친구</span><b>토토 (6일)</b></li>
+    </ul>
+    <div class="maker-lock">
+      <h3>나만의 친구 만들기</h3>
+      <p>500단어 모으면 열려요</p>
+      <div class="bar"><i></i></div>
+      <small>188 / 500</small>
+    </div>
+  </section>
+
+</div>
+
+<nav class="tabbar" role="tablist" aria-label="주요 메뉴">
+  <button role="tab" data-screen="home"    aria-selected="true"  onclick="goto('home')">
+    <svg aria-hidden="true"><use href="#ic-home"/></svg>홈
+  </button>
+  <button role="tab" data-screen="mission" aria-selected="false" onclick="goto('mission')">
+    <svg aria-hidden="true"><use href="#ic-mission"/></svg>미션
+  </button>
+  <button role="tab" data-screen="dex"     aria-selected="false" onclick="goto('dex')">
+    <svg aria-hidden="true"><use href="#ic-dex"/></svg>도감
+  </button>
+  <button role="tab" data-screen="me"      aria-selected="false" onclick="goto('me')">
+    <svg aria-hidden="true"><use href="#ic-me"/></svg>나
+  </button>
+</nav>
+
+<script>
+  // 탭 전환
+  function goto(name) {
+    document.body.dataset.screen = name;
+    document.querySelectorAll('.tabbar button').forEach(b => {
+      b.setAttribute('aria-selected', b.dataset.screen === name ? 'true' : 'false');
+    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  // 시선 추적: stage 영역 내 포인터 위치 → 눈동자 미세 이동
+  (function () {
+    const stage = document.querySelector('.stage');
+    const eyes = document.querySelector('.toto .eyes');
+    if (!stage || !eyes) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function track(e) {
+      const r = stage.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = (e.clientX - cx) / r.width;
+      const dy = (e.clientY - cy) / r.height;
+      const x = Math.max(-3, Math.min(3, dx * 8));
+      const y = Math.max(-2, Math.min(2, dy * 6));
+      eyes.style.transform = `translate(${x}px, ${y}px)`;
+    }
+    stage.addEventListener('pointermove', track);
+    stage.addEventListener('pointerleave', () => { eyes.style.transform = ''; });
+
+    // 5초마다 잠깐 사용자 쪽(아래)을 봄
+    setInterval(() => {
+      if (eyes.style.transform) return;
+      eyes.style.transform = 'translate(0, 1.5px)';
+      setTimeout(() => { eyes.style.transform = ''; }, 900);
+    }, 5200);
+  })();
+</script>
+</body>
+</html>
