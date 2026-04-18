@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#fafbfc">
 <title>Word Gacha</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -67,8 +67,7 @@
     max-width: 480px;
     margin: 0 auto;
     min-height: 100dvh;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    padding-bottom: 84px;
     background: var(--bg);
   }
 
@@ -942,7 +941,7 @@
     background: var(--panel);
     border-top: 1px solid var(--divider);
     display: flex; justify-content: space-around;
-    padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+    padding: 6px 0;
     max-width: 480px; margin: 0 auto;
     z-index: 50;
   }
@@ -966,7 +965,7 @@
   .fab {
     position: fixed;
     right: max(16px, calc(50% - 220px));
-    bottom: calc(80px + env(safe-area-inset-bottom));
+    bottom: 92px;
     z-index: 45;
     width: 52px; height: 52px;
     border-radius: var(--r-md);
@@ -996,7 +995,7 @@
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     border-top: 1px solid var(--divider);
-    padding: 16px 20px calc(20px + env(safe-area-inset-bottom));
+    padding: 16px 20px 20px;
     transform: translateY(100%);
     transition: transform .25s var(--ease-quart);
     max-width: 480px; margin: 0 auto;
@@ -1091,7 +1090,7 @@
 
   .toast {
     position: fixed;
-    top: calc(70px + env(safe-area-inset-top));
+    top: 70px;
     left: 50%; transform: translateX(-50%) translateY(-200%);
     background: var(--ink); color: var(--bg);
     padding: 10px 16px; border-radius: var(--r-sm);
