@@ -2,2827 +2,2527 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fafbfc">
-<title>Word Gacha</title>
+<title>Word Gacha — 내 방</title>
+
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
+
 <style>
+  /* ==================================================================
+     Design tokens — Digital Tamers room + PokéRogue console UI
+     2px 보더 패널, 각진 모서리, 오프셋 그림자, 흰 배경, 채도 높은 단색
+     ================================================================== */
   :root {
-    --bg:          #fafbfc;
-    --panel:       #ffffff;
-    --ink:         #14171f;
-    --ink-soft:    #5a6273;
-    --ink-mute:    #8a93a4;
-    --divider:     #e5e8ee;
-    --divider-deep:#cfd5e0;
+    --bg:        #fafbfc;
+    --surface:   #ffffff;
+    --surface-2: #f2f4f7;
+    --surface-3: #e7eaf0;
+    --floor:     #f6efe3;  /* 방 바닥 — 따뜻한 베이지 톤 */
+    --floor-ln:  #ece2cd;
+    --wall:      #eef2f8;
 
-    --pri:         #d4232c;
-    --pri-deep:    #9a161d;
-    --pri-soft:    #fde6e7;
+    --ink:       #14171f;
+    --ink-2:     #3c4352;
+    --ink-3:     #7a8092;
+    --ink-4:     #a8aebc;
 
-    --t-grass:    #2f9e57;
-    --t-fire:     #e85a2c;
-    --t-water:    #2174d4;
-    --t-bolt:     #e8b521;
-    --t-mind:     #b73d8a;
-    --t-rock:     #6f5b48;
-    --t-grass-soft: #ecf6ef;
-    --t-water-soft: #eaf2fb;
+    --line:      #dce1ea;
+    --line-deep: #9ba3b4;
 
-    --r-sm: 4px;
-    --r-md: 8px;
+    --pri:       #1f4fe6;
+    --pri-deep:  #1438a8;
+    --pri-soft:  #e9efff;
+
+    --hot:       #d4232c;
+    --hot-soft:  #fbe5e7;
+
+    --gold:      #c89200;
+    --gold-soft: #fbf1d6;
+
+    /* 6 types — 포켓몬 타입처럼 */
+    --t-noun: #2174d4; --t-noun-soft: #e4eefb;
+    --t-verb: #d4232c; --t-verb-soft: #fbe5e7;
+    --t-adj:  #2f9e57; --t-adj-soft:  #e2f2ea;
+    --t-adv:  #b73d8a; --t-adv-soft:  #f8e6ef;
+    --t-prep: #c89200; --t-prep-soft: #fbf1d6;
+    --t-conj: #6f5b48; --t-conj-soft: #ece5dc;
+
+    --r-0: 0;
+    --r-1: 2px;
+    --r-2: 4px;
+    --r-3: 8px;
     --r-pill: 999px;
 
-    --display: "Pretendard Variable", Pretendard, system-ui, sans-serif;
-    --num:     "Pretendard Variable", Pretendard, system-ui, sans-serif;
+    --disp: 'SUIT Variable', 'Pretendard Variable', -apple-system, system-ui, sans-serif;
+    --body: 'Pretendard Variable', -apple-system, system-ui, sans-serif;
 
-    --ease:        cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-quart:  cubic-bezier(0.25, 1, 0.5, 1);
+    --e-out:  cubic-bezier(.2, .8, .2, 1);
+    --e-expo: cubic-bezier(.16, 1, .3, 1);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+
   body {
-    font-family: var(--display);
-    font-feature-settings: "ss06", "ss07";
-    background: var(--bg);
+    background: #dde1e8;
     color: var(--ink);
-    min-height: 100dvh;
-    overscroll-behavior-y: contain;
-    -webkit-tap-highlight-color: transparent;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font: 400 14px/1.5 var(--body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: grid;
+    place-items: start center;
+    padding: 24px 0 max(24px, env(safe-area-inset-bottom));
   }
-  .visually-hidden { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  :focus { outline: none; }
-  :focus-visible {
-    outline: 2px solid var(--pri);
-    outline-offset: 2px;
-  }
-  button { font-family: inherit; }
-  .skip { position: absolute; left: -9999px; padding: 8px 14px; background: var(--ink); color: var(--bg); border-radius: var(--r-sm); }
-  .skip:focus { left: 12px; top: 12px; z-index: 999; }
 
-  .app {
-    max-width: 480px;
-    margin: 0 auto;
-    min-height: 100dvh;
-    padding-bottom: 84px;
+  button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+
+  .device {
+    width: min(100%, 420px);
+    min-height: calc(100vh - 48px);
     background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 rgba(20, 22, 30, .25);
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 440px) {
+    body { padding: 0; background: var(--bg); }
+    .device { border: 0; min-height: 100vh; box-shadow: none; }
   }
 
-  /* === Top bar === */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px 8px;
-    height: 56px;
+  /* ==================================================================
+     HUD bar — 항상 보이는 트레이너 상태 (LV · EXP · 연속 · 코인)
+     포켓몬 배틀 화면의 상태 박스 DNA
+     ================================================================== */
+  .hud {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--ink);
+    color: #fff;
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--ink);
   }
-  .wordmark {
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: -0.04em;
+  .hud-lv {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 8px;
+    background: var(--pri);
+    border: 1.5px solid #fff;
+    border-radius: var(--r-1);
+    font-family: var(--disp);
     line-height: 1;
   }
-  .wordmark .accent { color: var(--pri); }
-  .wordmark .sub {
-    display: block;
-    font-weight: 600;
-    font-size: 10px;
-    color: var(--ink-mute);
-    letter-spacing: 0.04em;
-    margin-top: 2px;
-    text-transform: uppercase;
+  .hud-lv .t {
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .1em;
+    opacity: .85;
   }
-  .topbar .trainer-id {
-    font-size: 11px;
-    color: var(--ink-mute);
-    font-feature-settings: "tnum";
-    font-weight: 600;
+  .hud-lv .n {
+    font: 800 14px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
   }
-
-  /* === Screens === */
-  .screen { display: none; padding: 0 20px; }
-  body[data-screen="home"]     .screen.home     { display: block; }
-  body[data-screen="learn"]    .screen.learn    { display: block; }
-  body[data-screen="practice"] .screen.practice { display: block; }
-  body[data-screen="dex"]      .screen.dex      { display: block; }
-  body[data-screen="me"]       .screen.me       { display: block; }
-
-  .screen-h {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin: 4px 0 2px;
+  .hud-exp {
+    position: relative;
+    height: 8px;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: var(--r-1);
+    overflow: hidden;
   }
-  .screen-sub {
-    font-size: 12px;
-    color: var(--ink-mute);
-    margin: 0 0 14px;
-    font-weight: 500;
+  .hud-exp::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: var(--exp, 72%);
+    background: linear-gradient(to bottom, #5ae0a0 0%, #28a86a 100%);
+    border-right: 1px solid rgba(255, 255, 255, .5);
   }
-
-  /* === Sub-tab nav === */
-  .subnav {
+  .hud-stat {
     display: flex;
-    border-bottom: 1px solid var(--divider);
-    margin-bottom: 16px;
-    gap: 0;
+    align-items: center;
+    gap: 4px;
+    font: 700 12px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-stat svg { width: 13px; height: 13px; }
+  .hud-stat.streak { color: #ff9d4d; }
+  .hud-stat.coin   { color: #ffd65c; }
+
+  /* ==================================================================
+     Main / screen routing
+     ================================================================== */
+  main.app {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 76px;
+  }
+  main.app::-webkit-scrollbar { display: none; }
+
+  .screen { display: none; animation: screen-in .38s var(--e-expo) both; }
+  body[data-screen="home"]     .screen[data-s="home"]     { display: block; }
+  body[data-screen="learn"]    .screen[data-s="learn"]    { display: block; }
+  body[data-screen="practice"] .screen[data-s="practice"] { display: block; }
+  body[data-screen="dex"]      .screen[data-s="dex"]      { display: block; }
+  body[data-screen="me"]       .screen[data-s="me"]       { display: block; }
+
+  @keyframes screen-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen { animation: none; }
+  }
+
+  /* ==================================================================
+     Console panel — PokéRogue 대화상자 DNA
+     2px 보더 + 1px inner 보더 + 4px 오프셋 그림자
+     ================================================================== */
+  .panel {
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    position: relative;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .panel-header {
+    padding: 6px 10px;
+    background: var(--ink);
+    color: #fff;
+    font: 800 11px/1 var(--disp);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ink);
+    position: relative;
+    z-index: 1;
+  }
+  .panel-body {
+    padding: 12px 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* dialog box — 마스코트 대사용 */
+  .dialog {
+    margin: 16px 16px 0;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    padding: 14px 18px;
+    position: relative;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .dialog::before {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .dialog .speaker {
+    font: 800 10px/1 var(--disp);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--pri);
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .dialog .line {
+    font: 500 14px/1.55 var(--body);
+    color: var(--ink);
+    position: relative;
+    z-index: 1;
+  }
+  .dialog .line b { font-weight: 800; color: var(--pri); }
+  .dialog .arrow {
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--ink);
+    animation: blink 1.1s steps(2) infinite;
+    z-index: 1;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .dialog .arrow { animation: none; } }
+
+  /* ==================================================================
+     Home — THE ROOM
+     내 방이 메인. 4개 가구 + 마스코트
+     ================================================================== */
+  .room-wrap {
+    padding: 14px 16px 0;
+  }
+  .room {
+    position: relative;
+    aspect-ratio: 1.05 / 1;
+    background: var(--wall);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    overflow: hidden;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .room::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(20, 23, 31, .15);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  /* 바닥 */
+  .room .floor {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 44%;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        var(--floor) 0 36px,
+        var(--floor-ln) 36px 37px
+      );
+    border-top: 2px solid var(--ink);
+  }
+  /* 뒷벽 장식 — 창문 */
+  .room .window {
+    position: absolute;
+    top: 10%;
+    right: 8%;
+    width: 26%;
+    height: 24%;
+    background: #cfe0f7;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
+  }
+  .room .window::before,
+  .room .window::after {
+    content: "";
+    position: absolute;
+    background: var(--ink);
+  }
+  .room .window::before { left: 0; right: 0; top: 50%; height: 1.5px; }
+  .room .window::after  { top: 0; bottom: 0; left: 50%; width: 1.5px; }
+
+  /* 가구 = 클릭 가능한 기능 진입점 */
+  .item {
+    position: absolute;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform .15s var(--e-out);
+  }
+  .item:active { transform: translateY(1px); }
+  .item svg { display: block; width: 100%; height: 100%; }
+  .item .lbl {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .06em;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .item:hover .lbl { color: var(--pri); }
+
+  .item.shelf   { top: 6%;  left: 8%;   width: 22%; height: 38%; }
+  .item.board   { top: 10%; left: 36%;  width: 28%; height: 22%; }
+  .item.note    { top: 62%; left: 8%;   width: 22%; height: 22%; }
+  .item.trophy  { top: 56%; right: 6%;  width: 24%; height: 30%; }
+
+  /* 마스코트 */
+  .mascot-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+    transform: translateX(-50%);
+    width: 38%;
+    aspect-ratio: 1;
+    z-index: 4;
+  }
+  .mascot-wrap svg { width: 100%; height: 100%; display: block; }
+  .mascot-wrap .shadow {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 8px;
+    background: radial-gradient(ellipse at center, rgba(20,23,31,.35), transparent 70%);
+    z-index: -1;
+  }
+  /* idle blink — 4초마다 1회 */
+  .mascot-eye {
+    transform-origin: center;
+    animation: idle-blink 4s infinite;
+  }
+  @keyframes idle-blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95%, 97%      { transform: scaleY(.1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-eye { animation: none; }
+  }
+
+  /* ==================================================================
+     Today's quests — 게시판 스타일
+     ================================================================== */
+  .quests {
+    margin: 20px 16px 0;
+  }
+  .quests-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .quests-head h2 {
+    margin: 0;
+    font: 800 15px/1 var(--disp);
+    letter-spacing: -.005em;
+  }
+  .quests-head .sub {
+    font: 500 11px/1 var(--body);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .quest-list {
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    overflow: hidden;
+  }
+  .quest {
+    display: grid;
+    grid-template-columns: 36px 1fr auto 10px;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 12px;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+  }
+  .quest + .quest { border-top: 1px dashed var(--line-deep); }
+  .quest:active { background: var(--surface-2); }
+
+  .q-marker {
+    width: 36px; height: 36px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    display: grid; place-items: center;
+    background: var(--surface);
+    position: relative;
+  }
+  .q-marker[data-c="review"] { background: var(--t-noun-soft); }
+  .q-marker[data-c="new"]    { background: var(--t-adj-soft); }
+  .q-marker[data-c="gram"]   { background: var(--t-adv-soft); }
+  .q-marker svg { width: 18px; height: 18px; }
+  .q-marker .mn {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--ink);
+    color: #fff;
+    font: 800 10px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+    padding: 2px 5px;
+    border-radius: var(--r-1);
+    min-width: 18px;
+    text-align: center;
+  }
+  .q-text {
+    min-width: 0;
+  }
+  .q-text .t {
+    font: 700 14px/1.2 var(--body);
+    color: var(--ink);
+    letter-spacing: -.005em;
+  }
+  .q-text .s {
+    margin-top: 3px;
+    font: 500 11px/1 var(--body);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .q-reward {
+    font: 800 11px/1 var(--disp);
+    letter-spacing: .04em;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .q-reward .xp { color: var(--t-adj); }
+  .q-arr { color: var(--ink-4); }
+
+  /* ==================================================================
+     Weekly pace
+     ================================================================== */
+  .pace {
+    margin: 20px 16px 0;
+    padding: 14px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .pace-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .pace-head .ttl {
+    font: 800 12px/1 var(--disp);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .pace-head .avg {
+    font: 800 20px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+  }
+  .pace-head .avg small {
+    font: 500 12px/1 var(--body);
+    color: var(--ink-3);
+    margin-left: 4px;
+  }
+  .chart {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    align-items: end;
+    height: 56px;
+  }
+  .chart b {
+    display: block;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px 2px 0 0;
+    background: var(--surface-3);
+    min-height: 4px;
+  }
+  .chart b.hit { background: var(--pri); }
+  .chart b.today { background: var(--hot); }
+  .chart-x {
+    margin-top: 6px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    font: 700 9px/1 var(--disp);
+    letter-spacing: .04em;
+    color: var(--ink-3);
+    text-align: center;
+  }
+  .chart-x b.today { color: var(--hot); }
+
+  /* ==================================================================
+     Learn — subnav
+     ================================================================== */
+  .page-head {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .page-head h1 {
+    margin: 0;
+    font: 800 22px/1.2 var(--disp);
+    letter-spacing: -.015em;
+  }
+  .page-head .sub {
+    font: 500 12px/1 var(--body);
+    color: var(--ink-3);
+  }
+
+  .subnav {
+    padding: 0 16px 12px;
+    display: flex;
+    gap: 6px;
   }
   .subnav button {
     flex: 1;
-    background: none; border: none;
-    padding: 10px 4px;
-    font-family: var(--display);
-    font-weight: 700; font-size: 12px;
-    color: var(--ink-mute);
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    text-transform: uppercase;
+    padding: 8px 0;
+    background: var(--surface);
+    border: 1.5px solid var(--ink-3);
+    border-radius: var(--r-1);
+    font: 700 12px/1 var(--disp);
+    color: var(--ink-3);
+    letter-spacing: -.005em;
   }
   .subnav button[aria-selected="true"] {
-    color: var(--ink);
-    border-bottom-color: var(--pri);
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
   }
   .subpane { display: none; }
   .subpane.active { display: block; }
 
-  /* === Trainer card === */
-  .trainer-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 18px 18px 16px;
-    margin: 8px 0 18px;
+  /* ==================================================================
+     Quiz battle screen — PokéRogue 배틀 UI 이식
+     ================================================================== */
+  .battle-wrap {
+    padding: 0 16px;
   }
-  .tc-row { display: flex; gap: 14px; align-items: flex-start; }
-  .tc-buddy {
-    width: 64px; height: 64px;
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    display: grid; place-items: center;
-    flex-shrink: 0;
-  }
-  .tc-buddy svg { width: 48px; height: 48px; }
-  .tc-meta { flex: 1; min-width: 0; }
-  .tc-name-row {
-    display: flex; align-items: baseline; gap: 8px;
-    margin-bottom: 8px;
-  }
-  .tc-name { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
-  .tc-stage {
-    font-size: 11px; font-weight: 600;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-
-  .lv-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-  .lv-badge {
-    font-weight: 800; font-size: 11px;
-    background: var(--ink); color: #fff;
-    padding: 2px 7px; border-radius: var(--r-sm);
-    letter-spacing: 0.02em;
-    font-feature-settings: "tnum";
-  }
-  .lv-num { font-feature-settings: "tnum"; }
-  .lv-label {
-    font-size: 11px; font-weight: 600;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .exp-track {
-    height: 8px;
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-pill);
-    overflow: hidden;
-  }
-  .exp-fill {
-    height: 100%;
-    background: var(--pri);
-    border-radius: var(--r-pill);
-    transition: width 0.4s var(--ease-quart);
-  }
-  .exp-text {
-    display: flex; justify-content: space-between;
-    font-size: 11px; font-weight: 600;
-    color: var(--ink-mute);
-    margin-top: 4px;
-    font-feature-settings: "tnum";
-  }
-  .exp-text .totem-on { color: var(--pri); }
-
-  .tc-slot {
-    width: 40px; height: 40px;
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    display: grid; place-items: center;
-    background: var(--bg);
-    cursor: pointer;
-    flex-shrink: 0;
+  /* 상대 (단어) 이름플레이트 — 상단 좌측 */
+  .enemy-plate {
     position: relative;
-  }
-  .tc-slot.empty { border-style: dashed; opacity: .55; }
-  .tc-slot.equipped { background: var(--pri-soft); border-color: var(--pri); }
-  .tc-slot svg { width: 22px; height: 22px; color: var(--ink); }
-  .tc-slot.equipped svg { color: var(--pri); }
-  .tc-slot .plus { color: var(--ink-mute); font-size: 18px; font-weight: 700; }
-  .tc-slot-mult {
-    position: absolute; bottom: -7px; right: -6px;
-    background: var(--ink); color: #fff;
-    font-size: 9px; font-weight: 800;
-    padding: 1px 4px; border-radius: var(--r-sm);
-    font-feature-settings: "tnum";
-  }
-
-  /* Home stats */
-  .home-stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--divider);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    overflow: hidden;
-    margin-bottom: 18px;
-  }
-  .home-stats .cell {
-    background: var(--panel);
-    padding: 12px 8px;
-    text-align: center;
-  }
-  .home-stats .cell .v {
-    font-weight: 800; font-size: 18px;
-    letter-spacing: -0.02em;
-    font-feature-settings: "tnum";
-  }
-  .home-stats .cell .l {
-    font-size: 10px; font-weight: 600;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-top: 2px;
-  }
-
-  /* === CTA === */
-  .cta {
-    width: 100%;
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    padding: 14px 16px;
-    border-radius: var(--r-md);
-    font-weight: 800; font-size: 15px;
-    letter-spacing: -0.01em;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .cta:active { transform: translateY(1px); }
-  .cta .arr { font-weight: 600; opacity: .7; }
-  .cta-pri { background: var(--pri); }
-  .cta-sec {
-    background: transparent; color: var(--ink);
-    border: 1px solid var(--divider-deep);
-  }
-
-  /* === Quiz === */
-  .quiz-meta {
-    display: flex; justify-content: space-between;
-    font-size: 11px; font-weight: 600; color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-bottom: 14px;
-    font-feature-settings: "tnum";
-  }
-  .quiz-meta b { color: var(--ink); font-weight: 800; }
-  .word-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 28px 20px 22px;
-    margin-bottom: 14px;
-    text-align: center;
-  }
-  .word-num {
-    font-size: 11px; font-weight: 700;
-    color: var(--ink-mute);
-    font-feature-settings: "tnum"; letter-spacing: 0.05em;
-  }
-  .word-en {
-    font-size: clamp(34px, 9vw, 44px);
-    font-weight: 900;
-    letter-spacing: -0.04em; line-height: 1;
-    margin: 8px 0 4px;
-  }
-  .word-hint { font-size: 12px; color: var(--ink-mute); font-weight: 500; }
-  .choices { display: grid; gap: 8px; }
-  .choice {
-    background: var(--panel);
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-md);
-    padding: 14px 16px;
-    text-align: left;
-    font-weight: 600; font-size: 15px;
-    color: var(--ink);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .choice .key {
-    width: 22px; height: 22px;
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-sm);
-    display: grid; place-items: center;
-    font-size: 11px; font-weight: 800;
-    color: var(--ink-mute);
-    flex-shrink: 0;
-    font-feature-settings: "tnum";
-  }
-  .choice:hover { border-color: var(--ink); }
-  .choice:disabled { cursor: default; }
-  .choice.correct {
-    background: #ecf6ef;
-    border-color: var(--t-grass);
-    color: var(--t-grass);
-  }
-  .choice.correct .key { background: var(--t-grass); color: #fff; border-color: var(--t-grass); }
-  .choice.wrong { background: var(--pri-soft); border-color: var(--pri); color: var(--pri-deep); }
-  .choice.wrong .key { background: var(--pri); color: #fff; border-color: var(--pri); }
-  .feedback {
-    font-size: 13px; font-weight: 600;
-    color: var(--ink-mute);
-    margin-top: 14px;
-    min-height: 18px;
-    text-align: center;
-    opacity: 0; transition: opacity .2s;
-  }
-  .feedback.show { opacity: 1; }
-  .feedback.ok { color: var(--t-grass); }
-  .feedback.no { color: var(--pri-deep); }
-  .feedback small { font-weight: 500; opacity: .7; }
-  .next-btn { margin-top: 16px; visibility: hidden; }
-  .next-btn.show { visibility: visible; }
-
-  /* === My Words === */
-  .word-list {
-    display: flex; flex-direction: column; gap: 6px;
-    margin-bottom: 16px;
-  }
-  .word-item {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 12px 14px;
-    display: flex; align-items: center; gap: 10px;
-    border-left: 3px solid var(--divider-deep);
-  }
-  .word-item.pending  { border-left-color: var(--t-bolt); }
-  .word-item.approved { border-left-color: var(--t-grass); }
-  .word-item .we { font-weight: 800; font-size: 14px; flex: 1; }
-  .word-item .wk { color: var(--ink-soft); font-size: 13px; flex: 1; }
-  .word-item .wb {
-    font-size: 9px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.05em;
-    padding: 2px 7px; border-radius: var(--r-pill);
-  }
-  .word-item.pending .wb  { background: #fef3c7; color: #92400e; }
-  .word-item.approved .wb { background: #ecf6ef; color: #065f46; }
-  .empty {
-    text-align: center; color: var(--ink-mute);
-    padding: 28px 12px; font-size: 13px;
-  }
-
-  /* === Textbook === */
-  .unit-row {
-    display: flex; gap: 6px;
-    overflow-x: auto;
-    margin-bottom: 12px;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-  .unit-row::-webkit-scrollbar { display: none; }
-  .unit-btn {
-    flex-shrink: 0;
-    padding: 6px 12px;
-    border: 1px solid var(--divider-deep);
-    background: var(--panel);
-    border-radius: var(--r-pill);
-    font-family: var(--display);
-    font-weight: 700; font-size: 12px;
-    color: var(--ink-soft);
-    cursor: pointer;
-  }
-  .unit-btn[aria-selected="true"] {
-    background: var(--ink); color: #fff;
-    border-color: var(--ink);
-  }
-  .tb-progress {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
     padding: 10px 14px;
-    margin-bottom: 12px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 0;
+    box-shadow: 3px 3px 0 var(--ink);
   }
-  .tb-progress strong { color: var(--ink); font-weight: 800; }
-  .tb-progress .reload {
-    margin-left: auto;
-    background: var(--ink); color: #fff;
-    border: none; padding: 6px 12px;
-    border-radius: var(--r-sm);
-    font-size: 11px; font-weight: 700;
-    cursor: pointer;
-  }
-  .tb-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 16px;
-    margin-bottom: 8px;
-    border-left: 3px solid var(--t-water);
-  }
-  .tb-tags { display: flex; gap: 6px; margin-bottom: 8px; }
-  .tb-tag {
-    font-size: 9px; font-weight: 800;
-    padding: 2px 7px; border-radius: var(--r-pill);
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .tb-tag.unit { background: #e0ecf9; color: var(--t-water); }
-  .tb-tag.pos  { background: var(--t-grass-soft); color: var(--t-grass); }
-  .tb-en {
-    font-size: 22px; font-weight: 900;
-    letter-spacing: -0.03em;
-    margin-bottom: 2px;
-  }
-  .tb-ko { font-size: 13px; color: var(--ink-soft); margin-bottom: 8px; }
-  .tb-ex {
-    font-size: 11px; color: var(--ink-mute);
-    background: var(--bg);
-    padding: 8px 10px;
-    border-radius: var(--r-sm);
-    margin-bottom: 10px;
-    font-style: italic;
-    line-height: 1.6;
-  }
-  .tb-actions { display: flex; gap: 6px; }
-  .tb-know, .tb-dontknow {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid;
-    border-radius: var(--r-sm);
-    font-family: var(--display);
-    font-weight: 800; font-size: 12px;
-    cursor: pointer;
-    background: var(--panel);
-  }
-  .tb-know { border-color: var(--t-grass); color: var(--t-grass); }
-  .tb-dontknow { border-color: var(--pri); color: var(--pri); flex: 1.4; }
-  .tb-added {
-    flex: 1; padding: 10px;
-    border: 1px solid var(--divider);
-    border-radius: var(--r-sm);
-    font-weight: 700; font-size: 12px;
-    color: var(--ink-mute);
-    background: var(--bg);
-    cursor: default;
-  }
-
-  /* Grammar item (in textbook + Q&A) */
-  .gr-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 14px;
-    margin-bottom: 8px;
-    border-left: 3px solid var(--t-mind);
-  }
-  .gr-tag {
-    font-size: 9px; font-weight: 800;
-    padding: 2px 7px; border-radius: var(--r-pill);
-    background: #f3e7f0; color: var(--t-mind);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    display: inline-block; margin-bottom: 8px;
-  }
-  .gr-sentence {
-    font-size: 13px; color: var(--ink);
-    background: var(--bg);
-    padding: 8px 10px;
-    border-radius: var(--r-sm);
-    margin-bottom: 8px;
-    font-style: italic;
-  }
-  .gr-explain { font-size: 12px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 6px; }
-  .gr-pattern {
-    font-size: 11px;
-    background: var(--bg);
-    padding: 4px 8px;
-    border-radius: var(--r-sm);
-    color: var(--ink-soft);
-    font-family: ui-monospace, monospace;
-    margin-bottom: 8px;
-    display: inline-block;
-  }
-  .gr-q { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
-  .gr-toggle {
-    background: none; border: none;
-    color: var(--pri); font-weight: 700; font-size: 11px;
-    cursor: pointer; padding: 0;
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .gr-answer {
-    display: none;
-    margin-top: 8px;
-    padding: 10px;
-    background: #ecf6ef;
-    border-radius: var(--r-sm);
-    font-size: 12px;
-    color: #065f46;
-    line-height: 1.6;
-  }
-  .gr-answer.show { display: block; }
-
-  /* === Grammar Q&A === */
-  .ask-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 14px;
-    margin-bottom: 16px;
-  }
-  .ask-card .label {
-    font-size: 10px; font-weight: 800;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-  .ask-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-sm);
-    font-family: var(--display);
-    font-size: 13px;
-    color: var(--ink);
-    background: var(--bg);
-    resize: vertical;
-    min-height: 70px;
-    line-height: 1.6;
-  }
-  .ask-input:focus { outline: none; border-color: var(--ink); background: var(--panel); }
-  .ask-input::placeholder { color: var(--ink-mute); }
-  .ask-card .cta { margin-top: 10px; }
-
-  .qa-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 14px;
-    margin-bottom: 8px;
-  }
-  .qa-q {
-    font-weight: 800; font-size: 13px;
-    margin-bottom: 8px;
-  }
-  .qa-a {
-    background: var(--bg);
-    padding: 10px 12px;
-    border-radius: var(--r-sm);
-    font-size: 12px;
-    color: var(--ink-soft);
-    line-height: 1.6;
-  }
-  .qa-pending {
-    font-size: 11px;
-    background: #fef3c7;
-    color: #92400e;
-    padding: 8px 10px;
-    border-radius: var(--r-sm);
-    font-weight: 600;
-  }
-  .qa-mine {
-    display: inline-block;
-    font-size: 9px; font-weight: 800;
-    background: #e0ecf9; color: var(--t-water);
-    padding: 2px 7px; border-radius: var(--r-pill);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-top: 8px;
-  }
-  .label-row {
-    font-size: 10px; font-weight: 800;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.07em;
-    margin: 18px 0 8px;
-  }
-  .label-row:first-child { margin-top: 0; }
-
-  /* === Writing practice === */
-  .wp-types {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-bottom: 14px;
-  }
-  .wp-type {
-    background: var(--panel);
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-md);
-    padding: 14px 10px;
-    text-align: left;
-    cursor: pointer;
-    font-family: var(--display);
-  }
-  .wp-type[aria-selected="true"] {
-    border-color: var(--ink); border-width: 2px; padding: 13px 9px;
-  }
-  .wp-type .lab {
-    font-weight: 800; font-size: 13px;
-    letter-spacing: -0.01em;
-    margin-bottom: 2px;
-  }
-  .wp-type .desc {
-    font-size: 11px; color: var(--ink-mute); font-weight: 500;
-  }
-  .hint-box {
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-  .hint-box .label {
-    font-size: 10px; font-weight: 800;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-  .hint-words {
-    display: flex; flex-wrap: wrap; gap: 6px;
-  }
-  .hint-word {
-    background: var(--panel);
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-pill);
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .hint-word .gloss { color: var(--ink-mute); font-weight: 500; }
-
-  .wp-problem {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .wp-tag {
-    display: inline-block;
-    font-size: 9px; font-weight: 800;
-    background: var(--ink); color: #fff;
-    padding: 2px 7px; border-radius: var(--r-pill);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-bottom: 10px;
-  }
-  .wp-instr {
-    font-weight: 800; font-size: 14px;
-    margin-bottom: 10px; line-height: 1.5;
-  }
-  .wp-prompt {
-    background: var(--bg);
-    padding: 10px 12px;
-    border-radius: var(--r-sm);
-    font-size: 12px;
-    color: var(--ink-soft);
-    line-height: 1.7;
-    margin-bottom: 10px;
-    font-style: italic;
-  }
-  .wp-cond {
-    font-size: 12px; padding: 3px 0;
-    color: var(--ink-soft);
-    display: flex; gap: 6px;
-  }
-  .wp-cond .n { font-weight: 800; color: var(--pri); min-width: 16px; }
-  .wp-area {
-    width: 100%;
-    min-height: 130px;
-    padding: 12px;
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-md);
-    font-family: var(--display);
-    font-size: 14px;
-    line-height: 1.7;
-    resize: none;
-    background: var(--panel);
-  }
-  .wp-area:focus { outline: none; border-color: var(--ink); }
-  .wp-count {
-    font-size: 10px; color: var(--ink-mute);
-    text-align: right; margin-top: 4px;
-    font-feature-settings: "tnum";
-  }
-  .wp-row { display: flex; gap: 8px; margin-top: 12px; }
-  .wp-row .cta { flex: 1; }
-  .wp-row .cta-sec { flex: 0 0 auto; padding: 14px 16px; }
-
-  .wp-score {
-    background: var(--ink); color: #fff;
-    border-radius: var(--r-md);
-    padding: 18px;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-  .wp-score .total {
-    font-size: 38px; font-weight: 900;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    font-feature-settings: "tnum";
-  }
-  .wp-score .total small { opacity: .5; font-weight: 700; font-size: 18px; }
-  .wp-score .pct {
-    font-size: 11px;
-    margin-top: 4px; opacity: .7;
-    text-transform: uppercase; letter-spacing: 0.05em;
-    font-weight: 700;
-  }
-  .wp-bar-wrap {
-    height: 6px; background: rgba(255,255,255,.15);
-    border-radius: var(--r-pill);
-    overflow: hidden;
-    margin-top: 10px;
-  }
-  .wp-bar { height: 100%; background: var(--pri); border-radius: var(--r-pill); transition: width .6s var(--ease-quart); }
-
-  .rb-card {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 12px 14px;
-    margin-bottom: 6px;
-  }
-  .rb-row {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 6px;
-  }
-  .rb-name { font-weight: 800; font-size: 13px; flex: 1; }
-  .rb-dots { display: flex; gap: 3px; }
-  .rb-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--divider);
-  }
-  .rb-dot.on { background: var(--ink); }
-  .rb-score {
-    font-weight: 800; font-size: 14px;
-    font-feature-settings: "tnum";
-    min-width: 28px; text-align: right;
-  }
-  .rb-score.s0 { color: var(--pri); }
-  .rb-score.s1 { color: var(--t-fire); }
-  .rb-score.s2 { color: var(--t-bolt); }
-  .rb-score.s3 { color: var(--t-grass); }
-  .rb-comment { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
-
-  .wp-loading {
-    text-align: center;
-    padding: 36px 12px;
-    color: var(--ink-mute);
-    font-size: 13px;
-  }
-
-  /* === Dex (2-col card grid, type-color forward) === */
-  .dex-list {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .dex-card {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    overflow: hidden;
-    display: flex; flex-direction: column;
-  }
-  .dex-card.locked {
-    background: transparent;
-    border-style: dashed;
-    border-color: var(--divider-deep);
-  }
-  .dex-card .num {
-    position: absolute; top: 8px; left: 10px;
-    font-weight: 900; font-size: 11px;
-    color: rgba(255,255,255,.85);
-    font-feature-settings: "tnum";
-    letter-spacing: 0.04em;
-    z-index: 2;
-  }
-  .dex-card.locked .num { color: var(--ink-mute); }
-  .dex-card .stage {
-    position: absolute; top: 8px; right: 10px;
-    font-size: 9px; font-weight: 800;
-    color: rgba(255,255,255,.85);
-    text-transform: uppercase; letter-spacing: 0.06em;
-    z-index: 2;
-  }
-  .dex-card.locked .stage { display: none; }
-  .dex-stage-area {
-    height: 110px;
-    display: grid; place-items: center;
-    position: relative;
-  }
-  .dex-stage-area::after {
-    content: '';
+  .enemy-plate::before {
+    content: "";
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 50%;
-    background: linear-gradient(to bottom, transparent, rgba(0,0,0,.18));
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
     pointer-events: none;
   }
-  .dex-card.locked .dex-stage-area {
-    background: var(--bg);
-    border-bottom: 1px dashed var(--divider-deep);
-  }
-  .dex-spr {
-    font-size: 56px;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.18));
+  .enemy-head {
+    position: relative;
     z-index: 1;
-  }
-  .dex-card.locked .dex-spr {
-    font-size: 48px;
-    opacity: .25;
-    filter: grayscale(1);
-  }
-  .dex-info {
-    padding: 10px 12px 12px;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .dex-info .top-row {
-    display: flex; align-items: center; gap: 6px;
+    display: flex;
+    align-items: baseline;
     justify-content: space-between;
+    gap: 8px;
   }
-  .dex-name {
-    font-weight: 900; font-size: 14px;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+  .enemy-head .name {
+    font: 800 17px/1.1 var(--disp);
+    letter-spacing: -.01em;
   }
-  .dex-card.locked .dex-name { color: var(--ink-mute); }
-  .dex-need {
-    font-size: 10px; color: var(--ink-mute);
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  .enemy-head .lv {
+    font: 800 11px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
   }
-  .dex-status {
-    font-size: 9px; font-weight: 800;
-    color: var(--t-grass);
-    text-transform: uppercase; letter-spacing: 0.06em;
-  }
-  .dex-card.locked .dex-status { color: var(--ink-mute); }
-  .dex-card .type-chip {
-    display: inline-block;
-    font-size: 9px; font-weight: 800;
-    color: #fff;
-    padding: 2px 7px; border-radius: var(--r-pill);
-    letter-spacing: 0.06em; text-transform: uppercase;
-  }
-
-  /* === Totems === */
-  .totem-headline {
-    background: var(--ink); color: #fff;
-    border-radius: var(--r-md);
-    padding: 16px 18px;
-    margin-bottom: 14px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .totem-headline .label {
-    font-size: 10px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    opacity: .7;
-  }
-  .totem-headline .mult-now {
-    font-size: 32px; font-weight: 900;
-    line-height: 1; letter-spacing: -0.03em;
-    font-feature-settings: "tnum";
-  }
-  .totem-headline .right { text-align: right; }
-  .totem-headline .equipped-name { font-size: 13px; font-weight: 700; margin-top: 4px; }
-  .totem-headline .equipped-name .none { opacity: .5; font-weight: 600; }
-
-  /* 토템 카드 — 큰 아이콘 + 풀폭 타입 색 */
-  .totem-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .totem-cell {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    overflow: hidden;
-    cursor: pointer;
-    display: flex; flex-direction: column;
-    text-align: left;
-    font-family: var(--display);
-  }
-  .totem-cell.locked {
-    background: transparent;
-    border-style: dashed;
-    border-color: var(--divider-deep);
-    cursor: default;
-  }
-  .totem-cell.equipped {
-    border-color: var(--ink); border-width: 2px;
-  }
-  .totem-cell .eq-tag {
-    position: absolute; top: 0; left: 0;
-    background: var(--ink); color: #fff;
-    font-size: 9px; font-weight: 800;
-    padding: 3px 8px;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    border-bottom-right-radius: var(--r-sm);
-    z-index: 3;
-    display: none;
-  }
-  .totem-cell.equipped .eq-tag { display: inline-block; }
-
-  /* 큰 아이콘 영역 */
-  .tc-stage {
-    height: 96px;
-    display: grid; place-items: center;
-    position: relative;
-  }
-  .tc-stage::before {
-    content: '';
-    position: absolute;
-    inset: 12px;
-    border-radius: var(--r-pill);
-    background: rgba(255,255,255,.18);
-  }
-  .totem-cell.locked .tc-stage {
-    background: var(--bg) !important;
-    border-bottom: 1px dashed var(--divider-deep);
-  }
-  .totem-cell.locked .tc-stage::before { display: none; }
-  .tc-icon {
-    width: 56px; height: 56px;
-    display: grid; place-items: center;
+  .enemy-head .lv strong { color: var(--ink); font-size: 14px; }
+  .enemy-sub {
     position: relative;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
   }
-  .tc-icon svg {
-    width: 44px; height: 44px;
-    color: #fff;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,.2));
-  }
-  .totem-cell.locked .tc-icon svg {
-    color: var(--ink-mute);
-    opacity: .35;
-    width: 36px; height: 36px;
-    filter: none;
-  }
-  /* 우상단 큰 ×배수 */
-  .tc-mult-big {
-    position: absolute; top: 8px; right: 10px;
-    font-size: 14px; font-weight: 900;
-    color: #fff;
-    font-feature-settings: "tnum";
-    letter-spacing: -0.02em;
-    z-index: 2;
-    text-shadow: 0 1px 2px rgba(0,0,0,.2);
-  }
-  .totem-cell.locked .tc-mult-big { display: none; }
-  /* 좌하단 타입 칩 */
-  .tc-type-chip {
-    position: absolute; bottom: 8px; left: 10px;
-    font-size: 9px; font-weight: 800;
-    color: rgba(255,255,255,.95);
-    background: rgba(0,0,0,.25);
-    padding: 2px 7px;
-    border-radius: var(--r-pill);
-    letter-spacing: 0.06em; text-transform: uppercase;
-    z-index: 2;
-  }
-  .totem-cell.locked .tc-type-chip { display: none; }
-
-  .tc-info {
-    padding: 10px 12px 12px;
-    border-top: 1px solid var(--divider);
-    background: var(--panel);
-  }
-  .totem-cell.locked .tc-info {
-    border-top-color: var(--divider-deep);
-    background: transparent;
-  }
-  .tc-name {
-    font-size: 14px; font-weight: 900;
-    letter-spacing: -0.02em;
-    margin-bottom: 2px;
-    line-height: 1.1;
-  }
-  .totem-cell.locked .tc-name { color: var(--ink-mute); }
-  .tc-mult {
-    font-size: 11px; font-weight: 700;
-    color: var(--ink-soft);
-    font-feature-settings: "tnum";
-    letter-spacing: 0.02em;
-  }
-  .totem-cell.locked .tc-mult { color: var(--ink-mute); }
-  .totem-cell.equipped .tc-mult { color: var(--pri); }
-  .tc-type {
-    display: inline-block;
-    font-size: 9px; font-weight: 800;
-    color: #fff;
-    padding: 1px 6px; border-radius: var(--r-pill);
-    letter-spacing: 0.05em; text-transform: uppercase;
-    margin-left: 6px;
-  }
-  .bg-grass { background: var(--t-grass); }
-  .bg-fire  { background: var(--t-fire); }
-  .bg-water { background: var(--t-water); }
-  .bg-bolt  { background: var(--t-bolt); color: var(--ink) !important; }
-  .bg-mind  { background: var(--t-mind); }
-  .bg-rock  { background: var(--t-rock); }
-
-  /* === Me === */
-  .stat-table {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
+  .enemy-hp {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-3);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
     overflow: hidden;
-    list-style: none; padding: 0; margin: 0 0 18px;
+    position: relative;
   }
-  .stat-table li {
-    display: flex; justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--divider);
-    font-size: 13px; font-weight: 600;
-    color: var(--ink-soft);
+  .enemy-hp::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: var(--hp, 40%);
+    background: linear-gradient(to bottom, #5ae0a0, #28a86a);
   }
-  .stat-table li:last-child { border-bottom: none; }
-  .stat-table li b { color: var(--ink); font-weight: 800; font-feature-settings: "tnum"; }
-  .reset-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--divider-deep);
-    color: var(--ink-soft);
-    padding: 12px;
-    border-radius: var(--r-md);
-    font-family: var(--display);
-    font-weight: 600; font-size: 13px;
-    cursor: pointer;
+  .enemy-hp[data-level="low"]::after  { background: linear-gradient(to bottom, #ff9e5c, #e85a2c); }
+  .enemy-hp[data-level="crit"]::after { background: linear-gradient(to bottom, #ff6b77, #d4232c); }
+  .enemy-hp-val {
+    font: 800 10px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+    letter-spacing: .04em;
   }
-  .reset-btn:active { background: var(--bg); }
 
-  /* === Tabbar === */
-  .tabbar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--panel);
-    border-top: 1px solid var(--divider);
-    display: flex; justify-content: space-around;
-    padding: 6px 0;
-    max-width: 480px; margin: 0 auto;
-    z-index: 50;
+  /* 중앙 스테이지 — 단어 크게, 마스코트 오른쪽 아래 */
+  .stage {
+    margin: 14px 0;
+    position: relative;
+    min-height: 160px;
+    padding: 20px 16px 16px;
+    background: var(--floor);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    overflow: hidden;
   }
-  .tabbar button {
-    background: none; border: none;
-    flex: 1; padding: 8px 4px;
-    color: var(--ink-mute);
-    font-family: var(--display);
-    font-weight: 700; font-size: 10px;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    display: flex; flex-direction: column;
-    align-items: center; gap: 4px;
+  .stage::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    bottom: 0;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        var(--floor) 0 28px,
+        var(--floor-ln) 28px 29px
+      );
+    border-top: 1.5px solid var(--ink);
+  }
+  .stage-word {
+    position: relative;
+    z-index: 1;
+    font: 800 34px/1.05 var(--disp);
+    letter-spacing: -.02em;
+    color: var(--ink);
+    padding: 16px 0;
+  }
+  .stage-word .phon {
+    display: block;
+    margin-top: 6px;
+    font: 600 12px/1 var(--body);
+    color: var(--ink-3);
+    letter-spacing: 0;
+  }
+  .stage-mascot {
+    position: relative;
+    z-index: 1;
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+  }
+  .stage-mascot svg { width: 100%; height: 100%; display: block; }
+
+  /* 기술 버튼 — 4분할 */
+  .moves {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0;
+  }
+  .move {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    text-align: left;
+    min-height: 72px;
+    transition: transform .1s var(--e-out), background .15s var(--e-out);
+  }
+  .move::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .move:active { transform: translate(1px, 1px); }
+  .move[aria-checked="true"] {
+    background: var(--pri-soft);
+    box-shadow: 2px 2px 0 var(--pri);
+  }
+  .move-hd {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 5px;
+    font: 700 9px/1 var(--disp);
+    letter-spacing: .08em;
+    color: var(--ink-3);
     text-transform: uppercase;
   }
-  .tabbar button svg { width: 22px; height: 22px; }
-  .tabbar button[aria-selected="true"] { color: var(--ink); }
-  .tabbar button[aria-selected="true"] svg { color: var(--pri); }
-
-  /* === FAB === */
-  .fab {
-    position: fixed;
-    right: max(16px, calc(50% - 220px));
-    bottom: 92px;
-    z-index: 45;
-    width: 52px; height: 52px;
-    border-radius: var(--r-md);
-    background: var(--ink); color: #fff;
-    border: none; cursor: pointer;
-    display: none;
-    align-items: center; justify-content: center;
-    box-shadow: 0 4px 14px rgba(20,23,31,.25);
-  }
-  .fab.show { display: flex; }
-  .fab:active { transform: translateY(1px); }
-  .fab svg { width: 24px; height: 24px; }
-
-  /* === Bottom sheet === */
-  .sheet-ov {
-    position: fixed; inset: 0;
-    background: rgba(20,23,31,.5);
-    z-index: 60;
-    opacity: 0; pointer-events: none;
-    transition: opacity .2s;
-  }
-  .sheet-ov.open { opacity: 1; pointer-events: auto; }
-  .sheet {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    z-index: 61;
-    background: var(--panel);
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-top: 1px solid var(--divider);
-    padding: 16px 20px 20px;
-    transform: translateY(100%);
-    transition: transform .25s var(--ease-quart);
-    max-width: 480px; margin: 0 auto;
-  }
-  .sheet.open { transform: translateY(0); }
-  .sheet-handle {
-    width: 36px; height: 3px;
-    background: var(--divider-deep);
+  .move-hd .key {
+    width: 14px; height: 14px;
+    background: var(--ink);
+    color: #fff;
     border-radius: 2px;
-    margin: -4px auto 14px;
-  }
-  .sheet h3 {
-    font-size: 14px; font-weight: 800;
-    margin: 0 0 12px;
-    letter-spacing: -0.01em;
-  }
-  .sheet input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--divider-deep);
-    border-radius: var(--r-sm);
-    font-family: var(--display);
-    font-size: 14px;
-    margin-bottom: 8px;
-    background: var(--bg);
-  }
-  .sheet input:focus { outline: none; border-color: var(--ink); background: var(--panel); }
-  .sheet .cta { margin-top: 6px; }
-  .sheet .msg {
-    font-size: 11px;
-    margin-top: 8px;
-    min-height: 14px;
-    font-weight: 600;
-  }
-  .sheet .msg.ok { color: var(--t-grass); }
-  .sheet .msg.err { color: var(--pri); }
-
-  /* === Modals === */
-  .ov {
-    position: fixed; inset: 0;
-    background: rgba(20,23,31,.6);
-    display: none; place-items: center;
-    z-index: 100; padding: 20px;
-  }
-  .ov.show { display: grid; animation: fade .15s var(--ease); }
-  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-  .ov-card {
-    background: var(--panel);
-    border-radius: var(--r-md);
-    max-width: 320px; width: 100%;
-    overflow: hidden;
-    animation: slide .2s var(--ease-quart);
-  }
-  @keyframes slide {
-    from { transform: translateY(8px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
-  }
-  .ov-banner {
-    background: var(--ink);
-    color: #fff;
-    font-size: 11px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    padding: 8px 16px;
-    text-align: center;
-  }
-  .ov-banner.lvup { background: var(--pri); }
-  .ov-body { padding: 22px 22px 18px; text-align: center; }
-  .ov-icon {
-    width: 56px; height: 56px;
-    margin: 4px auto 12px;
     display: grid; place-items: center;
-    border-radius: var(--r-md);
+    font: 800 9px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
   }
-  .ov-icon svg { width: 36px; height: 36px; color: #fff; }
-  .ov-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .ov-mult {
-    font-size: 13px; font-weight: 700; color: var(--pri);
-    margin-bottom: 16px;
-    font-feature-settings: "tnum";
+  .move-text {
+    position: relative; z-index: 1;
+    font: 600 14px/1.25 var(--body);
+    color: var(--ink);
   }
-  .ov-btns { display: flex; gap: 8px; padding: 0 16px 16px; }
-  .ov-btn {
-    flex: 1; padding: 12px;
-    border: none; border-radius: var(--r-sm);
-    font-family: var(--display);
-    font-weight: 800; font-size: 13px;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-  }
-  .ov-btn-pri { background: var(--ink); color: #fff; }
-  .ov-btn-sec { background: var(--bg); color: var(--ink-soft); }
 
-  .toast {
-    position: fixed;
-    top: 70px;
-    left: 50%; transform: translateX(-50%) translateY(-200%);
-    background: var(--ink); color: var(--bg);
-    padding: 10px 16px; border-radius: var(--r-sm);
-    font-weight: 700; font-size: 12px;
-    z-index: 200; max-width: 380px;
-    transition: transform .25s var(--ease-quart);
+  .quiz-footer {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .progress-inline {
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    padding: 10px 12px;
+    box-shadow: 2px 2px 0 var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+  }
+  .progress-inline::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
     pointer-events: none;
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  .lvup-num {
-    font-size: 56px; font-weight: 900;
-    color: var(--pri);
-    line-height: 1; letter-spacing: -0.04em;
-    font-feature-settings: "tnum";
-    margin: 8px 0;
+  .progress-inline span {
+    position: relative; z-index: 1;
   }
-  .lvup-msg { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; font-weight: 600; }
-
-  /* === Buddy speech bubble (home) === */
-  .tc-buddy { cursor: pointer; position: relative; }
-  .tc-buddy:active { transform: scale(.96); }
-  .tc-buddy { transition: transform .12s var(--ease-quart); }
-  .tc-buddy.pet { animation: pet 0.5s var(--ease-quart); }
-  @keyframes pet {
-    0%, 100% { transform: scale(1); }
-    20% { transform: scale(1.08) rotate(-2deg); }
-    50% { transform: scale(0.96) rotate(2deg); }
-    80% { transform: scale(1.04); }
+  .progress-inline .lbl {
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .08em;
+    color: var(--ink-3);
+    text-transform: uppercase;
   }
-  /* 홈 기분 배지 */
-  .mood-badge {
-    position: absolute;
-    bottom: -4px; right: -4px;
-    width: 22px; height: 22px;
-    background: var(--panel);
+  .progress-inline .bar {
+    height: 6px;
+    background: var(--surface-3);
     border: 1.5px solid var(--ink);
-    border-radius: var(--r-pill);
-    display: grid; place-items: center;
-    font-size: 12px;
-    z-index: 3;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
   }
-  .mood-badge.happy { border-color: var(--t-grass); }
-  .mood-badge.sad { border-color: var(--t-water); }
-  .mood-badge.fire { border-color: var(--pri); background: var(--pri); color: #fff; }
-  /* 친밀도 표시 */
-  .bond-row {
-    display: flex; align-items: center; gap: 6px;
-    margin-top: 10px;
-    font-size: 10px; font-weight: 700;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.05em;
+  .progress-inline .bar i {
+    display: block;
+    height: 100%;
+    width: var(--p, 30%);
+    background: var(--pri);
   }
-  .bond-hearts { display: flex; gap: 2px; }
-  .bond-heart {
-    width: 8px; height: 8px;
-    background: var(--divider);
-    border-radius: var(--r-pill);
-  }
-  .bond-heart.on { background: var(--pri); }
-
-  /* === Quiz buddy (동행) === */
-  .quiz-buddy {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 10px;
-    min-height: 40px;
-  }
-  .qb-avatar {
-    width: 40px; height: 40px;
-    flex-shrink: 0;
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-pill);
-    display: grid; place-items: center;
+  .progress-inline .val {
+    font: 800 11px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
     color: var(--ink);
   }
-  .qb-avatar svg { width: 28px; height: 28px; }
-  .qb-avatar.cheer { animation: qb-bounce .45s var(--ease-quart); border-color: var(--t-grass); }
-  .qb-avatar.sad { animation: qb-shake .4s var(--ease); border-color: var(--t-water); }
-  @keyframes qb-bounce {
-    0%, 100% { transform: translateY(0); }
-    35% { transform: translateY(-8px) scale(1.06); }
-    70% { transform: translateY(0) scale(0.97); }
-  }
-  @keyframes qb-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-    75% { transform: translateX(-2px); }
-  }
-  .qb-bubble {
-    background: var(--panel);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 8px 12px;
-    font-size: 12px; font-weight: 700;
-    color: var(--ink-soft);
-    position: relative;
-    max-width: 240px;
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: opacity .2s, transform .2s var(--ease-quart);
-  }
-  .qb-bubble.show { opacity: 1; transform: translateX(0); }
-  .qb-bubble.cheer { color: var(--t-grass); border-color: var(--t-grass); background: var(--t-grass-soft); }
-  .qb-bubble.sad { color: var(--t-water); border-color: var(--t-water); background: var(--t-water-soft); }
-  .qb-bubble::before {
-    content: '';
-    position: absolute;
-    left: -5px; top: 11px;
-    width: 8px; height: 8px;
-    background: inherit;
-    border-left: 1px solid;
-    border-bottom: 1px solid;
-    border-color: inherit;
-    transform: rotate(45deg);
-  }
-
-  /* === Unlock banner (친구 최초 등장) === */
-  .fd-card.unlock .fd-stage { padding-top: 40px; }
-  .fd-card.unlock .fd-unlock-tag {
-    position: absolute; top: 10px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,.3);
-    color: #fff;
-    font-size: 10px; font-weight: 800;
-    padding: 4px 12px;
-    border-radius: var(--r-pill);
-    letter-spacing: 0.08em; text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .speech {
-    position: absolute;
-    top: -8px; left: calc(100% + 8px);
-    background: var(--ink); color: #fff;
-    padding: 8px 12px;
-    border-radius: var(--r-md);
-    font-size: 12px; font-weight: 700;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    z-index: 5;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity .18s, transform .18s var(--ease-quart);
-    pointer-events: none;
-    max-width: 180px;
-  }
-  .speech.show { opacity: 1; transform: translateY(0); }
-  .speech::before {
-    content: '';
-    position: absolute;
-    left: -4px; top: 14px;
-    width: 8px; height: 8px;
+  .btn-confirm {
+    padding: 0 18px;
     background: var(--ink);
-    transform: rotate(45deg);
+    color: #fff;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    font: 800 14px/1 var(--disp);
+    letter-spacing: -.005em;
+    box-shadow: 2px 2px 0 var(--hot);
+  }
+  .btn-confirm:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--hot); }
+
+  /* ==================================================================
+     My Words — row list
+     ================================================================== */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter {
+    padding: 6px 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 700 11px/1 var(--disp);
+    color: var(--ink-2);
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .filter[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+  }
+  .filter .n {
+    font-variant-numeric: tabular-nums;
+    opacity: .7;
   }
 
-  /* === Friend detail modal (pokedex entry) === */
-  .fd-card {
-    max-width: 340px;
-    background: var(--panel);
-    border-radius: var(--r-md);
+  .word-list {
+    margin: 0 16px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
     overflow: hidden;
   }
-  .fd-stage {
-    padding: 28px 20px 36px;
+  .word-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+  }
+  .word-row + .word-row { border-top: 1px dashed var(--line-deep); }
+  .word-row:active { background: var(--surface-2); }
+  /* evolution stage icon — Box 1~5 */
+  .stage-icon {
+    width: 32px; height: 32px;
+    background: var(--surface-2);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    display: grid; place-items: center;
     position: relative;
+  }
+  .stage-icon svg { width: 20px; height: 20px; }
+  .stage-icon[data-stage="1"] { background: #fbe5e7; }
+  .stage-icon[data-stage="2"] { background: #fef1d3; }
+  .stage-icon[data-stage="3"] { background: #e4eefb; }
+  .stage-icon[data-stage="4"] { background: #e2f2ea; }
+  .stage-icon[data-stage="5"] { background: var(--ink); }
+  .stage-icon[data-stage="5"] svg { color: #fff; }
+  .stage-icon .num {
+    position: absolute;
+    bottom: -6px; right: -6px;
+    width: 16px; height: 16px;
+    background: var(--ink);
+    color: #fff;
+    font: 800 9px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+    border: 1.5px solid #fff;
+    border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .stage-icon[data-stage="5"] .num { background: var(--t-adj); }
+
+  .wr-main { min-width: 0; }
+  .wr-en {
+    font: 800 16px/1.15 var(--disp);
+    letter-spacing: -.01em;
+    color: var(--ink);
+  }
+  .wr-ko {
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 12px/1.3 var(--body);
+    color: var(--ink-2);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 5px;
+    border: 1px solid;
+    border-radius: var(--r-1);
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip[data-t="noun"] { background: var(--t-noun-soft); color: var(--t-noun); border-color: var(--t-noun); }
+  .chip[data-t="verb"] { background: var(--t-verb-soft); color: var(--t-verb); border-color: var(--t-verb); }
+  .chip[data-t="adj"]  { background: var(--t-adj-soft);  color: var(--t-adj);  border-color: var(--t-adj);  }
+  .chip[data-t="adv"]  { background: var(--t-adv-soft);  color: var(--t-adv);  border-color: var(--t-adv);  }
+  .chip[data-t="prep"] { background: var(--t-prep-soft); color: #8a6500;       border-color: var(--t-prep); }
+  .chip[data-t="conj"] { background: var(--t-conj-soft); color: var(--t-conj); border-color: var(--t-conj); }
+  .wr-right {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  }
+  .wr-hp {
+    width: 56px; height: 5px;
+    background: var(--surface-3);
+    border: 1px solid var(--ink);
+    border-radius: var(--r-1);
+    overflow: hidden;
+    position: relative;
+  }
+  .wr-hp i {
+    display: block; height: 100%;
+    width: var(--hp, 50%);
+    background: var(--pri);
+  }
+  .wr-hp[data-l="mastered"] i { background: var(--t-adj); }
+  .wr-tag {
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .08em;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+  }
+  .wr-tag.mastered { color: var(--t-adj); }
+
+  /* textbook units */
+  .units {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0 16px 10px;
+    scrollbar-width: none;
+  }
+  .units::-webkit-scrollbar { display: none; }
+  .unit {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
+    min-width: 92px;
+    text-align: left;
+  }
+  .unit[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+  }
+  .unit .u-n {
+    font: 800 12px/1 var(--disp);
+    font-variant-numeric: tabular-nums;
+  }
+  .unit .u-t {
+    margin-top: 3px;
+    font: 500 10px/1 var(--body);
+    color: var(--ink-3);
+  }
+  .unit[aria-pressed="true"] .u-t { color: rgba(255, 255, 255, .7); }
+  .unit .u-bar {
+    margin-top: 6px;
+    height: 3px;
+    background: var(--surface-3);
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .unit[aria-pressed="true"] .u-bar { background: rgba(255, 255, 255, .2); }
+  .unit .u-bar i {
+    display: block; height: 100%;
+    background: var(--pri);
+    width: var(--p, 0%);
+  }
+  .unit[aria-pressed="true"] .u-bar i { background: #fff; }
+
+  /* ==================================================================
+     Practice — 문법 Q&A = 멘토 채팅
+     ================================================================== */
+  .ask {
+    margin: 0 16px 16px;
+  }
+  .ask-box {
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    padding: 12px;
+    position: relative;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .ask-box::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .ask-box textarea {
+    position: relative; z-index: 1;
+    width: 100%;
+    resize: none;
+    min-height: 76px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 400 14px/1.5 var(--body);
+    color: var(--ink);
+    padding: 0;
+  }
+  .ask-box textarea::placeholder { color: var(--ink-4); }
+  .ask-bar {
+    position: relative; z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .ask-bar .cnt {
+    font: 700 10px/1 var(--disp);
+    letter-spacing: .04em;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .ask-bar button {
+    padding: 8px 14px;
+    background: var(--ink);
+    color: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 12px/1 var(--disp);
+    box-shadow: 2px 2px 0 var(--hot);
+  }
+
+  .section-head {
+    padding: 0 16px;
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .section-head h2 {
+    margin: 0;
+    font: 800 13px/1 var(--disp);
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .section-head .more {
+    font: 600 11px/1 var(--body);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .q-item {
+    margin: 0 16px 10px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    padding: 11px 13px;
+    box-shadow: 2px 2px 0 var(--ink);
+    position: relative;
+  }
+  .q-item::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .q-top {
+    position: relative; z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .q-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border: 1.5px solid;
+    border-radius: var(--r-1);
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .q-status.pending  { color: var(--ink-2);  border-color: var(--ink-3); background: var(--surface-2); }
+  .q-status.answered { color: var(--t-adj); border-color: var(--t-adj); background: var(--t-adj-soft); }
+  .q-time {
+    font: 500 11px/1 var(--body);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .q-text {
+    position: relative; z-index: 1;
+    font: 500 14px/1.45 var(--body);
+    color: var(--ink);
+  }
+  .q-answer {
+    position: relative; z-index: 1;
+    margin-top: 9px;
+    padding: 10px;
+    background: var(--pri-soft);
+    border: 1.5px solid var(--pri);
+    border-radius: var(--r-1);
+    font: 400 13px/1.55 var(--body);
+    color: var(--ink);
+  }
+  .q-answer .src {
+    display: inline-block;
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .08em;
+    color: var(--pri-deep);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .q-answer b { color: var(--pri-deep); font-weight: 800; }
+
+  .empty-box {
+    margin: 0 16px;
+    padding: 36px 20px;
+    background: var(--surface);
+    border: 2px dashed var(--line-deep);
+    border-radius: var(--r-2);
     text-align: center;
   }
-  .fd-stage .fd-num {
-    position: absolute; top: 10px; left: 14px;
-    font-size: 12px; font-weight: 900;
-    color: rgba(255,255,255,.85);
-    font-feature-settings: "tnum";
-    letter-spacing: 0.04em;
+  .empty-box .ttl {
+    font: 800 14px/1.3 var(--disp);
+    color: var(--ink-2);
+    margin-bottom: 5px;
   }
-  .fd-stage .fd-close {
-    position: absolute; top: 8px; right: 8px;
-    width: 28px; height: 28px;
-    border: none; background: rgba(0,0,0,.2);
-    color: #fff;
-    border-radius: var(--r-pill);
-    font-size: 16px; font-weight: 800;
-    cursor: pointer;
-    display: grid; place-items: center;
-  }
-  .fd-sprite {
-    font-size: 96px; line-height: 1;
-    filter: drop-shadow(0 6px 10px rgba(0,0,0,.22));
-    margin-bottom: 10px;
-  }
-  .fd-name {
-    color: #fff;
-    font-size: 24px; font-weight: 900;
-    letter-spacing: -0.03em;
-    margin-bottom: 6px;
-    text-shadow: 0 1px 3px rgba(0,0,0,.2);
-  }
-  .fd-type {
-    display: inline-block;
-    background: rgba(0,0,0,.25);
-    color: #fff;
-    font-size: 10px; font-weight: 800;
-    padding: 3px 10px;
-    border-radius: var(--r-pill);
-    letter-spacing: 0.08em; text-transform: uppercase;
-  }
-  .fd-body { padding: 16px 18px 18px; }
-  .fd-speech {
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-md);
-    padding: 12px 14px;
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.6;
-    margin-bottom: 12px;
-    position: relative;
-  }
-  .fd-speech::before {
-    content: '';
-    position: absolute;
-    top: -5px; left: 20px;
-    width: 10px; height: 10px;
-    background: var(--bg);
-    border-left: 1px solid var(--divider);
-    border-top: 1px solid var(--divider);
-    transform: rotate(45deg);
-  }
-  .fd-meta {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--divider);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-sm);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-  .fd-meta .cell {
-    background: var(--panel);
-    padding: 8px 12px;
-  }
-  .fd-meta .l {
-    font-size: 9px; font-weight: 800;
-    color: var(--ink-mute);
-    text-transform: uppercase; letter-spacing: 0.06em;
-    margin-bottom: 2px;
-  }
-  .fd-meta .v {
-    font-size: 13px; font-weight: 800;
-    font-feature-settings: "tnum";
-    letter-spacing: -0.01em;
+  .empty-box .sub {
+    font: 500 12px/1.45 var(--body);
+    color: var(--ink-3);
   }
 
+  /* ==================================================================
+     Dex — 도감 보관함
+     ================================================================== */
+  .dex-hero {
+    margin: 0 16px 14px;
+    padding: 14px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    position: relative;
+  }
+  .dex-hero::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .dex-hero-top {
+    position: relative; z-index: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .dex-hero .big {
+    font: 800 30px/1 var(--disp);
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .dex-hero .big .s {
+    font: 500 14px/1 var(--body);
+    color: var(--ink-3);
+    margin-left: 4px;
+  }
+  .dex-hero .pct {
+    font: 800 14px/1 var(--disp);
+    color: var(--pri);
+    font-variant-numeric: tabular-nums;
+    padding: 3px 7px;
+    background: var(--pri-soft);
+    border: 1.5px solid var(--pri);
+    border-radius: var(--r-1);
+  }
+  .dex-hero .bar {
+    position: relative; z-index: 1;
+    margin-top: 12px;
+    height: 10px;
+    background: var(--surface-3);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-1);
+    overflow: hidden;
+  }
+  .dex-hero .bar i {
+    display: block; height: 100%;
+    width: 28%;
+    background: linear-gradient(to right, var(--t-noun), var(--pri));
+  }
+
+  .dex-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .type-case {
+    padding: 12px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    text-align: left;
+    position: relative;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .type-case::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--line-deep);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .type-case::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 5px;
+    background: var(--tc);
+    z-index: 1;
+  }
+  .type-case[data-t="noun"] { --tc: var(--t-noun); }
+  .type-case[data-t="verb"] { --tc: var(--t-verb); }
+  .type-case[data-t="adj"]  { --tc: var(--t-adj);  }
+  .type-case[data-t="adv"]  { --tc: var(--t-adv);  }
+  .type-case[data-t="prep"] { --tc: var(--t-prep); }
+  .type-case[data-t="conj"] { --tc: var(--t-conj); }
+  .tc-head {
+    position: relative; z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .tc-lbl {
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .12em;
+    color: var(--tc);
+    text-transform: uppercase;
+  }
+  .tc-num {
+    font: 800 9px/1 var(--disp);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-name {
+    position: relative; z-index: 2;
+    margin-top: 6px;
+    font: 800 15px/1 var(--disp);
+    color: var(--ink);
+  }
+  .tc-count {
+    position: relative; z-index: 2;
+    margin-top: 10px;
+    font: 800 20px/1 var(--disp);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-count .t {
+    font: 500 11px/1 var(--body);
+    color: var(--ink-3);
+    margin-left: 3px;
+  }
+  .tc-bar {
+    position: relative; z-index: 2;
+    margin-top: 8px;
+    height: 5px;
+    background: var(--surface-3);
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tc-bar i {
+    display: block; height: 100%;
+    background: var(--tc);
+  }
+
+  /* ==================================================================
+     Me — 트레이너 카드
+     ================================================================== */
+  .trainer-card {
+    margin: 14px 16px 0;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--pri-soft) 0%, var(--surface) 60%);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    position: relative;
+  }
+  .trainer-card::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--pri);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .tc-corner {
+    position: absolute;
+    top: 0; right: 0;
+    padding: 4px 10px;
+    background: var(--pri);
+    color: #fff;
+    font: 800 10px/1 var(--disp);
+    letter-spacing: .12em;
+    border-bottom-left-radius: var(--r-1);
+    z-index: 1;
+  }
+  .tc-main {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .tc-avatar {
+    width: 72px; height: 72px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    padding: 6px;
+    box-shadow: 2px 2px 0 var(--pri);
+  }
+  .tc-avatar svg { width: 100%; height: 100%; display: block; }
+  .tc-name {
+    font: 800 18px/1.1 var(--disp);
+    letter-spacing: -.01em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .tc-lv {
+    margin-top: 5px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    padding: 3px 7px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r-1);
+    font: 800 10px/1 var(--disp);
+  }
+  .tc-lv .n {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-streak {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font: 700 12px/1 var(--disp);
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-streak svg { width: 14px; height: 14px; color: var(--hot); }
+
+  .stats-row {
+    margin: 10px 16px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .stat-box {
+    padding: 10px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .stat-box .lbl {
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .1em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+  .stat-box .v {
+    margin-top: 6px;
+    font: 800 18px/1 var(--disp);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-box .v .u {
+    font: 500 10px/1 var(--body);
+    color: var(--ink-3);
+    margin-left: 2px;
+  }
+
+  /* 배지 */
+  .badges-grid {
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .badge {
+    aspect-ratio: 1;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .badge svg { width: 28px; height: 28px; }
+  .badge[data-earned="true"] { background: var(--gold-soft); box-shadow: 2px 2px 0 var(--gold); }
+  .badge[data-earned="true"] svg { color: var(--gold); }
+  .badge[data-locked="true"]  { background: var(--surface-2); border-style: dashed; }
+  .badge[data-locked="true"] svg { color: var(--ink-4); }
+
+  /* ==================================================================
+     Tab bar
+     ================================================================== */
+  .tabbar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: var(--ink);
+    border-top: 2px solid var(--ink);
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 15;
+  }
+  .tabbar button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px 10px;
+    color: rgba(255, 255, 255, .55);
+    font: 800 9px/1 var(--disp);
+    letter-spacing: .04em;
+    position: relative;
+  }
+  .tabbar button svg {
+    width: 22px; height: 22px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+  .tabbar button[aria-current="page"] {
+    color: #fff;
+  }
+  .tabbar button[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 2px;
+    background: var(--pri);
+  }
+  .tabbar button[aria-current="page"] svg { stroke-width: 2.2; }
+
+  /* ==================================================================
+     stagger reveal
+     ================================================================== */
+  .screen > * {
+    animation: rise .42s var(--e-expo) both;
+  }
+  .screen > *:nth-child(1) { animation-delay: 40ms; }
+  .screen > *:nth-child(2) { animation-delay: 90ms; }
+  .screen > *:nth-child(3) { animation-delay: 140ms; }
+  .screen > *:nth-child(4) { animation-delay: 190ms; }
+  .screen > *:nth-child(5) { animation-delay: 240ms; }
+  .screen > *:nth-child(n+6) { animation-delay: 290ms; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
+    .screen > * { animation: none; }
+  }
+
+  .vh {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
   }
 </style>
 </head>
+
 <body data-screen="home">
 
-<a href="#main" class="skip">본문으로 건너뛰기</a>
-
+<!-- ==================================================================
+     SVG sprite — 마스코트 / 가구 / 아이콘
+     ================================================================== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-<defs>
-  <symbol id="buddy" viewBox="0 0 48 48">
-    <circle cx="24" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="2"/>
-    <ellipse cx="14" cy="14" rx="4" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
-    <ellipse cx="34" cy="14" rx="4" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
-    <circle cx="19" cy="24" r="1.6" fill="currentColor"/>
-    <circle cx="29" cy="24" r="1.6" fill="currentColor"/>
-    <path d="M 21 30 Q 24 32 27 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-  </symbol>
+  <defs>
+    <!-- ===== MASCOT: 와와 =====
+         Digital Tamers의 베이비 디지몬 계열.
+         둥근 몸통 + 큰 눈 + 작은 뿔.
+    -->
+    <symbol id="mascot" viewBox="0 0 100 100">
+      <!-- 그림자 -->
+      <ellipse cx="50" cy="91" rx="26" ry="3.5" fill="rgba(20,23,31,.15)"/>
+      <!-- 발 -->
+      <ellipse cx="40" cy="85" rx="7" ry="4" fill="#1438a8"/>
+      <ellipse cx="60" cy="85" rx="7" ry="4" fill="#1438a8"/>
+      <!-- 몸통 -->
+      <path d="M50 22c-16 0-25 10-25 24v14c0 12 10 21 25 21s25-9 25-21V46c0-14-9-24-25-24z"
+            fill="#1f4fe6" stroke="#14171f" stroke-width="2.5"/>
+      <!-- 배 -->
+      <ellipse cx="50" cy="60" rx="14" ry="12" fill="#f6efe3"/>
+      <!-- 뿔/안테나 -->
+      <path d="M50 22v-8M50 14l-3-4M50 14l3-4"
+            stroke="#14171f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="12" r="3" fill="#d4232c" stroke="#14171f" stroke-width="2"/>
+      <!-- 볼터치 -->
+      <ellipse cx="33" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+      <ellipse cx="67" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+      <!-- 눈 -->
+      <g>
+        <ellipse class="mascot-eye" cx="40" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+        <ellipse class="mascot-eye" cx="60" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+        <circle cx="41.4" cy="42.6" r="1.1" fill="#fff"/>
+        <circle cx="61.4" cy="42.6" r="1.1" fill="#fff"/>
+      </g>
+      <!-- 입 -->
+      <path d="M46 54q4 3 8 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- 팔 -->
+      <ellipse cx="26" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
+      <ellipse cx="74" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
+    </symbol>
 
-  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M 4 11 L 12 4 L 20 11 L 20 20 L 14 20 L 14 14 L 10 14 L 10 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-  <symbol id="ic-learn" viewBox="0 0 24 24"><path d="M 4 6 L 12 4 L 20 6 L 20 18 L 12 20 L 4 18 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M 12 4 L 12 20" stroke="currentColor" stroke-width="1.8"/></symbol>
-  <symbol id="ic-practice" viewBox="0 0 24 24"><path d="M 4 17 L 16 5 L 19 8 L 7 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-  <symbol id="ic-dex" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 9 L 20 9" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="6.5" r="1" fill="currentColor"/></symbol>
-  <symbol id="ic-me" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
-  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M 12 5 L 12 19 M 5 12 L 19 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <!-- ===== 가구 =====
+         방에 배치되는 클릭 가능한 기능 진입점 -->
 
-  <symbol id="t-leaf" viewBox="0 0 32 32">
-    <path d="M 16 5 C 8 11 7 21 11 27 C 18 25 25 18 25 8 C 22 7 19 6 16 5 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M 16 9 L 13 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="t-flame" viewBox="0 0 32 32">
-    <path d="M 16 4 C 11 11 8 14 10 21 C 11 26 14 28 16 28 C 18 28 21 26 22 21 C 24 16 20 14 19 11 C 18 14 18 17 16 17 C 14 16 18 9 16 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="t-drop" viewBox="0 0 32 32">
-    <path d="M 16 4 C 9 13 8 18 10 23 C 12 27 14 28 16 28 C 18 28 20 27 22 23 C 24 18 23 13 16 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="t-star" viewBox="0 0 32 32">
-    <path d="M 16 4 L 19 12 L 28 12 L 21 18 L 24 27 L 16 22 L 8 27 L 11 18 L 4 12 L 13 12 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="t-bolt" viewBox="0 0 32 32">
-    <path d="M 18 3 L 8 17 L 14 17 L 11 29 L 24 13 L 18 13 L 21 3 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="t-moon" viewBox="0 0 32 32">
-    <path d="M 22 4 C 14 6 9 12 9 18 C 9 24 14 28 22 27 C 16 25 13 21 13 17 C 13 12 16 8 22 4 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="t-arrow" viewBox="0 0 32 32">
-    <path d="M 5 27 L 25 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <path d="M 17 6 L 27 6 L 27 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="t-egg" viewBox="0 0 32 32">
-    <ellipse cx="16" cy="18" rx="10" ry="12" fill="none" stroke="currentColor" stroke-width="2"/>
-    <path d="M 9 14 L 13 18 L 16 14 L 19 18 L 23 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-  </symbol>
-</defs>
+    <!-- 책장 — 내 단어장 -->
+    <symbol id="fur-shelf" viewBox="0 0 80 140">
+      <rect x="4" y="4" width="72" height="132" fill="#a06b42" stroke="#14171f" stroke-width="2.5" rx="2"/>
+      <rect x="8" y="8" width="64" height="30" fill="#efe3cd" stroke="#14171f" stroke-width="1.5"/>
+      <rect x="8" y="42" width="64" height="30" fill="#efe3cd" stroke="#14171f" stroke-width="1.5"/>
+      <rect x="8" y="76" width="64" height="30" fill="#efe3cd" stroke="#14171f" stroke-width="1.5"/>
+      <rect x="8" y="110" width="64" height="22" fill="#efe3cd" stroke="#14171f" stroke-width="1.5"/>
+      <!-- 책 -->
+      <rect x="12" y="13" width="7" height="20" fill="#d4232c" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="21" y="11" width="7" height="22" fill="#1f4fe6" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="30" y="14" width="7" height="19" fill="#2f9e57" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="39" y="12" width="7" height="21" fill="#c89200" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="48" y="15" width="7" height="18" fill="#b73d8a" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="57" y="13" width="7" height="20" fill="#6f5b48" stroke="#14171f" stroke-width="1.2"/>
+
+      <rect x="14" y="47" width="7" height="20" fill="#1f4fe6" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="23" y="46" width="7" height="21" fill="#d4232c" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="32" y="49" width="7" height="18" fill="#c89200" stroke="#14171f" stroke-width="1.2"/>
+      <rect x="43" y="46" width="20" height="21" fill="#2f9e57" stroke="#14171f" stroke-width="1.2"/>
+      <text x="53" y="61" text-anchor="middle" font-family="SUIT Variable, sans-serif" font-weight="800" font-size="12" fill="#fff">W</text>
+
+      <rect x="14" y="81" width="50" height="20" fill="#6f5b48" stroke="#14171f" stroke-width="1.2"/>
+      <text x="39" y="95" text-anchor="middle" font-family="SUIT Variable, sans-serif" font-weight="800" font-size="9" fill="#fff" letter-spacing="1">VOCAB</text>
+
+      <rect x="14" y="115" width="7" height="13" fill="#b73d8a" stroke="#14171f" stroke-width="1"/>
+      <rect x="23" y="115" width="7" height="13" fill="#2f9e57" stroke="#14171f" stroke-width="1"/>
+      <rect x="32" y="115" width="7" height="13" fill="#1f4fe6" stroke="#14171f" stroke-width="1"/>
+    </symbol>
+
+    <!-- 칠판 — 퀴즈 -->
+    <symbol id="fur-board" viewBox="0 0 120 80">
+      <!-- 테두리(나무) -->
+      <rect x="2" y="2" width="116" height="76" fill="#8a6239" stroke="#14171f" stroke-width="2.5" rx="2"/>
+      <!-- 칠판면 -->
+      <rect x="8" y="8" width="104" height="58" fill="#1e3a2a" stroke="#14171f" stroke-width="1.5"/>
+      <!-- 분필 자국 -->
+      <text x="60" y="35" text-anchor="middle" font-family="SUIT Variable, sans-serif" font-weight="800" font-size="18" fill="#f1e4c4">Quiz</text>
+      <text x="60" y="54" text-anchor="middle" font-family="SUIT Variable, sans-serif" font-weight="700" font-size="11" fill="#a8bca0" letter-spacing="2">3 / 10</text>
+      <!-- 받침대 -->
+      <rect x="2" y="68" width="116" height="8" fill="#6f4b2e" stroke="#14171f" stroke-width="1.5"/>
+      <!-- 분필 -->
+      <rect x="40" y="68" width="12" height="4" fill="#f1e4c4" stroke="#14171f" stroke-width="1"/>
+      <rect x="78" y="68" width="8" height="4" fill="#ff9db2" stroke="#14171f" stroke-width="1"/>
+    </symbol>
+
+    <!-- 노트 — 문법 Q&A -->
+    <symbol id="fur-note" viewBox="0 0 80 80">
+      <!-- 책상 -->
+      <rect x="0" y="52" width="80" height="24" fill="#a06b42" stroke="#14171f" stroke-width="2"/>
+      <!-- 공책 -->
+      <rect x="8" y="32" width="56" height="28" fill="#f7f1df" stroke="#14171f" stroke-width="2" rx="1" transform="rotate(-6 36 46)"/>
+      <g transform="rotate(-6 36 46)">
+        <line x1="14" y1="40" x2="58" y2="40" stroke="#b5a88a" stroke-width="1"/>
+        <line x1="14" y1="47" x2="58" y2="47" stroke="#b5a88a" stroke-width="1"/>
+        <line x1="14" y1="54" x2="50" y2="54" stroke="#b5a88a" stroke-width="1"/>
+        <!-- 물음표 -->
+        <path d="M20 46q2-3 5-2t2 4-3 2v2M22 54v1" stroke="#d4232c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- 연필 -->
+      <g transform="rotate(25 52 42)">
+        <rect x="46" y="30" width="22" height="4" fill="#e8b521" stroke="#14171f" stroke-width="1"/>
+        <polygon points="68,30 72,32 68,34" fill="#14171f"/>
+        <rect x="44" y="30" width="4" height="4" fill="#d4232c" stroke="#14171f" stroke-width="1"/>
+      </g>
+    </symbol>
+
+    <!-- 트로피장 — 도감 -->
+    <symbol id="fur-trophy" viewBox="0 0 80 100">
+      <!-- 장 -->
+      <rect x="4" y="4" width="72" height="92" fill="#efe3cd" stroke="#14171f" stroke-width="2.5" rx="2"/>
+      <!-- 유리 -->
+      <rect x="8" y="8" width="64" height="84" fill="#e4eefb" stroke="#14171f" stroke-width="1.5" opacity=".6"/>
+      <!-- 선반 -->
+      <line x1="8" y1="44" x2="72" y2="44" stroke="#14171f" stroke-width="1.5"/>
+      <line x1="8" y1="70" x2="72" y2="70" stroke="#14171f" stroke-width="1.5"/>
+      <!-- 트로피 -->
+      <g>
+        <path d="M30 20h20v12c0 6-4 10-10 10s-10-4-10-10z" fill="#e8b521" stroke="#14171f" stroke-width="2"/>
+        <path d="M30 24c-4 0-6 2-6 6s2 5 5 5M50 24c4 0 6 2 6 6s-2 5-5 5" stroke="#14171f" stroke-width="1.5" fill="none"/>
+        <rect x="36" y="40" width="8" height="4" fill="#c78900" stroke="#14171f" stroke-width="1.5"/>
+        <rect x="32" y="44" width="16" height="3" fill="#8a6239" stroke="#14171f" stroke-width="1.5"/>
+      </g>
+      <!-- 메달 -->
+      <circle cx="22" cy="58" r="6" fill="#d4232c" stroke="#14171f" stroke-width="1.5"/>
+      <circle cx="40" cy="58" r="6" fill="#2f9e57" stroke="#14171f" stroke-width="1.5"/>
+      <circle cx="58" cy="58" r="6" fill="#1f4fe6" stroke="#14171f" stroke-width="1.5"/>
+      <!-- 배지 -->
+      <polygon points="20,82 22,78 24,82 28,82 25,85 27,89 22,87 17,89 19,85 16,82" fill="#c89200" stroke="#14171f" stroke-width="1.2"/>
+      <polygon points="40,82 42,78 44,82 48,82 45,85 47,89 42,87 37,89 39,85 36,82" fill="#b73d8a" stroke="#14171f" stroke-width="1.2"/>
+      <polygon points="60,82 62,78 64,82 68,82 65,85 67,89 62,87 57,89 59,85 56,82" fill="#6f5b48" stroke="#14171f" stroke-width="1.2"/>
+    </symbol>
+
+    <!-- ===== HUD 아이콘 ===== -->
+    <symbol id="ic-flame" viewBox="0 0 14 14" fill="currentColor">
+      <path d="M7 1c0 3-3 3-3 6a3 3 0 0 0 6 0c0-1-1-1-1-2s1-1 1-3l-1 2c0-1-1-2-2-3z"/>
+    </symbol>
+    <symbol id="ic-coin" viewBox="0 0 14 14" fill="currentColor">
+      <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2" fill="currentColor"/>
+      <text x="7" y="10" text-anchor="middle" font-family="SUIT Variable, sans-serif" font-weight="800" font-size="8" fill="#14171f">W</text>
+    </symbol>
+
+    <!-- ===== Quest icons ===== -->
+    <symbol id="ic-review" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 4v6h6"/>
+      <path d="M4 10a8 8 0 1 1 2 7"/>
+    </symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"/>
+    </symbol>
+    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6h16v10H9l-4 4z"/>
+      <path d="M8 10h8M8 13h5"/>
+    </symbol>
+
+    <!-- ===== Nav icons ===== -->
+    <symbol id="ic-home" viewBox="0 0 24 24">
+      <path d="M4 12l8-7 8 7M6 11v9h4v-6h4v6h4v-9"/>
+    </symbol>
+    <symbol id="ic-learn" viewBox="0 0 24 24">
+      <path d="M5 4h10l4 4v12H5z"/>
+      <path d="M15 4v4h4"/>
+      <path d="M8 13h8M8 17h5"/>
+    </symbol>
+    <symbol id="ic-practice" viewBox="0 0 24 24">
+      <path d="M4 18l5-5 3 3 8-8"/>
+      <path d="M14 8h6v6"/>
+    </symbol>
+    <symbol id="ic-dex" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="16" height="16" rx="2"/>
+      <path d="M4 10h16M10 4v16"/>
+    </symbol>
+    <symbol id="ic-me" viewBox="0 0 24 24">
+      <circle cx="12" cy="9" r="4"/>
+      <path d="M4 20c1-4 4-6 8-6s7 2 8 6"/>
+    </symbol>
+
+    <!-- ===== Evolution stage icons (Box 1~5) =====
+         단어가 진화하는 느낌 — 포켓몬 진화 스프라이트 DNA -->
+    <symbol id="stage-1" viewBox="0 0 24 24" fill="currentColor">
+      <!-- 알 -->
+      <ellipse cx="12" cy="14" rx="6" ry="7" fill="#fff" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 14l2-2 2 2 2-2 2 2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    </symbol>
+    <symbol id="stage-2" viewBox="0 0 24 24" fill="currentColor">
+      <!-- 새싹 -->
+      <ellipse cx="12" cy="18" rx="7" ry="3" fill="#fff" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 18V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M12 10q-4-3-5 0M12 10q4-3 5 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="stage-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <!-- 아기 생물 -->
+      <ellipse cx="12" cy="14" rx="7" ry="6"/>
+      <circle cx="10" cy="13" r="1" fill="currentColor"/>
+      <circle cx="14" cy="13" r="1" fill="currentColor"/>
+      <path d="M12 8V5"/>
+    </symbol>
+    <symbol id="stage-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 청소년 -->
+      <path d="M6 14c0-5 2-8 6-8s6 3 6 8v4H6z"/>
+      <circle cx="9.5" cy="13" r="1" fill="currentColor"/>
+      <circle cx="14.5" cy="13" r="1" fill="currentColor"/>
+      <path d="M6 6l2 2M18 6l-2 2"/>
+    </symbol>
+    <symbol id="stage-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 완전체 — 왕관 -->
+      <path d="M4 18l2-10 3 6 3-9 3 9 3-6 2 10z"/>
+      <path d="M4 18h16"/>
+      <circle cx="8" cy="10" r="1" fill="currentColor"/>
+      <circle cx="12" cy="8" r="1" fill="currentColor"/>
+      <circle cx="16" cy="10" r="1" fill="currentColor"/>
+    </symbol>
+
+    <!-- ===== Badges ===== -->
+    <symbol id="badge-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l2.5 5.5 6 .8-4.5 4 1 6-5-2.8-5 2.8 1-6-4.5-4 6-.8z"/>
+    </symbol>
+    <symbol id="badge-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3c0 4-5 5-5 10a5 5 0 0 0 10 0c0-2-1-3-2-4 0 2-1 3-2 3 1-3-1-5-1-9z"/>
+    </symbol>
+    <symbol id="badge-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 1-2-2z"/>
+      <path d="M9 8h6M9 12h6"/>
+    </symbol>
+    <symbol id="badge-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 19V9M10 19V5M15 19v-7M20 19v-4"/>
+      <path d="M4 19h18"/>
+    </symbol>
+    <symbol id="badge-medal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 3l3 8M17 3l-3 8"/>
+      <circle cx="12" cy="15" r="6"/>
+      <path d="M10 15l2 2 3-4"/>
+    </symbol>
+    <symbol id="badge-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 18l2-10 4 5 3-8 3 8 4-5 2 10z"/>
+      <path d="M3 18h18"/>
+    </symbol>
+    <symbol id="badge-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="11" width="14" height="10" rx="1"/>
+      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+    </symbol>
+  </defs>
 </svg>
 
-<div class="app" id="main" tabindex="-1">
+<div class="device" role="application" aria-label="Word Gacha">
 
-  <header class="topbar">
-    <div class="wordmark">
-      WORD<span class="accent">·</span>GACHA
-      <span class="sub">Vocab Trainer</span>
-    </div>
-    <div class="trainer-id">ID #<span id="trainer-id">000</span></div>
-  </header>
+  <!-- HUD — 항상 보임 -->
+  <div class="hud">
+    <span class="hud-lv"><span class="t">LV</span><span class="n">12</span></span>
+    <div class="hud-exp" style="--exp: 72%"></div>
+    <span class="hud-stat streak"><svg><use href="#ic-flame"/></svg>92</span>
+    <span class="hud-stat coin"><svg><use href="#ic-coin"/></svg>250</span>
+  </div>
 
-  <!-- ─── HOME ─── -->
-  <section class="screen home" aria-labelledby="home-h">
-    <h2 id="home-h" class="visually-hidden">홈</h2>
+  <main class="app">
 
-    <div class="trainer-card">
-      <div class="tc-row">
-        <div class="tc-buddy" style="color: var(--ink)" id="home-buddy"
-             role="button" tabindex="0" aria-label="토토와 인사하기"
-             onclick="buddyTalk()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();buddyTalk();}">
-          <svg aria-hidden="true"><use href="#buddy"/></svg>
-          <span class="speech" id="buddy-speech"></span>
-          <span class="mood-badge" id="mood-badge" hidden></span>
+    <!-- ============================================================
+         HOME — 내 방
+         ============================================================ -->
+    <section class="screen" data-s="home" aria-labelledby="h-home">
+      <h1 id="h-home" class="vh">홈</h1>
+
+      <div class="room-wrap">
+        <div class="room" aria-label="내 방">
+          <div class="window"></div>
+          <div class="floor"></div>
+
+          <button class="item shelf" onclick="goto('learn','mywords')" aria-label="내 단어장">
+            <svg><use href="#fur-shelf"/></svg>
+            <span class="lbl">단어장</span>
+          </button>
+          <button class="item board" onclick="goto('learn','quiz')" aria-label="퀴즈">
+            <svg><use href="#fur-board"/></svg>
+            <span class="lbl">퀴즈</span>
+          </button>
+          <button class="item note" onclick="goto('practice')" aria-label="문법">
+            <svg><use href="#fur-note"/></svg>
+            <span class="lbl">문법</span>
+          </button>
+          <button class="item trophy" onclick="goto('dex')" aria-label="도감">
+            <svg><use href="#fur-trophy"/></svg>
+            <span class="lbl">도감</span>
+          </button>
+
+          <div class="mascot-wrap">
+            <span class="shadow"></span>
+            <svg><use href="#mascot"/></svg>
+          </div>
         </div>
-        <div class="tc-meta">
-          <div class="tc-name-row">
-            <span class="tc-name">토토</span>
-            <span class="tc-stage">ST.<span id="stage-num">1</span></span>
+      </div>
+
+      <div class="dialog">
+        <div class="speaker">WAWA · Lv 12</div>
+        <div class="line">오늘 복습 <b>12개</b>, 새 단어 <b>5개</b>. 문법 답변도 <b>2건</b> 도착했어. 어디부터 할까?</div>
+        <span class="arrow"></span>
+      </div>
+
+      <div class="quests">
+        <div class="quests-head">
+          <h2>오늘의 퀘스트</h2>
+          <span class="sub">4월 19일 일</span>
+        </div>
+        <div class="quest-list">
+          <button class="quest" onclick="goto('learn','quiz')">
+            <span class="q-marker" data-c="review">
+              <svg style="color: var(--t-noun)"><use href="#ic-review"/></svg>
+              <span class="mn">12</span>
+            </span>
+            <span class="q-text">
+              <span class="t">복습 세션</span>
+              <span class="s">BOX 2·3·5 · 권장 8분</span>
+            </span>
+            <span class="q-reward"><span class="xp">+60</span> EXP</span>
+            <span class="q-arr">›</span>
+          </button>
+
+          <button class="quest" onclick="goto('learn','textbook')">
+            <span class="q-marker" data-c="new">
+              <svg style="color: var(--t-adj)"><use href="#ic-plus"/></svg>
+              <span class="mn">5</span>
+            </span>
+            <span class="q-text">
+              <span class="t">새 단어 포획</span>
+              <span class="s">Unit 5 · Culture</span>
+            </span>
+            <span class="q-reward"><span class="xp">+80</span> EXP</span>
+            <span class="q-arr">›</span>
+          </button>
+
+          <button class="quest" onclick="goto('practice')">
+            <span class="q-marker" data-c="gram">
+              <svg style="color: var(--t-adv)"><use href="#ic-chat"/></svg>
+              <span class="mn">2</span>
+            </span>
+            <span class="q-text">
+              <span class="t">선생님 답변 확인</span>
+              <span class="s">현재완료 · 15분 전</span>
+            </span>
+            <span class="q-reward">—</span>
+            <span class="q-arr">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pace">
+        <div class="pace-head">
+          <div>
+            <div class="ttl">이번 주 페이스</div>
+            <div class="avg">23<small>분 / 일</small></div>
           </div>
-          <div class="lv-row">
-            <span class="lv-badge">LV <span class="lv-num" id="lv-home">1</span></span>
-            <span class="lv-label">EXP</span>
-          </div>
-          <div class="exp-track">
-            <div class="exp-fill" id="exp-fill" style="width:0%"></div>
-          </div>
-          <div class="exp-text">
-            <span><span id="exp-home">0</span> / 100</span>
-            <span class="totem-on" id="totem-on" hidden>×<span id="totem-on-val">1.5</span> BOOST</span>
-          </div>
-          <div class="bond-row" id="bond-row">
-            <span class="bond-label">유대</span>
-            <span class="bond-hearts" id="bond-hearts"></span>
+          <div style="text-align:right">
+            <div class="ttl" style="color: var(--t-adj)">+18%</div>
+            <div style="font: 500 10px/1 var(--body); color: var(--ink-3); margin-top: 4px; font-variant-numeric: tabular-nums;">지난주 대비</div>
           </div>
         </div>
-        <button class="tc-slot empty" id="home-slot" type="button"
-                onclick="goto('dex'); selectSub('dex','totems')" aria-label="장착 토템">
-          <span class="plus" id="home-slot-plus">＋</span>
-          <svg id="home-slot-svg" hidden aria-hidden="true"><use id="home-slot-use" href=""/></svg>
-          <span class="tc-slot-mult" id="home-slot-mult" hidden>×1.5</span>
+        <div class="chart">
+          <b class="hit" style="height:52%"></b>
+          <b class="hit" style="height:78%"></b>
+          <b class="hit" style="height:34%"></b>
+          <b class="hit" style="height:92%"></b>
+          <b class="hit" style="height:58%"></b>
+          <b style="height:22%"></b>
+          <b class="today" style="height:46%"></b>
+        </div>
+        <div class="chart-x">
+          <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><b class="today">일</b>
+        </div>
+      </div>
+
+      <div style="height: 24px"></div>
+    </section>
+
+    <!-- ============================================================
+         LEARN
+         ============================================================ -->
+    <section class="screen" data-s="learn" aria-labelledby="h-learn">
+      <div class="page-head">
+        <h1 id="h-learn">학습</h1>
+        <span class="sub">퀴즈 · 단어장 · 교재</span>
+      </div>
+
+      <div class="subnav" role="tablist" data-screen="learn">
+        <button role="tab" aria-selected="true"  data-sub="quiz"     onclick="selectSub('learn','quiz')">퀴즈</button>
+        <button role="tab" aria-selected="false" data-sub="mywords"  onclick="selectSub('learn','mywords')">내 단어장</button>
+        <button role="tab" aria-selected="false" data-sub="textbook" onclick="selectSub('learn','textbook')">교재</button>
+      </div>
+
+      <!-- QUIZ — 배틀 스타일 -->
+      <div class="subpane active" data-sub="quiz">
+        <div class="battle-wrap">
+          <!-- 상대 = 단어 -->
+          <div class="enemy-plate">
+            <div class="enemy-head">
+              <span class="name">magnificent</span>
+              <span class="lv">BOX <strong>2</strong></span>
+            </div>
+            <div class="enemy-sub">
+              <span class="chip" data-t="adj">ADJ</span>
+              <div class="enemy-hp" data-level="low" style="--hp: 40%"></div>
+              <span class="enemy-hp-val">40 / 100</span>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-word">
+              magnificent
+              <span class="phon">/mæɡˈnɪfɪsənt/</span>
+            </div>
+            <div class="stage-mascot">
+              <svg><use href="#mascot"/></svg>
+            </div>
+          </div>
+
+          <!-- 4분할 기술 버튼 -->
+          <div class="moves" role="radiogroup" aria-label="뜻 고르기">
+            <button class="move" role="radio" aria-checked="false" onclick="pickMove(this)">
+              <span class="move-hd"><span class="key">1</span> A</span>
+              <span class="move-text">거대한, 막대한</span>
+            </button>
+            <button class="move" role="radio" aria-checked="true" onclick="pickMove(this)">
+              <span class="move-hd"><span class="key">2</span> B</span>
+              <span class="move-text">장엄한, 훌륭한</span>
+            </button>
+            <button class="move" role="radio" aria-checked="false" onclick="pickMove(this)">
+              <span class="move-hd"><span class="key">3</span> C</span>
+              <span class="move-text">인색한, 옹졸한</span>
+            </button>
+            <button class="move" role="radio" aria-checked="false" onclick="pickMove(this)">
+              <span class="move-hd"><span class="key">4</span> D</span>
+              <span class="move-text">친숙한, 익숙한</span>
+            </button>
+          </div>
+
+          <div class="quiz-footer">
+            <div class="progress-inline">
+              <span class="lbl">진행</span>
+              <span class="bar"><i style="--p: 30%"></i></span>
+              <span class="val">3 / 10 · 정답 2</span>
+            </div>
+            <button class="btn-confirm">확인</button>
+          </div>
+        </div>
+
+        <div style="height: 20px"></div>
+      </div>
+
+      <!-- MY WORDS -->
+      <div class="subpane" data-sub="mywords">
+        <div class="filter-bar">
+          <button class="filter" aria-pressed="true" onclick="toggleFilter(this)">전체<span class="n">342</span></button>
+          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">NEW<span class="n">18</span></button>
+          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">학습 중<span class="n">74</span></button>
+          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">외움<span class="n">250</span></button>
+        </div>
+
+        <div class="word-list">
+          <button class="word-row">
+            <span class="stage-icon" data-stage="2" style="color: var(--t-adj)">
+              <svg><use href="#stage-2"/></svg>
+              <span class="num">2</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">magnificent</span>
+              <span class="wr-ko"><span class="chip" data-t="adj">ADJ</span>장엄한, 훌륭한</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 40%"></i></span>
+              <span class="wr-tag">BOX 2</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="3" style="color: var(--t-verb)">
+              <svg><use href="#stage-3"/></svg>
+              <span class="num">3</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">resemble</span>
+              <span class="wr-ko"><span class="chip" data-t="verb">VERB</span>닮다, 유사하다</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 60%"></i></span>
+              <span class="wr-tag">BOX 3</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="1" style="color: var(--t-adj)">
+              <svg><use href="#stage-1"/></svg>
+              <span class="num">1</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">abundant</span>
+              <span class="wr-ko"><span class="chip" data-t="adj">ADJ</span>풍부한, 많은</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 20%"></i></span>
+              <span class="wr-tag">NEW</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="5" style="color: var(--t-adj)">
+              <svg><use href="#stage-5"/></svg>
+              <span class="num">5</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">complicated</span>
+              <span class="wr-ko"><span class="chip" data-t="adj">ADJ</span>복잡한</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp" data-l="mastered"><i style="--hp: 100%"></i></span>
+              <span class="wr-tag mastered">외움</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="4" style="color: var(--t-adv)">
+              <svg><use href="#stage-4"/></svg>
+              <span class="num">4</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">gradually</span>
+              <span class="wr-ko"><span class="chip" data-t="adv">ADV</span>점진적으로, 서서히</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 80%"></i></span>
+              <span class="wr-tag">BOX 4</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="2" style="color: var(--t-verb)">
+              <svg><use href="#stage-2"/></svg>
+              <span class="num">2</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">emphasize</span>
+              <span class="wr-ko"><span class="chip" data-t="verb">VERB</span>강조하다</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 40%"></i></span>
+              <span class="wr-tag">BOX 2</span>
+            </span>
+          </button>
+
+          <button class="word-row">
+            <span class="stage-icon" data-stage="5" style="color: var(--t-noun)">
+              <svg><use href="#stage-5"/></svg>
+              <span class="num">5</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">principle</span>
+              <span class="wr-ko"><span class="chip" data-t="noun">NOUN</span>원칙, 원리</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp" data-l="mastered"><i style="--hp: 100%"></i></span>
+              <span class="wr-tag mastered">외움</span>
+            </span>
+          </button>
+        </div>
+        <div style="height: 24px"></div>
+      </div>
+
+      <!-- TEXTBOOK -->
+      <div class="subpane" data-sub="textbook">
+        <div class="units">
+          <button class="unit" aria-pressed="false">
+            <div class="u-n">Unit 1</div>
+            <div class="u-t">Identity</div>
+            <div class="u-bar"><i style="--p: 100%"></i></div>
+          </button>
+          <button class="unit" aria-pressed="false">
+            <div class="u-n">Unit 2</div>
+            <div class="u-t">Friendship</div>
+            <div class="u-bar"><i style="--p: 88%"></i></div>
+          </button>
+          <button class="unit" aria-pressed="false">
+            <div class="u-n">Unit 3</div>
+            <div class="u-t">Nature</div>
+            <div class="u-bar"><i style="--p: 62%"></i></div>
+          </button>
+          <button class="unit" aria-pressed="true">
+            <div class="u-n">Unit 4</div>
+            <div class="u-t">Technology</div>
+            <div class="u-bar"><i style="--p: 34%"></i></div>
+          </button>
+          <button class="unit" aria-pressed="false">
+            <div class="u-n">Unit 5</div>
+            <div class="u-t">Culture</div>
+            <div class="u-bar"><i style="--p: 0%"></i></div>
+          </button>
+        </div>
+
+        <div style="padding: 4px 16px 10px; display:flex; justify-content: space-between; align-items:center;">
+          <span style="font: 800 11px/1 var(--disp); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);">UNIT 4 · TECHNOLOGY</span>
+          <span style="font: 700 11px/1 var(--disp); color: var(--ink-3); font-variant-numeric: tabular-nums;">12 / 35</span>
+        </div>
+
+        <div class="word-list">
+          <button class="word-row">
+            <span class="stage-icon" data-stage="1" style="color: var(--t-noun)">
+              <svg><use href="#stage-1"/></svg>
+              <span class="num">·</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">innovation</span>
+              <span class="wr-ko"><span class="chip" data-t="noun">NOUN</span>혁신</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-tag" style="color: var(--ink-3)">미학습</span>
+            </span>
+          </button>
+          <button class="word-row">
+            <span class="stage-icon" data-stage="1" style="color: var(--t-adj)">
+              <svg><use href="#stage-1"/></svg>
+              <span class="num">1</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">artificial</span>
+              <span class="wr-ko"><span class="chip" data-t="adj">ADJ</span>인공의</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 20%"></i></span>
+              <span class="wr-tag">NEW</span>
+            </span>
+          </button>
+          <button class="word-row">
+            <span class="stage-icon" data-stage="1" style="color: var(--t-verb)">
+              <svg><use href="#stage-1"/></svg>
+              <span class="num">·</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">implement</span>
+              <span class="wr-ko"><span class="chip" data-t="verb">VERB</span>시행하다, 이행하다</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-tag" style="color: var(--ink-3)">미학습</span>
+            </span>
+          </button>
+          <button class="word-row">
+            <span class="stage-icon" data-stage="2" style="color: var(--t-adv)">
+              <svg><use href="#stage-2"/></svg>
+              <span class="num">2</span>
+            </span>
+            <span class="wr-main">
+              <span class="wr-en">efficiently</span>
+              <span class="wr-ko"><span class="chip" data-t="adv">ADV</span>효율적으로</span>
+            </span>
+            <span class="wr-right">
+              <span class="wr-hp"><i style="--hp: 40%"></i></span>
+              <span class="wr-tag">BOX 2</span>
+            </span>
+          </button>
+        </div>
+        <div style="height: 24px"></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PRACTICE — 문법 Q&A (멘토 채팅)
+         ============================================================ -->
+    <section class="screen" data-s="practice" aria-labelledby="h-practice">
+      <div class="page-head">
+        <h1 id="h-practice">연습</h1>
+        <span class="sub">선생님과 문답</span>
+      </div>
+
+      <div class="subnav" role="tablist" data-screen="practice">
+        <button role="tab" aria-selected="true"  data-sub="grammar" onclick="selectSub('practice','grammar')">문법 Q&amp;A</button>
+        <button role="tab" aria-selected="false" data-sub="writing" onclick="selectSub('practice','writing')">수행평가</button>
+      </div>
+
+      <div class="subpane active" data-sub="grammar">
+        <div class="ask">
+          <div class="ask-box">
+            <textarea placeholder="궁금한 영어 문법을 질문하세요.
+예) 현재완료와 과거시제의 차이?"></textarea>
+            <div class="ask-bar">
+              <span class="cnt">0 / 500</span>
+              <button>올리기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>내 질문</h2>
+          <span class="more">전체 7건</span>
+        </div>
+
+        <div class="q-item">
+          <div class="q-top">
+            <span class="q-status answered">답변됨</span>
+            <span class="q-time">2시간 전</span>
+          </div>
+          <div class="q-text">현재완료 have p.p. 와 과거시제의 차이가 정확히 뭔가요?</div>
+          <div class="q-answer">
+            <span class="src">멘토 · 박선생</span>
+            현재완료는 <b>과거의 일이 지금까지 영향을 미칠 때</b> 씁니다. 과거시제는 그 사건이 과거에 끝난 것.
+            <br>I lost my key (지금은 찾았을 수도) vs I have lost my key (지금도 못 찾음).
+          </div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-top">
+            <span class="q-status pending">대기중</span>
+            <span class="q-time">12분 전</span>
+          </div>
+          <div class="q-text">while 과 during 의 차이? 시험에 자주 나온다고 하셨는데</div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-top">
+            <span class="q-status answered">답변됨</span>
+            <span class="q-time">어제</span>
+          </div>
+          <div class="q-text">'be used to + 동사원형' 과 'used to + 동사원형' 구분</div>
+          <div class="q-answer">
+            <span class="src">멘토 · 박선생</span>
+            <b>used to + 동사원형</b> = 과거의 습관 (지금은 아님). <b>be used to + 동명사</b> = ~에 익숙하다.
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>선생님 공유</h2>
+          <span class="more">전체 18건</span>
+        </div>
+
+        <div class="q-item">
+          <div class="q-top">
+            <span class="q-status answered">정리</span>
+            <span class="q-time">이번 주</span>
+          </div>
+          <div class="q-text">to부정사 vs 동명사 — 목적어로 쓸 때 의미 차이</div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-top">
+            <span class="q-status answered">정리</span>
+            <span class="q-time">지난 주</span>
+          </div>
+          <div class="q-text">수동태 문장 만드는 4단계</div>
+        </div>
+
+        <div style="height: 24px"></div>
+      </div>
+
+      <div class="subpane" data-sub="writing">
+        <div class="empty-box">
+          <div class="ttl">수행평가 과제가 없습니다</div>
+          <div class="sub">선생님이 과제를 올리면 여기에 나와요</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         DEX — 도감
+         ============================================================ -->
+    <section class="screen" data-s="dex" aria-labelledby="h-dex">
+      <div class="page-head">
+        <h1 id="h-dex">도감</h1>
+        <span class="sub">품사별 수집률</span>
+      </div>
+
+      <div class="dex-hero">
+        <div class="dex-hero-top">
+          <div class="big">342<span class="s">/ 1,200</span></div>
+          <div class="pct">28%</div>
+        </div>
+        <div class="bar"><i></i></div>
+      </div>
+
+      <div class="dex-grid">
+        <button class="type-case" data-t="noun">
+          <div class="tc-head">
+            <span class="tc-lbl">NOUN</span>
+            <span class="tc-num">128 / 380</span>
+          </div>
+          <div class="tc-name">명사</div>
+          <div class="tc-count">128<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:34%"></i></div>
+        </button>
+        <button class="type-case" data-t="verb">
+          <div class="tc-head">
+            <span class="tc-lbl">VERB</span>
+            <span class="tc-num">94 / 310</span>
+          </div>
+          <div class="tc-name">동사</div>
+          <div class="tc-count">94<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:30%"></i></div>
+        </button>
+        <button class="type-case" data-t="adj">
+          <div class="tc-head">
+            <span class="tc-lbl">ADJ</span>
+            <span class="tc-num">82 / 240</span>
+          </div>
+          <div class="tc-name">형용사</div>
+          <div class="tc-count">82<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:34%"></i></div>
+        </button>
+        <button class="type-case" data-t="adv">
+          <div class="tc-head">
+            <span class="tc-lbl">ADV</span>
+            <span class="tc-num">28 / 160</span>
+          </div>
+          <div class="tc-name">부사</div>
+          <div class="tc-count">28<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:17%"></i></div>
+        </button>
+        <button class="type-case" data-t="prep">
+          <div class="tc-head">
+            <span class="tc-lbl">PREP</span>
+            <span class="tc-num">8 / 60</span>
+          </div>
+          <div class="tc-name">전치사</div>
+          <div class="tc-count">8<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:13%"></i></div>
+        </button>
+        <button class="type-case" data-t="conj">
+          <div class="tc-head">
+            <span class="tc-lbl">CONJ</span>
+            <span class="tc-num">2 / 50</span>
+          </div>
+          <div class="tc-name">접속사</div>
+          <div class="tc-count">2<span class="t">수집</span></div>
+          <div class="tc-bar"><i style="width:4%"></i></div>
         </button>
       </div>
-    </div>
 
-    <div class="home-stats">
-      <div class="cell"><div class="v" id="hs-words">0</div><div class="l">외운 단어</div></div>
-      <div class="cell"><div class="v" id="hs-friends">1</div><div class="l">친구</div></div>
-      <div class="cell"><div class="v" id="hs-totems">0</div><div class="l">토템</div></div>
-      <div class="cell"><div class="v" id="hs-days">1</div><div class="l">일차</div></div>
-    </div>
+      <div style="height: 24px"></div>
+    </section>
 
-    <button class="cta cta-pri" type="button" onclick="goto('learn'); selectSub('learn','quiz')">
-      <span>오늘의 단어 풀기</span>
-      <span class="arr">→</span>
+    <!-- ============================================================
+         ME — 트레이너 카드
+         ============================================================ -->
+    <section class="screen" data-s="me" aria-labelledby="h-me">
+      <h1 id="h-me" class="vh">기록</h1>
+
+      <div class="trainer-card">
+        <span class="tc-corner">TRAINER</span>
+        <div class="tc-main">
+          <div class="tc-avatar">
+            <svg><use href="#mascot"/></svg>
+          </div>
+          <div>
+            <h2 class="tc-name">와와 트레이너</h2>
+            <span class="tc-lv">LV <span class="n">12</span></span>
+            <div class="tc-streak">
+              <svg><use href="#ic-flame"/></svg>
+              92일 연속 · 최장 17일
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="lbl">외운 단어</div>
+          <div class="v">342</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">학습 시간</div>
+          <div class="v">1,284<span class="u">분</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">정답률</div>
+          <div class="v">86<span class="u">%</span></div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>이번 주</h2>
+        <span class="more" style="color: var(--t-adj); font-weight: 800;">+18%</span>
+      </div>
+      <div class="pace" style="margin-top: 0;">
+        <div class="pace-head">
+          <div>
+            <div class="ttl">목표 달성</div>
+            <div class="avg">5<small>/ 7일</small></div>
+          </div>
+          <div style="text-align:right">
+            <div class="ttl">평균</div>
+            <div class="avg" style="font-size: 16px;">23<small>분</small></div>
+          </div>
+        </div>
+        <div class="chart">
+          <b class="hit" style="height:52%"></b>
+          <b class="hit" style="height:78%"></b>
+          <b class="hit" style="height:34%"></b>
+          <b class="hit" style="height:92%"></b>
+          <b class="hit" style="height:58%"></b>
+          <b style="height:22%"></b>
+          <b class="today" style="height:46%"></b>
+        </div>
+        <div class="chart-x">
+          <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><b class="today">일</b>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>배지</h2>
+        <span class="more">6 / 12</span>
+      </div>
+      <div class="badges-grid">
+        <div class="badge" data-earned="true"><svg><use href="#badge-star"/></svg></div>
+        <div class="badge" data-earned="true"><svg><use href="#badge-flame"/></svg></div>
+        <div class="badge" data-earned="true"><svg><use href="#badge-book"/></svg></div>
+        <div class="badge" data-earned="true"><svg><use href="#badge-chart"/></svg></div>
+        <div class="badge" data-earned="true"><svg><use href="#badge-medal"/></svg></div>
+        <div class="badge" data-earned="true"><svg><use href="#badge-crown"/></svg></div>
+        <div class="badge" data-locked="true"><svg><use href="#badge-lock"/></svg></div>
+        <div class="badge" data-locked="true"><svg><use href="#badge-lock"/></svg></div>
+      </div>
+
+      <div style="height: 24px"></div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar" role="tablist" aria-label="주 메뉴">
+    <button role="tab" aria-current="page"   data-to="home"     onclick="goto('home')">
+      <svg fill="none"><use href="#ic-home"/></svg>홈
     </button>
-  </section>
-
-  <!-- ─── LEARN (퀴즈 / 내단어 / 교재) ─── -->
-  <section class="screen learn" aria-labelledby="learn-h">
-    <h2 id="learn-h" class="screen-h">학습</h2>
-    <p class="screen-sub">단어를 풀고 모으세요</p>
-
-    <div class="subnav" role="tablist" data-screen="learn">
-      <button role="tab" aria-selected="true"  data-sub="quiz"    onclick="selectSub('learn','quiz')">퀴즈</button>
-      <button role="tab" aria-selected="false" data-sub="mywords" onclick="selectSub('learn','mywords')">내 단어장</button>
-      <button role="tab" aria-selected="false" data-sub="textbook" onclick="selectSub('learn','textbook')">교재</button>
-    </div>
-
-    <!-- 퀴즈 -->
-    <div class="subpane active" data-sub="quiz">
-      <div class="quiz-meta">
-        <span>EXP <b id="exp-mission">0</b></span>
-        <span>외운 단어 <b id="mastered-mission">0</b></span>
-      </div>
-      <div class="quiz-buddy">
-        <div class="qb-avatar" id="qb-avatar" aria-hidden="true">
-          <svg><use href="#buddy"/></svg>
-        </div>
-        <div class="qb-bubble" id="qb-bubble" role="status"></div>
-      </div>
-      <div class="word-card">
-        <div class="word-num" id="word-num">#01</div>
-        <div class="word-en" id="word-en">—</div>
-        <div class="word-hint">뜻을 골라보세요</div>
-      </div>
-      <div class="choices" id="choices"></div>
-      <div class="feedback" id="feedback" role="status"></div>
-      <button class="cta next-btn" id="next-btn" type="button" onclick="nextQuiz()">
-        <span>다음 단어</span><span class="arr">→</span>
-      </button>
-    </div>
-
-    <!-- 내 단어장 -->
-    <div class="subpane" data-sub="mywords">
-      <div class="word-list" id="my-word-list">
-        <div class="empty">단어를 추가해보세요</div>
-      </div>
-    </div>
-
-    <!-- 교재 -->
-    <div class="subpane" data-sub="textbook">
-      <div class="unit-row" id="tb-units"></div>
-      <div class="tb-progress">
-        <span id="tb-progress-text">교재 단어 <strong>0개</strong></span>
-        <button class="reload" type="button" onclick="reloadTextbook()">새 단어</button>
-      </div>
-      <div id="tb-words"></div>
-
-      <div class="label-row">교재 핵심 문법</div>
-      <div id="tb-grammar"></div>
-    </div>
-  </section>
-
-  <!-- ─── PRACTICE (문법Q&A / 수행평가) ─── -->
-  <section class="screen practice" aria-labelledby="practice-h">
-    <h2 id="practice-h" class="screen-h">연습</h2>
-    <p class="screen-sub">선생님과 영작 연습</p>
-
-    <div class="subnav" role="tablist" data-screen="practice">
-      <button role="tab" aria-selected="true"  data-sub="grammar" onclick="selectSub('practice','grammar')">문법 Q&amp;A</button>
-      <button role="tab" aria-selected="false" data-sub="writing" onclick="selectSub('practice','writing')">수행평가</button>
-    </div>
-
-    <!-- 문법 Q&A -->
-    <div class="subpane active" data-sub="grammar">
-      <div class="ask-card">
-        <div class="label">문법 질문하기</div>
-        <textarea class="ask-input" id="ask-input"
-          placeholder="궁금한 영어 문법을 질문해주세요&#10;예) 현재완료와 과거시제의 차이?"></textarea>
-        <button class="cta" type="button" onclick="submitQuestion()">
-          <span>질문 올리기</span><span class="arr">→</span>
-        </button>
-        <div class="msg" id="ask-msg"></div>
-      </div>
-
-      <div class="label-row">내 질문</div>
-      <div id="my-questions"></div>
-
-      <div class="label-row">선생님 자료</div>
-      <div id="teacher-grammar"></div>
-    </div>
-
-    <!-- 수행평가 -->
-    <div class="subpane" data-sub="writing">
-      <div id="wp-app"></div>
-    </div>
-  </section>
-
-  <!-- ─── DEX (친구 / 토템) ─── -->
-  <section class="screen dex" aria-labelledby="dex-h">
-    <h2 id="dex-h" class="screen-h">도감</h2>
-    <p class="screen-sub">단어를 모으면 친구와 토템이 늘어나요</p>
-
-    <div class="subnav" role="tablist" data-screen="dex">
-      <button role="tab" aria-selected="true"  data-sub="friends" onclick="selectSub('dex','friends')">친구 <span id="dex-count">1</span>/6</button>
-      <button role="tab" aria-selected="false" data-sub="totems"  onclick="selectSub('dex','totems')">토템 <span id="dex-totem-count">0</span>/8</button>
-    </div>
-
-    <div class="subpane active" data-sub="friends">
-      <div class="dex-list" id="dex-list"></div>
-    </div>
-
-    <div class="subpane" data-sub="totems">
-      <div class="totem-headline">
-        <div>
-          <div class="label">현재 배수</div>
-          <div class="mult-now" id="totem-mult-now">×1.0</div>
-        </div>
-        <div class="right">
-          <div class="label"><span id="totem-owned">0</span>/8 보유</div>
-          <div class="equipped-name" id="totem-eq-name"><span class="none">미장착</span></div>
-        </div>
-      </div>
-      <div class="totem-grid" id="totem-grid"></div>
-    </div>
-  </section>
-
-  <!-- ─── ME ─── -->
-  <section class="screen me" aria-labelledby="me-h">
-    <h2 id="me-h" class="screen-h">기록</h2>
-    <p class="screen-sub">이번 트레이너의 누적 데이터</p>
-
-    <ul class="stat-table">
-      <li><span>레벨</span><b>LV.<span id="lv-me">1</span></b></li>
-      <li><span>총 EXP</span><b id="totalexp-me">0</b></li>
-      <li><span>외운 단어</span><b><span id="mastered-me">0</span></b></li>
-      <li><span>모은 친구</span><b><span id="dex-me">1</span> / 6</b></li>
-      <li><span>토템</span><b><span id="totem-me">0</span> / 8</b></li>
-      <li><span>함께한 날</span><b><span id="days-me">1</span>일</b></li>
-    </ul>
-    <button class="reset-btn" type="button" onclick="resetGame()">처음부터 다시 시작</button>
-  </section>
+    <button role="tab" aria-current="false"  data-to="learn"    onclick="goto('learn')">
+      <svg fill="none"><use href="#ic-learn"/></svg>학습
+    </button>
+    <button role="tab" aria-current="false"  data-to="practice" onclick="goto('practice')">
+      <svg fill="none"><use href="#ic-practice"/></svg>연습
+    </button>
+    <button role="tab" aria-current="false"  data-to="dex"      onclick="goto('dex')">
+      <svg fill="none"><use href="#ic-dex"/></svg>도감
+    </button>
+    <button role="tab" aria-current="false"  data-to="me"       onclick="goto('me')">
+      <svg fill="none"><use href="#ic-me"/></svg>기록
+    </button>
+  </nav>
 
 </div>
-
-<!-- FAB (mywords sub-tab일 때만 표시) -->
-<button class="fab" id="fab" type="button" aria-label="단어 추가" onclick="openSheet()">
-  <svg aria-hidden="true"><use href="#ic-plus"/></svg>
-</button>
-
-<!-- Bottom sheet (단어 추가) -->
-<div class="sheet-ov" id="sheet-ov" onclick="closeSheet()"></div>
-<div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <h3>단어 추가</h3>
-  <input id="add-en" type="text" placeholder="영어 단어 (예: ambiguous)">
-  <input id="add-ko" type="text" placeholder="한국어 뜻 (예: 모호한)">
-  <button class="cta cta-pri" type="button" onclick="addWord()">
-    <span>추가하기</span><span class="arr">→</span>
-  </button>
-  <div class="msg" id="add-msg"></div>
-</div>
-
-<nav class="tabbar" role="tablist" aria-label="주요 메뉴">
-  <button role="tab" data-screen="home"     aria-selected="true"  onclick="goto('home')"><svg aria-hidden="true"><use href="#ic-home"/></svg>홈</button>
-  <button role="tab" data-screen="learn"    aria-selected="false" onclick="goto('learn')"><svg aria-hidden="true"><use href="#ic-learn"/></svg>학습</button>
-  <button role="tab" data-screen="practice" aria-selected="false" onclick="goto('practice')"><svg aria-hidden="true"><use href="#ic-practice"/></svg>연습</button>
-  <button role="tab" data-screen="dex"      aria-selected="false" onclick="goto('dex')"><svg aria-hidden="true"><use href="#ic-dex"/></svg>도감</button>
-  <button role="tab" data-screen="me"       aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>기록</button>
-</nav>
-
-<!-- Drop modal -->
-<div class="ov" id="drop-ov" role="dialog" aria-modal="true" aria-labelledby="drop-name" onclick="closeDrop()">
-  <div class="ov-card" onclick="event.stopPropagation()">
-    <div class="ov-banner">새 토템 획득</div>
-    <div class="ov-body">
-      <div class="ov-icon bg-grass" id="drop-icon-wrap">
-        <svg id="drop-icon" aria-hidden="true"><use href="#t-leaf"/></svg>
-      </div>
-      <div class="ov-name" id="drop-name">새싹</div>
-      <div class="ov-mult">EXP ×<span id="drop-mult">1.5</span></div>
-    </div>
-    <div class="ov-btns">
-      <button class="ov-btn ov-btn-sec" type="button" onclick="closeDrop()">나중에</button>
-      <button class="ov-btn ov-btn-pri" type="button" onclick="equipDropped()">장착</button>
-    </div>
-  </div>
-</div>
-
-<!-- Friend detail modal (pokedex entry) -->
-<div class="ov" id="fd-ov" role="dialog" aria-modal="true" onclick="closeFriend()">
-  <div class="fd-card" id="fd-card" onclick="event.stopPropagation()">
-    <div class="fd-stage" id="fd-stage">
-      <span class="fd-num" id="fd-num">No.001</span>
-      <span class="fd-unlock-tag" id="fd-unlock-tag" hidden>처음 만남</span>
-      <button class="fd-close" type="button" onclick="closeFriend()" aria-label="닫기">✕</button>
-      <div class="fd-sprite" id="fd-sprite">●</div>
-      <div class="fd-name" id="fd-name">토토</div>
-      <span class="fd-type" id="fd-type">마음</span>
-    </div>
-    <div class="fd-body">
-      <div class="fd-speech" id="fd-speech">안녕!</div>
-      <div class="fd-meta">
-        <div class="cell">
-          <div class="l">획득 조건</div>
-          <div class="v" id="fd-need">—</div>
-        </div>
-        <div class="cell">
-          <div class="l">타입</div>
-          <div class="v" id="fd-type-k">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Levelup modal -->
-<div class="ov" id="lvup-ov" role="dialog" aria-modal="true" onclick="closeLevelup()">
-  <div class="ov-card" onclick="event.stopPropagation()">
-    <div class="ov-banner lvup">LEVEL UP</div>
-    <div class="ov-body">
-      <div class="lvup-num">LV.<span id="lu-lv">2</span></div>
-      <p class="lvup-msg" id="lu-msg">토토와 더 친해졌어요</p>
-    </div>
-    <div class="ov-btns">
-      <button class="ov-btn ov-btn-pri" type="button" onclick="closeLevelup()" style="flex:1">계속</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast" role="status"></div>
 
 <script>
-  // ── 단어 데이터 ──
-  const VOCAB = [
-    { en: "apple",   ko: "사과",   choices: ["바나나","포도","수박"] },
-    { en: "book",    ko: "책",     choices: ["가방","연필","의자"] },
-    { en: "happy",   ko: "행복한", choices: ["슬픈","화난","무서운"] },
-    { en: "river",   ko: "강",     choices: ["산","바다","숲"] },
-    { en: "future",  ko: "미래",   choices: ["과거","현재","어제"] },
-    { en: "brave",   ko: "용감한", choices: ["겁많은","조용한","느린"] },
-    { en: "promise", ko: "약속",   choices: ["거짓말","비밀","계획"] },
-    { en: "memory",  ko: "기억",   choices: ["꿈","상상","생각"] },
-    { en: "journey", ko: "여행",   choices: ["휴식","도착","출발"] },
-    { en: "silence", ko: "침묵",   choices: ["소음","대화","음악"] },
-  ];
+  const body = document.body;
 
-  const FRIENDS = [
-    { id:"toto",  emoji:"●", name:"토토",   need:0,  type:"mind",  desc:"시작을 함께한 친구",
-      line:"우리 같이 단어 많이 외우자!" },
-    { id:"mimi",  emoji:"🐱", name:"미미",   need:2,  type:"mind",  desc:"호기심 많은 고양이",
-      line:"새 단어는 나한테 제일 먼저 알려줘, 냥." },
-    { id:"choco", emoji:"🐰", name:"초코",   need:4,  type:"grass", desc:"부지런한 토끼",
-      line:"하루 10개씩만 외워도 금방 늘어요!" },
-    { id:"vani",  emoji:"🦊", name:"바닐라", need:6,  type:"fire",  desc:"빠른 발을 가진 여우",
-      line:"속도는 중요하지 않아. 꾸준함이 답이지." },
-    { id:"uni",   emoji:"🦄", name:"유니콘", need:8,  type:"mind",  desc:"전설 속의 친구",
-      line:"여기까지 오다니… 진짜 대단하네요." },
-    { id:"trex",  emoji:"🦖", name:"티라노", need:10, type:"grass", desc:"가장 강한 동료",
-      line:"쿠어어! 최강 트레이너 인정한다." },
-  ];
-
-  // 유대 단계별 대사 풀 (0~4)
-  const BUDDY_LINES_TIERED = [
-    [ // T0 — 낯선 사이
-      "…누구세요?",
-      "조용히 있을게요.",
-      "시작해볼까…요?",
-    ],
-    [ // T1 — 아는 사이
-      "오늘도 같이 공부하자!",
-      "단어 외우면 친구가 늘어나!",
-      "토템 끼면 경험치 2배야.",
-    ],
-    [ // T2 — 친해진 사이
-      "어제보다 한 개라도 더!",
-      "나 토토, 잊지 말아줘!",
-      "졸리면 잠깐 쉬어도 돼.",
-      "너 어제 잘하더라?",
-    ],
-    [ // T3 — 믿음직한 동료
-      "우리 진짜 팀이네.",
-      "다음 단원 가볼까?",
-      "너라면 충분해.",
-      "내가 옆에 있잖아.",
-    ],
-    [ // T4 — 최고의 파트너
-      "너랑 있으면 뭐든 돼.",
-      "우리 이제 레전드야.",
-      "나… 진짜 좋아해.",
-      "끝까지 같이 가자.",
-    ],
-  ];
-  // 응원/위로 (퀴즈 중)
-  const CHEER_LINES = ["좋아!", "완벽!", "그거야!", "거침없다!", "가즈아!"];
-  const SUPPORT_LINES = ["괜찮아, 다음!", "아깝다!", "한 번 더 보자.", "이건 어려웠어.", "침착!"];
-
-  const TOTEMS = [
-    { id:'tot-001', name:'새싹',    svg:'t-leaf',  type:'grass', mult:1.5 },
-    { id:'tot-002', name:'불꽃',    svg:'t-flame', type:'fire',  mult:1.5 },
-    { id:'tot-003', name:'물방울',  svg:'t-drop',  type:'water', mult:1.5 },
-    { id:'tot-004', name:'별',      svg:'t-star',  type:'mind',  mult:2.0 },
-    { id:'tot-005', name:'번개',    svg:'t-bolt',  type:'bolt',  mult:2.0 },
-    { id:'tot-006', name:'달',      svg:'t-moon',  type:'mind',  mult:2.5 },
-    { id:'tot-007', name:'화살',    svg:'t-arrow', type:'rock',  mult:2.5 },
-    { id:'tot-008', name:'금빛 알', svg:'t-egg',   type:'fire',  mult:3.0 },
-  ];
-  const TYPE_LABEL = { grass:'풀', fire:'불', water:'물', bolt:'전기', mind:'마음', rock:'땅' };
-  const getTotem = id => TOTEMS.find(t => t.id === id);
-  const currentMult = () => state.equippedTotem ? getTotem(state.equippedTotem).mult : 1.0;
-
-  // ── 교재 mock 데이터 ──
-  const TB_UNITS = [1, 2, 3, 4];
-  const TB_WORDS = [
-    { id:'w1', unit:1, en:'ambitious', ko:'야망 있는', pos:'형용사', ex:'She is ambitious about her future career.' },
-    { id:'w2', unit:1, en:'consequence', ko:'결과', pos:'명사', ex:'Every choice has a consequence.' },
-    { id:'w3', unit:2, en:'sustain', ko:'유지하다', pos:'동사', ex:'How can we sustain economic growth?' },
-    { id:'w4', unit:2, en:'inevitable', ko:'불가피한', pos:'형용사', ex:'Change is inevitable in our lives.' },
-    { id:'w5', unit:3, en:'perceive', ko:'인식하다', pos:'동사', ex:'How do you perceive this situation?' },
-    { id:'w6', unit:3, en:'fundamental', ko:'근본적인', pos:'형용사', ex:'Trust is fundamental to friendship.' },
-    { id:'w7', unit:4, en:'deliberate', ko:'의도적인', pos:'형용사', ex:'It was a deliberate decision.' },
-  ];
-  const TB_GRAMMAR = [
-    { id:'g1', point:'현재완료', sentence:'I have lived here for 5 years.',
-      explain:'과거부터 현재까지 계속되는 상태/행위를 표현',
-      pattern:'have/has + p.p.',
-      q:'다음 중 현재완료가 아닌 것은?', a:'I lived here last year. (단순 과거)' },
-    { id:'g2', point:'관계대명사', sentence:'The book that I read was great.',
-      explain:'명사를 수식하는 형용사절을 이끄는 대명사',
-      pattern:'명사 + that/which/who + 절',
-      q:'that과 which의 차이는?', a:'that은 사람·사물 모두 가능, which는 사물에만 사용' },
-  ];
-
-  // ── 문법 Q&A mock ──
-  const TEACHER_GRAMMAR = [
-    { q:'be + p.p. 와 have + p.p. 의 차이?',
-      a:'be + p.p.는 수동태 (~되어지다), have + p.p.는 완료/경험 시제. 의미가 완전히 달라요.' },
-    { q:'so that vs in order to 차이?',
-      a:'so that 뒤에는 절(주어+동사)이 오고, in order to 뒤에는 동사원형이 옵니다.' },
-  ];
-
-  // ── 수행평가 mock ──
-  const WP_TYPES = {
-    sentence_completion: { label:'조건 영작',   desc:'조건에 맞게 영작' },
-    word_arrangement:    { label:'단어 배열',   desc:'단어 순서 맞추기' },
-    summary_writing:     { label:'요약문 완성', desc:'지문 읽고 요약' },
-    free_writing:        { label:'자유 영작',   desc:'주제 보고 자유롭게' },
-  };
-  const WP_PROBLEMS = {
-    sentence_completion: {
-      type: 'sentence_completion',
-      instruction: '주어진 단어를 사용해 우리말 문장을 영작하세요.',
-      prompt: '나는 어렸을 때부터 책 읽기를 좋아해 왔다.',
-      conditions: ['현재완료 시제 사용', 'since I was young 표현 포함', '15단어 이내'],
-    },
-    word_arrangement: {
-      type: 'word_arrangement',
-      instruction: '주어진 단어를 알맞은 순서로 배열하세요.',
-      prompt: '[ have / I / since / been / interested / in / music / I was a child / . ]',
-      conditions: ['모든 단어 사용', '알맞은 시제'],
-    },
-    summary_writing: {
-      type: 'summary_writing',
-      instruction: '아래 지문을 한 문장으로 요약하세요.',
-      prompt: 'Reading books has many benefits. It helps you learn new words, broadens your perspective, and reduces stress. Many people enjoy reading as a way to relax.',
-      conditions: ['1문장으로', '핵심 키워드 2개 이상', '20단어 이내'],
-    },
-    free_writing: {
-      type: 'free_writing',
-      instruction: '아래 주제로 자유롭게 영작하세요.',
-      prompt: 'My favorite hobby and why',
-      conditions: ['3문장 이상', '구체적인 이유 포함', '50단어 이상'],
-    },
-  };
-
-  // ── 상태 ──
-  const STORAGE_KEY = "wg_state_v1";
-  const DEFAULT_STATE = {
-    exp: 0, lv: 1, totalExp: 0,
-    mastered: {},
-    seenDex: ["toto"],
-    quizIdx: 0,
-    startDate: Date.now(),
-    ownedTotems: [],
-    equippedTotem: null,
-    pendingDrop: null,
-    myWords: [],          // [{en, ko, status: 'pending'|'approved'}]
-    myQuestions: [],      // [{q, a, status}]
-    addedTbWords: [],     // [tb word ids]
-    knownTbWords: [],     // [tb word ids]
-    currentUnit: 0,       // 0 = 전체
-    petCount: 0,          // buddy 토닥 횟수 — 유대 단계 결정
-    lastActiveTs: Date.now(),
-    correctStreak: 0,
-    wrongStreak: 0,
-    metFriends: ["toto"], // 최초 만남 모달 본 친구 id
-  };
-  let state = load();
-
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { ...DEFAULT_STATE };
-      return { ...DEFAULT_STATE, ...JSON.parse(raw) };
-    } catch (_) { return { ...DEFAULT_STATE }; }
-  }
-  function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(_) {} }
-  function resetGame() {
-    if (!confirm("모든 진행을 초기화할까요?")) return;
-    state = { ...DEFAULT_STATE, startDate: Date.now() };
-    save(); renderAll(); goto("home");
-  }
-  function masteredCount() { return Object.keys(state.mastered).length; }
-  function unlockedFriends() { return FRIENDS.filter(f => masteredCount() >= f.need); }
-  function daysSince() {
-    return Math.max(1, Math.floor((Date.now() - state.startDate) / 86400000) + 1);
-  }
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-  function trainerId() {
-    const seed = state.startDate % 1000;
-    return String(seed).padStart(3, '0');
-  }
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  // ── 라우팅 ──
-  function goto(name) {
-    document.body.dataset.screen = name;
+  function goto(screen, sub) {
+    body.dataset.screen = screen;
     document.querySelectorAll('.tabbar button').forEach(b => {
-      b.setAttribute('aria-selected', b.dataset.screen === name ? 'true' : 'false');
+      b.setAttribute('aria-current', b.dataset.to === screen ? 'page' : 'false');
     });
-    if (name === "learn") loadQuiz();
-    if (name === "dex") {
-      unlockedFriends().forEach(f => { if (!state.seenDex.includes(f.id)) state.seenDex.push(f.id); });
-      save();
-    }
-    if (name === "practice" && !WP.initialized) wpInit();
-    updateFab();
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (sub) selectSub(screen, sub);
+    document.querySelector('main.app').scrollTo({ top: 0, behavior: 'instant' });
   }
 
   function selectSub(screen, sub) {
-    const sel = `.screen.${screen}`;
-    const root = document.querySelector(sel);
-    if (!root) return;
-    root.querySelectorAll('.subnav[data-screen="'+screen+'"] button').forEach(b => {
+    document.querySelectorAll(`.subnav[data-screen="${screen}"] button`).forEach(b => {
       b.setAttribute('aria-selected', b.dataset.sub === sub ? 'true' : 'false');
     });
-    root.querySelectorAll('.subpane').forEach(p => {
+    document.querySelectorAll(`.screen[data-s="${screen}"] .subpane`).forEach(p => {
       p.classList.toggle('active', p.dataset.sub === sub);
     });
-    if (screen === 'learn' && sub === 'mywords') renderMyWords();
-    if (screen === 'learn' && sub === 'textbook') renderTextbook();
-    if (screen === 'practice' && sub === 'grammar') renderGrammar();
-    if (screen === 'practice' && sub === 'writing' && WP.step === 'select') wpRenderSelect();
-    updateFab();
   }
 
-  function activeSub(screen) {
-    const root = document.querySelector('.screen.'+screen);
-    const btn = root?.querySelector('.subnav button[aria-selected="true"]');
-    return btn?.dataset.sub;
-  }
-
-  function updateFab() {
-    const fab = document.getElementById('fab');
-    const onMyWords = document.body.dataset.screen === 'learn' && activeSub('learn') === 'mywords';
-    fab.classList.toggle('show', onMyWords);
-  }
-
-  // ── 퀴즈 ──
-  let answered = false;
-  function loadQuiz() {
-    answered = false;
-    const fb = document.getElementById("feedback");
-    fb.className = "feedback";
-    document.getElementById("next-btn").classList.remove("show");
-    const idx = state.quizIdx % VOCAB.length;
-    const word = VOCAB[idx];
-    document.getElementById("word-num").textContent = "#" + String(idx + 1).padStart(2, '0');
-    document.getElementById("word-en").textContent = word.en;
-    const all = shuffle([word.ko, ...word.choices]);
-    const c = document.getElementById("choices");
-    c.innerHTML = "";
-    all.forEach((opt, i) => {
-      const b = document.createElement("button");
-      b.className = "choice";
-      b.type = "button";
-      b.innerHTML = `<span class="key">${i+1}</span><span>${opt}</span>`;
-      b.onclick = () => answerQuiz(opt, word, b);
-      c.appendChild(b);
-    });
-    updateMissionStats();
-  }
-
-  function answerQuiz(picked, word, btn) {
-    if (answered) return;
-    answered = true;
-    const correct = picked === word.ko;
-    document.querySelectorAll(".choice").forEach(b => {
-      b.disabled = true;
-      const txt = b.querySelector('span:last-child').textContent;
-      if (txt === word.ko) b.classList.add("correct");
-      else if (b === btn && !correct) b.classList.add("wrong");
-    });
-
-    const fb = document.getElementById("feedback");
-    const mult = currentMult();
-    state.lastActiveTs = Date.now();
-    const before = unlockedFriends().length;
-    if (correct) {
-      const base = 20, gained = Math.round(base * mult);
-      state.exp += gained; state.totalExp += gained;
-      state.mastered[word.en] = (state.mastered[word.en] || 0) + 1;
-      state.correctStreak = (state.correctStreak || 0) + 1;
-      state.wrongStreak = 0;
-      fb.innerHTML = mult > 1
-        ? `정답 <small>·</small> +${gained} EXP <small>(×${mult})</small>`
-        : `정답 <small>·</small> +${gained} EXP`;
-      fb.className = "feedback ok show";
-      quizBuddyReact('cheer');
-    } else {
-      const base = 5, gained = Math.round(base * mult);
-      state.exp += gained; state.totalExp += gained;
-      state.correctStreak = 0;
-      state.wrongStreak = (state.wrongStreak || 0) + 1;
-      fb.innerHTML = `정답: <b>${word.ko}</b> <small>·</small> +${gained} EXP`;
-      fb.className = "feedback no show";
-      quizBuddyReact('sad');
-    }
-
-    let leveledUp = false;
-    while (state.exp >= 100) { state.exp -= 100; state.lv++; leveledUp = true; }
-    const after = unlockedFriends().length;
-    const newFriend = after > before ? FRIENDS[after - 1] : null;
-
-    let dropped = null;
-    if (leveledUp) dropped = rollTotem('levelup');
-    else if (correct) dropped = rollTotem('correct');
-
-    save(); renderAll();
-    document.getElementById("next-btn").classList.add("show");
-
-    const friendIdx = newFriend ? FRIENDS.indexOf(newFriend) : -1;
-    const shouldUnlockMeet = newFriend && !(state.metFriends || []).includes(newFriend.id);
-    if (shouldUnlockMeet) {
-      state.metFriends = [ ...(state.metFriends || []), newFriend.id ];
-      save();
-    }
-
-    if (leveledUp) {
-      setTimeout(() => showLevelup(newFriend), 500);
-      if (shouldUnlockMeet) setTimeout(() => openFriend(friendIdx, { unlock: true }), 1700);
-      else if (newFriend) setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 1700);
-      if (dropped) setTimeout(() => showDrop(dropped), shouldUnlockMeet ? 2900 : 1700);
-    } else if (newFriend) {
-      if (shouldUnlockMeet) setTimeout(() => openFriend(friendIdx, { unlock: true }), 500);
-      else setTimeout(() => toast(`친구 추가: ${newFriend.name}`), 500);
-      if (dropped) setTimeout(() => showDrop(dropped), shouldUnlockMeet ? 1700 : 1500);
-    } else if (dropped) {
-      setTimeout(() => showDrop(dropped), 500);
-    }
-  }
-  function nextQuiz() { state.quizIdx++; save(); loadQuiz(); }
-
-  // ── 내 단어장 ──
-  function renderMyWords() {
-    const list = document.getElementById('my-word-list');
-    if (!state.myWords.length) {
-      list.innerHTML = '<div class="empty">단어를 추가해보세요</div>';
-      return;
-    }
-    list.innerHTML = state.myWords.map(w => `
-      <div class="word-item ${w.status}">
-        <span class="we">${esc(w.en)}</span>
-        <span class="wk">${esc(w.ko)}</span>
-        <span class="wb">${w.status === 'pending' ? '대기' : '승인'}</span>
-      </div>`).join('');
-  }
-  function openSheet() {
-    document.getElementById('sheet').classList.add('open');
-    document.getElementById('sheet-ov').classList.add('open');
-    setTimeout(() => document.getElementById('add-en').focus(), 250);
-  }
-  function closeSheet() {
-    document.getElementById('sheet').classList.remove('open');
-    document.getElementById('sheet-ov').classList.remove('open');
-    document.getElementById('add-msg').textContent = '';
-  }
-  function addWord() {
-    const en = document.getElementById('add-en').value.trim();
-    const ko = document.getElementById('add-ko').value.trim();
-    const msg = document.getElementById('add-msg');
-    msg.className = 'msg';
-    if (!en || !ko) { msg.className = 'msg err'; msg.textContent = '단어와 뜻을 모두 입력하세요.'; return; }
-    state.myWords.unshift({ en, ko, status: 'pending' });
-    save();
-    document.getElementById('add-en').value = '';
-    document.getElementById('add-ko').value = '';
-    msg.className = 'msg ok'; msg.textContent = '추가됐어요. 선생님 확인 후 승인됩니다.';
-    renderMyWords();
-    setTimeout(closeSheet, 900);
-    // mock approval after 3s
-    setTimeout(() => {
-      const w = state.myWords.find(x => x.en === en && x.status === 'pending');
-      if (w) { w.status = 'approved'; save(); renderMyWords(); }
-    }, 3000);
-  }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('sheet').classList.contains('open')) closeSheet();
-      if (document.getElementById('fd-ov').classList.contains('show')) closeFriend();
-    }
-  });
-
-  // ── 교재 ──
-  function reloadTextbook() { renderTextbook(); }
-  function renderTextbook() {
-    const u = state.currentUnit;
-    const ub = document.getElementById('tb-units');
-    ub.innerHTML = `<button class="unit-btn" type="button" aria-selected="${u===0}" onclick="selectUnit(0)">전체</button>` +
-      TB_UNITS.map(n => `<button class="unit-btn" type="button" aria-selected="${u===n}" onclick="selectUnit(${n})">L${n}</button>`).join('');
-
-    const filtered = TB_WORDS.filter(w => u === 0 || w.unit === u);
-    const visible = filtered.filter(w => !state.knownTbWords.includes(w.id));
-    const prog = document.getElementById('tb-progress-text');
-    if (!visible.length) prog.innerHTML = '<strong>모두 완료!</strong>';
-    else prog.innerHTML = `교재 단어 <strong>${visible.length}개</strong> · 모르는 건 단어장으로`;
-
-    const wEl = document.getElementById('tb-words');
-    if (!visible.length) {
-      wEl.innerHTML = '<div class="empty">이 단원의 단어를 모두 외웠어요</div>';
-    } else {
-      wEl.innerHTML = visible.map(w => {
-        const added = state.addedTbWords.includes(w.id);
-        return `
-        <div class="tb-card" id="tb-${w.id}">
-          <div class="tb-tags">
-            <span class="tb-tag unit">UNIT ${w.unit}</span>
-            <span class="tb-tag pos">${esc(w.pos)}</span>
-          </div>
-          <div class="tb-en">${esc(w.en)}</div>
-          <div class="tb-ko">${esc(w.ko)}</div>
-          <div class="tb-ex">"${esc(w.ex)}"</div>
-          <div class="tb-actions">
-            <button class="tb-know" type="button" onclick="tbKnow('${w.id}')">알아요</button>
-            ${added
-              ? `<button class="tb-added" type="button">단어장에 추가됨</button>`
-              : `<button class="tb-dontknow" type="button" onclick="tbDontKnow('${w.id}')">몰라요 → 단어장</button>`}
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const grEl = document.getElementById('tb-grammar');
-    const grFiltered = u === 0 ? TB_GRAMMAR : TB_GRAMMAR.slice(0, 1);
-    grEl.innerHTML = grFiltered.map(g => `
-      <div class="gr-card">
-        <span class="gr-tag">${esc(g.point)}</span>
-        <div class="gr-sentence">${esc(g.sentence)}</div>
-        <div class="gr-explain">${esc(g.explain)}</div>
-        <span class="gr-pattern">${esc(g.pattern)}</span>
-        <div class="gr-q">Q. ${esc(g.q)}</div>
-        <button class="gr-toggle" type="button" onclick="toggleGrAnswer(this)">▶ 정답 보기</button>
-        <div class="gr-answer">A. ${esc(g.a)}</div>
-      </div>`).join('');
-  }
-  function selectUnit(n) { state.currentUnit = n; save(); renderTextbook(); }
-  function tbKnow(id) {
-    if (!state.knownTbWords.includes(id)) state.knownTbWords.push(id);
-    save();
-    const card = document.getElementById('tb-' + id);
-    if (card) {
-      card.style.transition = 'opacity .25s';
-      card.style.opacity = '0';
-      setTimeout(() => renderTextbook(), 280);
-    }
-  }
-  function tbDontKnow(id) {
-    const w = TB_WORDS.find(x => x.id === id);
-    if (!w) return;
-    if (!state.addedTbWords.includes(id)) state.addedTbWords.push(id);
-    if (!state.myWords.find(x => x.en === w.en)) {
-      state.myWords.unshift({ en: w.en, ko: w.ko, status: 'pending' });
-    }
-    save();
-    renderTextbook();
-    toast(`${w.en} 단어장 추가`);
-  }
-  function toggleGrAnswer(btn) {
-    const ans = btn.nextElementSibling;
-    const open = ans.classList.toggle('show');
-    btn.textContent = open ? '▼ 정답 숨기기' : '▶ 정답 보기';
-  }
-
-  // ── 문법 Q&A ──
-  function renderGrammar() {
-    const my = document.getElementById('my-questions');
-    if (!state.myQuestions.length) {
-      my.innerHTML = '<div class="empty">아직 질문이 없어요</div>';
-    } else {
-      my.innerHTML = state.myQuestions.map(g => `
-        <div class="qa-card">
-          <div class="qa-q">Q. ${esc(g.q)}</div>
-          ${g.status === 'answered' && g.a
-            ? `<div class="qa-a">${esc(g.a)}</div>`
-            : `<div class="qa-pending">선생님 답변을 기다리는 중</div>`}
-          <div><span class="qa-mine">내 질문</span></div>
-        </div>`).join('');
-    }
-    const tg = document.getElementById('teacher-grammar');
-    tg.innerHTML = TEACHER_GRAMMAR.map(g => `
-      <div class="qa-card">
-        <div class="qa-q">Q. ${esc(g.q)}</div>
-        <div class="qa-a">${esc(g.a)}</div>
-      </div>`).join('');
-  }
-  function submitQuestion() {
-    const q = document.getElementById('ask-input').value.trim();
-    const msg = document.getElementById('ask-msg');
-    msg.className = 'msg';
-    if (!q) { msg.className = 'msg err'; msg.textContent = '질문을 입력해주세요.'; return; }
-    state.myQuestions.unshift({ q, a: null, status: 'pending' });
-    save();
-    document.getElementById('ask-input').value = '';
-    msg.className = 'msg ok'; msg.textContent = '질문이 등록됐어요. 선생님이 답변할 예정.';
-    renderGrammar();
-    // mock answer after 4s
-    setTimeout(() => {
-      const item = state.myQuestions.find(x => x.q === q && x.status === 'pending');
-      if (item) {
-        item.status = 'answered';
-        item.a = '좋은 질문이에요. (목업 자동 답변 — 실제 서비스에서는 선생님이 직접 답변합니다)';
-        save(); renderGrammar();
-      }
-    }, 4000);
-  }
-
-  // ── 수행평가 ──
-  const WP = { step:'select', selectedType:'sentence_completion', problem:null, grade:null, initialized:false, history:[] };
-
-  function wpInit() {
-    WP.step = 'select'; WP.initialized = true;
-    wpRenderSelect();
-  }
-
-  function wpRenderSelect() {
-    const types = Object.entries(WP_TYPES).map(([k, m]) => `
-      <button class="wp-type" type="button" data-type="${k}"
-              aria-selected="${WP.selectedType===k}" onclick="wpSelectType('${k}')">
-        <div class="lab">${m.label}</div>
-        <div class="desc">${m.desc}</div>
-      </button>`).join('');
-
-    const hintWords = state.myWords.filter(w => w.status === 'approved').slice(0, 5);
-    const hintHtml = hintWords.length
-      ? hintWords.map(w => `<div class="hint-word">${esc(w.en)} <span class="gloss">· ${esc(w.ko)}</span></div>`).join('')
-      : '<div style="font-size:11px;color:var(--ink-mute)">승인된 단어가 없어요</div>';
-
-    document.getElementById('wp-app').innerHTML = `
-      <div class="label-row" style="margin-top:0">유형 선택</div>
-      <div class="wp-types">${types}</div>
-      <div class="hint-box">
-        <div class="label">오늘의 집중 단어</div>
-        <div class="hint-words">${hintHtml}</div>
-      </div>
-      <button class="cta cta-pri" type="button" onclick="wpGenerate()">
-        <span>문제 생성하기</span><span class="arr">→</span>
-      </button>
-      ${WP.history.length ? `
-        <div class="label-row">최근 연습</div>
-        ${WP.history.slice(0,5).map(h => `
-          <div class="word-item approved">
-            <span class="we" style="font-size:13px">${WP_TYPES[h.type]?.label ?? h.type}</span>
-            <span class="wk" style="font-size:12px">${h.dateStr}</span>
-            <span class="wb" style="background:var(--ink);color:#fff;font-feature-settings:'tnum'">${h.score}/9</span>
-          </div>`).join('')}
-      ` : ''}`;
-  }
-  function wpSelectType(t) {
-    WP.selectedType = t;
-    document.querySelectorAll('.wp-type').forEach(b => {
-      b.setAttribute('aria-selected', b.dataset.type === t ? 'true' : 'false');
-    });
-  }
-  function wpGenerate() {
-    document.getElementById('wp-app').innerHTML = '<div class="wp-loading">맞춤 문제를 만드는 중...</div>';
-    setTimeout(() => {
-      WP.problem = WP_PROBLEMS[WP.selectedType];
-      WP.step = 'write';
-      wpRenderWrite();
-    }, 600);
-  }
-  function wpRenderWrite() {
-    const p = WP.problem;
-    const cond = (p.conditions || []).map((c, i) => `<div class="wp-cond"><span class="n">${i+1}.</span>${esc(c)}</div>`).join('');
-    const hintWords = state.myWords.filter(w => w.status === 'approved').slice(0, 5);
-    const hintHtml = hintWords.length
-      ? hintWords.map(w => `<div class="hint-word">${esc(w.en)} <span class="gloss">· ${esc(w.ko)}</span></div>`).join('')
-      : '';
-
-    document.getElementById('wp-app').innerHTML = `
-      <div class="wp-problem">
-        <span class="wp-tag">${WP_TYPES[p.type].label}</span>
-        <div class="wp-instr">${esc(p.instruction)}</div>
-        <div class="wp-prompt">${esc(p.prompt)}</div>
-        ${cond ? `<div>${cond}</div>` : ''}
-      </div>
-      ${hintHtml ? `<div class="hint-box"><div class="label">활용 단어</div><div class="hint-words">${hintHtml}</div></div>` : ''}
-      <textarea class="wp-area" id="wp-input" placeholder="여기에 영어 답안을 작성하세요"
-        oninput="document.getElementById('wp-count').textContent=this.value.length+'자'"></textarea>
-      <div class="wp-count" id="wp-count">0자</div>
-      <div class="wp-row">
-        <button class="cta cta-pri" type="button" onclick="wpSubmit()">
-          <span>제출하고 채점받기</span><span class="arr">→</span>
-        </button>
-        <button class="cta cta-sec" type="button" onclick="wpInit()">새 문제</button>
-      </div>
-      <div class="msg" id="wp-msg" style="font-size:11px;margin-top:8px;min-height:14px"></div>`;
-  }
-  function wpSubmit() {
-    const ans = document.getElementById('wp-input')?.value?.trim();
-    const msg = document.getElementById('wp-msg');
-    if (!ans) { msg.className='msg err'; msg.textContent='답안을 입력해주세요.'; return; }
-    if (ans.length < 10) { msg.className='msg err'; msg.textContent='더 자세하게 써보세요.'; return; }
-    document.getElementById('wp-app').innerHTML = '<div class="wp-loading">AI가 답안을 분석하고 채점하는 중...</div>';
-    setTimeout(() => {
-      // mock grading
-      const len = ans.length;
-      const sContent = len > 80 ? 3 : len > 40 ? 2 : 1;
-      const sStruct  = ans.match(/[.!?]/g)?.length >= 1 ? 3 : 2;
-      const sExpr    = /[a-zA-Z]/.test(ans) ? 2 : 1;
-      WP.grade = {
-        total: sContent + sStruct + sExpr,
-        content:    { score: sContent, comment: '핵심 내용을 잘 다루었어요.' },
-        structure:  { score: sStruct,  comment: '문장 구조가 자연스러워요.' },
-        expression: { score: sExpr,    comment: '표현을 다양하게 시도해보세요.' },
-        model_answer: 'I have loved reading books since I was young.',
-      };
-      WP.step = 'result';
-      const d = new Date();
-      WP.history.unshift({ type: WP.problem.type, score: WP.grade.total, dateStr: `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` });
-      wpRenderResult();
-    }, 900);
-  }
-  function wpRenderResult() {
-    const g = WP.grade;
-    const pct = Math.round((g.total / 9) * 100);
-    const rubrics = [
-      { key:'content',    label:'내용' },
-      { key:'structure',  label:'구성' },
-      { key:'expression', label:'표현' },
-    ];
-    const rbHtml = rubrics.map(r => {
-      const item = g[r.key]; const s = item.score;
-      const dots = [0,1,2,3].map(i => `<span class="rb-dot ${i<s?'on':''}"></span>`).join('');
-      return `<div class="rb-card">
-        <div class="rb-row">
-          <span class="rb-name">${r.label}</span>
-          <span class="rb-dots">${dots}</span>
-          <span class="rb-score s${s}">${s}/3</span>
-        </div>
-        <div class="rb-comment">${esc(item.comment)}</div>
-      </div>`;
-    }).join('');
-
-    document.getElementById('wp-app').innerHTML = `
-      <div class="wp-score">
-        <div class="total">${g.total}<small>/9</small></div>
-        <div class="pct">${pct}% 달성</div>
-        <div class="wp-bar-wrap"><div class="wp-bar" id="wp-bar" style="width:0%"></div></div>
-      </div>
-      ${rbHtml}
-      <div class="hint-box" style="margin-top:10px">
-        <div class="label">모범 답안</div>
-        <div style="font-size:13px;line-height:1.7;color:var(--ink)">${esc(g.model_answer)}</div>
-      </div>
-      <button class="cta cta-sec" type="button" onclick="wpInit()" style="margin-top:14px">
-        <span>다시 연습하기</span><span class="arr">→</span>
-      </button>`;
-    setTimeout(() => { const bar = document.getElementById('wp-bar'); if (bar) bar.style.width = pct + '%'; }, 80);
-  }
-
-  // ── 드랍 / 모달 ──
-  function rollTotem(trigger) {
-    const unowned = TOTEMS.filter(t => !state.ownedTotems.includes(t.id));
-    if (!unowned.length) return null;
-    if (trigger === 'levelup') {
-      const r = Math.random();
-      let target;
-      if (state.lv >= 5 && r < 0.10) target = 3.0;
-      else if (state.lv >= 3 && r < 0.30) target = 2.5;
-      else if (r < 0.55) target = 2.0;
-      else target = 1.5;
-      const pool = unowned.filter(t => t.mult === target);
-      return pool.length ? pool[Math.floor(Math.random() * pool.length)] : unowned[0];
-    }
-    if (trigger === 'correct') {
-      if (Math.random() > 0.08) return null;
-      const r = Math.random();
-      const target = r < 0.05 ? 2.5 : r < 0.25 ? 2.0 : 1.5;
-      let pool = unowned.filter(t => t.mult === target);
-      if (!pool.length) pool = unowned.filter(t => t.mult === 1.5);
-      if (!pool.length) pool = unowned;
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
-    return null;
-  }
-  function showDrop(t) {
-    state.pendingDrop = t.id; save();
-    const wrap = document.getElementById('drop-icon-wrap');
-    wrap.className = 'ov-icon bg-' + t.type;
-    document.getElementById('drop-icon').querySelector('use').setAttribute('href', '#' + t.svg);
-    document.getElementById('drop-name').textContent = t.name;
-    document.getElementById('drop-mult').textContent = t.mult.toFixed(1);
-    document.getElementById('drop-ov').classList.add('show');
-  }
-  function closeDrop() {
-    if (state.pendingDrop && !state.ownedTotems.includes(state.pendingDrop)) {
-      state.ownedTotems.push(state.pendingDrop);
-    }
-    state.pendingDrop = null;
-    save(); renderAll();
-    document.getElementById('drop-ov').classList.remove('show');
-  }
-  function equipDropped() {
-    if (!state.pendingDrop) { closeDrop(); return; }
-    const id = state.pendingDrop;
-    if (!state.ownedTotems.includes(id)) state.ownedTotems.push(id);
-    state.equippedTotem = id;
-    state.pendingDrop = null;
-    save(); renderAll();
-    document.getElementById('drop-ov').classList.remove('show');
-    const t = getTotem(id);
-    toast(`${t.name} 장착 · ×${t.mult}`);
-  }
-  function toggleEquipTotem(id) {
-    if (!state.ownedTotems.includes(id)) return;
-    state.equippedTotem = state.equippedTotem === id ? null : id;
-    save(); renderAll();
-    if (state.equippedTotem) toast(`${getTotem(id).name} 장착 · ×${getTotem(id).mult}`);
-    else toast('해제됨');
-  }
-  function showLevelup(newFriend) {
-    document.getElementById('lu-lv').textContent = state.lv;
-    document.getElementById('lu-msg').textContent = newFriend
-      ? `친구 추가: ${newFriend.name}`
-      : '경험치를 채웠어요';
-    document.getElementById('lvup-ov').classList.add('show');
-  }
-  function closeLevelup() { document.getElementById('lvup-ov').classList.remove('show'); }
-
-  // ── Buddy speech / bond / mood ──
-  function affectionTier() {
-    const p = state.petCount || 0;
-    const m = masteredCount();
-    const score = p + m * 0.5;        // 토닥 + 마스터 보정
-    if (score >= 40) return 4;
-    if (score >= 20) return 3;
-    if (score >= 8)  return 2;
-    if (score >= 2)  return 1;
-    return 0;
-  }
-  function computeMood() {
-    // fire > sad > happy > null 우선순위
-    if ((state.correctStreak || 0) >= 5) return 'fire';
-    const idleH = (Date.now() - (state.lastActiveTs || 0)) / 3600000;
-    if (idleH >= 24) return 'sad';
-    if ((state.correctStreak || 0) >= 2) return 'happy';
-    return null;
-  }
-  const MOOD_GLYPH = { happy: '◕', sad: '…', fire: '✦' };
-
-  let buddySpeechT = null;
-  let buddyPetT = null;
-  function buddyTalk() {
-    state.petCount = (state.petCount || 0) + 1;
-    state.lastActiveTs = Date.now();
-    const tier = affectionTier();
-    const pool = BUDDY_LINES_TIERED[Math.min(tier, BUDDY_LINES_TIERED.length - 1)];
-    const line = pool[Math.floor(Math.random() * pool.length)];
-    const el = document.getElementById('buddy-speech');
-    el.textContent = line;
-    el.classList.add('show');
-    clearTimeout(buddySpeechT);
-    buddySpeechT = setTimeout(() => el.classList.remove('show'), 2400);
-
-    const buddy = document.getElementById('home-buddy');
-    if (buddy) {
-      buddy.classList.remove('pet');
-      // reflow to restart animation
-      void buddy.offsetWidth;
-      buddy.classList.add('pet');
-      clearTimeout(buddyPetT);
-      buddyPetT = setTimeout(() => buddy.classList.remove('pet'), 520);
-    }
-    save();
-    renderHome();
-  }
-
-  // 퀴즈 버디 반응 (correct/wrong)
-  let qbT = null;
-  function quizBuddyReact(kind) {
-    const av = document.getElementById('qb-avatar');
-    const bub = document.getElementById('qb-bubble');
-    if (!av || !bub) return;
-    const pool = kind === 'cheer' ? CHEER_LINES : SUPPORT_LINES;
-    const line = pool[Math.floor(Math.random() * pool.length)];
-    av.classList.remove('cheer','sad');
-    bub.classList.remove('show','cheer','sad');
-    void av.offsetWidth;
-    av.classList.add(kind);
-    bub.textContent = line;
-    bub.classList.add('show', kind);
-    clearTimeout(qbT);
-    qbT = setTimeout(() => {
-      av.classList.remove(kind);
-      bub.classList.remove('show');
-    }, 2000);
-  }
-
-  // ── Friend detail modal ──
-  function openFriend(idx, opts) {
-    const f = FRIENDS[idx];
-    if (!f) return;
-    const ok = masteredCount() >= f.need;
-    if (!ok) return;
-    const unlock = !!(opts && opts.unlock);
-    document.getElementById('fd-num').textContent = 'No.' + String(idx+1).padStart(3,'0');
-    document.getElementById('fd-sprite').textContent = f.emoji;
-    document.getElementById('fd-name').textContent = f.name;
-    document.getElementById('fd-type').textContent = TYPE_LABEL[f.type];
-    document.getElementById('fd-type-k').textContent = TYPE_LABEL[f.type];
-    document.getElementById('fd-need').textContent = f.need === 0 ? '기본 동료' : `단어 ${f.need}개`;
-    document.getElementById('fd-speech').textContent = '"' + f.line + '"';
-    document.getElementById('fd-stage').style.background = `var(--t-${f.type})`;
-    const card = document.getElementById('fd-card');
-    const tag = document.getElementById('fd-unlock-tag');
-    if (card) card.classList.toggle('unlock', unlock);
-    if (tag) tag.hidden = !unlock;
-    document.getElementById('fd-ov').classList.add('show');
-  }
-  function closeFriend() {
-    document.getElementById('fd-ov').classList.remove('show');
-    const card = document.getElementById('fd-card');
-    if (card) card.classList.remove('unlock');
-    const tag = document.getElementById('fd-unlock-tag');
-    if (tag) tag.hidden = true;
-  }
-
-  let toastT = null;
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastT);
-    toastT = setTimeout(() => el.classList.remove('show'), 2000);
-  }
-
-  // ── 렌더 ──
-  function updateMissionStats() {
-    document.getElementById("exp-mission").textContent = state.exp;
-    document.getElementById("mastered-mission").textContent = masteredCount();
-  }
-  function renderHome() {
-    document.getElementById("trainer-id").textContent = trainerId();
-    document.getElementById("lv-home").textContent = state.lv;
-    document.getElementById("exp-home").textContent = state.exp;
-    document.getElementById("exp-fill").style.width = state.exp + "%";
-    document.getElementById("stage-num").textContent = Math.min(3, Math.ceil(state.lv / 3));
-    const m = currentMult();
-    const onEl = document.getElementById('totem-on');
-    if (m > 1) {
-      onEl.hidden = false;
-      document.getElementById('totem-on-val').textContent = m.toFixed(1);
-    } else { onEl.hidden = true; }
-    document.getElementById('hs-words').textContent = masteredCount();
-    document.getElementById('hs-friends').textContent = unlockedFriends().length;
-    document.getElementById('hs-totems').textContent = state.ownedTotems.length;
-    document.getElementById('hs-days').textContent = daysSince();
-
-    const slot = document.getElementById('home-slot');
-    const plus = document.getElementById('home-slot-plus');
-    const svg = document.getElementById('home-slot-svg');
-    const use = document.getElementById('home-slot-use');
-    const mult = document.getElementById('home-slot-mult');
-    if (state.equippedTotem) {
-      const t = getTotem(state.equippedTotem);
-      slot.classList.add('equipped'); slot.classList.remove('empty');
-      slot.setAttribute('aria-label', `${t.name} 장착됨`);
-      plus.hidden = true; svg.hidden = false;
-      use.setAttribute('href', '#' + t.svg);
-      mult.hidden = false; mult.textContent = `×${t.mult}`;
-    } else {
-      slot.classList.remove('equipped'); slot.classList.add('empty');
-      slot.setAttribute('aria-label', '토템 미장착');
-      plus.hidden = false; svg.hidden = true; mult.hidden = true;
-    }
-
-    // 기분 배지
-    const badge = document.getElementById('mood-badge');
-    if (badge) {
-      const mood = computeMood();
-      badge.classList.remove('happy','sad','fire');
-      if (mood) {
-        badge.hidden = false;
-        badge.classList.add(mood);
-        badge.textContent = MOOD_GLYPH[mood] || '';
-      } else {
-        badge.hidden = true;
-        badge.textContent = '';
-      }
-    }
-    // 유대 하트 (5단계)
-    const hearts = document.getElementById('bond-hearts');
-    if (hearts) {
-      const tier = affectionTier();
-      hearts.innerHTML = '';
-      for (let i = 0; i < 5; i++) {
-        const h = document.createElement('span');
-        h.className = 'bond-heart' + (i < tier ? ' on' : '');
-        hearts.appendChild(h);
-      }
-    }
-  }
-
-  function renderDex() {
-    const list = document.getElementById('dex-list');
-    list.innerHTML = '';
-    let unlocked = 0;
-    FRIENDS.forEach((f, i) => {
-      const ok = masteredCount() >= f.need;
-      if (ok) unlocked++;
-      const card = document.createElement(ok ? 'button' : 'div');
-      if (ok) { card.type = 'button'; card.onclick = () => openFriend(i); card.setAttribute('aria-label', `${f.name} 상세`); }
-      card.className = 'dex-card' + (ok ? '' : ' locked');
-      card.style.cssText = ok ? 'cursor:pointer;text-align:left;font-family:inherit;padding:0;border-color:var(--divider)' : '';
-      const stageBg = ok ? `style="background: var(--t-${f.type})"` : '';
-      card.innerHTML = `
-        <span class="num">No.${String(i+1).padStart(3,'0')}</span>
-        ${ok ? `<span class="stage">${TYPE_LABEL[f.type]}</span>` : ''}
-        <div class="dex-stage-area" ${stageBg}>
-          <div class="dex-spr">${ok ? f.emoji : '?'}</div>
-        </div>
-        <div class="dex-info">
-          <div class="top-row">
-            <span class="dex-name">${ok ? f.name : '???'}</span>
-            <span class="dex-status">${ok ? '획득' : '미발견'}</span>
-          </div>
-          <div class="dex-need">${ok ? f.desc : `단어 ${f.need}개 모으기`}</div>
-        </div>
-      `;
-      list.appendChild(card);
-    });
-    document.getElementById('dex-count').textContent = unlocked;
-  }
-
-  function renderTotems() {
-    document.getElementById('totem-mult-now').textContent = '×' + currentMult().toFixed(1);
-    document.getElementById('totem-owned').textContent = state.ownedTotems.length;
-    document.getElementById('dex-totem-count').textContent = state.ownedTotems.length;
-    const eqEl = document.getElementById('totem-eq-name');
-    if (state.equippedTotem) {
-      eqEl.innerHTML = getTotem(state.equippedTotem).name;
-    } else {
-      eqEl.innerHTML = '<span class="none">미장착</span>';
-    }
-
-    const grid = document.getElementById('totem-grid');
-    grid.innerHTML = '';
-    TOTEMS.forEach(t => {
-      const owned = state.ownedTotems.includes(t.id);
-      const equipped = state.equippedTotem === t.id;
-      const cell = document.createElement('button');
-      cell.type = 'button';
-      cell.className = 'totem-cell' + (owned ? '' : ' locked') + (equipped ? ' equipped' : '');
-      cell.setAttribute('aria-label',
-        owned ? `${t.name}${equipped ? ' (장착됨)' : ''}, EXP ×${t.mult}` : '잠긴 토템');
-      const stageClass = owned ? `tc-stage bg-${t.type}` : 'tc-stage';
-      cell.innerHTML = `
-        ${equipped ? '<span class="eq-tag">장착중</span>' : ''}
-        <div class="${stageClass}">
-          <span class="tc-mult-big">×${t.mult.toFixed(1)}</span>
-          <div class="tc-icon">
-            <svg aria-hidden="true"><use href="#${t.svg}"/></svg>
-          </div>
-          <span class="tc-type-chip">${TYPE_LABEL[t.type]}</span>
-        </div>
-        <div class="tc-info">
-          <div class="tc-name">${owned ? t.name : '???'}</div>
-          <div class="tc-mult">${owned ? 'EXP ×' + t.mult.toFixed(1) + ' BOOST' : '미발견'}</div>
-        </div>
-      `;
-      if (owned) cell.onclick = () => toggleEquipTotem(t.id);
-      grid.appendChild(cell);
+  function pickMove(el) {
+    el.closest('.moves').querySelectorAll('.move').forEach(m => {
+      m.setAttribute('aria-checked', m === el ? 'true' : 'false');
     });
   }
 
-  function renderMe() {
-    document.getElementById('lv-me').textContent = state.lv;
-    document.getElementById('totalexp-me').textContent = state.totalExp;
-    document.getElementById('mastered-me').textContent = masteredCount();
-    document.getElementById('dex-me').textContent = unlockedFriends().length;
-    document.getElementById('totem-me').textContent = state.ownedTotems.length;
-    document.getElementById('days-me').textContent = daysSince();
+  function toggleFilter(el) {
+    el.parentElement.querySelectorAll('.filter').forEach(f => {
+      f.setAttribute('aria-pressed', f === el ? 'true' : 'false');
+    });
   }
-
-  function renderAll() {
-    renderHome();
-    updateMissionStats();
-    renderDex();
-    renderTotems();
-    renderMe();
-  }
-
-  renderAll();
 </script>
+
 </body>
 </html>
