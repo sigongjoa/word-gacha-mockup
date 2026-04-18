@@ -787,53 +787,108 @@
     font-size: 13px;
   }
 
-  /* === Dex === */
-  .dex-list { display: flex; flex-direction: column; gap: 6px; }
-  .dex-row {
+  /* === Dex (2-col card grid, type-color forward) === */
+  .dex-list {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .dex-card {
+    position: relative;
     background: var(--panel);
     border: 1px solid var(--divider);
     border-radius: var(--r-md);
-    padding: 12px 14px;
-    display: flex; align-items: center; gap: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
   }
-  .dex-row.locked {
+  .dex-card.locked {
     background: transparent;
     border-style: dashed;
     border-color: var(--divider-deep);
-    color: var(--ink-mute);
   }
-  .dex-num {
-    font-weight: 800; font-size: 12px;
-    color: var(--ink-mute);
+  .dex-card .num {
+    position: absolute; top: 8px; left: 10px;
+    font-weight: 900; font-size: 11px;
+    color: rgba(255,255,255,.85);
     font-feature-settings: "tnum";
-    width: 36px;
+    letter-spacing: 0.04em;
+    z-index: 2;
+  }
+  .dex-card.locked .num { color: var(--ink-mute); }
+  .dex-card .stage {
+    position: absolute; top: 8px; right: 10px;
+    font-size: 9px; font-weight: 800;
+    color: rgba(255,255,255,.85);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    z-index: 2;
+  }
+  .dex-card.locked .stage { display: none; }
+  .dex-stage-area {
+    height: 110px;
+    display: grid; place-items: center;
+    position: relative;
+  }
+  .dex-stage-area::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,.18));
+    pointer-events: none;
+  }
+  .dex-card.locked .dex-stage-area {
+    background: var(--bg);
+    border-bottom: 1px dashed var(--divider-deep);
   }
   .dex-spr {
-    width: 44px; height: 44px;
-    background: var(--bg);
-    border: 1px solid var(--divider);
-    border-radius: var(--r-sm);
-    display: grid; place-items: center;
-    font-size: 26px;
-    flex-shrink: 0;
+    font-size: 56px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.18));
+    z-index: 1;
   }
-  .dex-row.locked .dex-spr { opacity: .25; filter: grayscale(1); }
-  .dex-info { flex: 1; min-width: 0; }
-  .dex-name { font-weight: 800; font-size: 14px; letter-spacing: -0.01em; }
-  .dex-need { font-size: 11px; color: var(--ink-mute); font-weight: 500; margin-top: 2px; }
+  .dex-card.locked .dex-spr {
+    font-size: 48px;
+    opacity: .25;
+    filter: grayscale(1);
+  }
+  .dex-info {
+    padding: 10px 12px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .dex-info .top-row {
+    display: flex; align-items: center; gap: 6px;
+    justify-content: space-between;
+  }
+  .dex-name {
+    font-weight: 900; font-size: 14px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .dex-card.locked .dex-name { color: var(--ink-mute); }
+  .dex-need {
+    font-size: 10px; color: var(--ink-mute);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
   .dex-status {
-    font-size: 10px; font-weight: 800;
+    font-size: 9px; font-weight: 800;
     color: var(--t-grass);
-    text-transform: uppercase; letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.06em;
   }
-  .dex-row.locked .dex-status { color: var(--ink-mute); }
+  .dex-card.locked .dex-status { color: var(--ink-mute); }
+  .dex-card .type-chip {
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    color: #fff;
+    padding: 2px 7px; border-radius: var(--r-pill);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
 
   /* === Totems === */
   .totem-headline {
     background: var(--ink); color: #fff;
     border-radius: var(--r-md);
-    padding: 14px 16px;
-    margin-bottom: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .totem-headline .label {
@@ -842,24 +897,27 @@
     opacity: .7;
   }
   .totem-headline .mult-now {
-    font-size: 28px; font-weight: 900;
+    font-size: 32px; font-weight: 900;
     line-height: 1; letter-spacing: -0.03em;
     font-feature-settings: "tnum";
   }
   .totem-headline .right { text-align: right; }
   .totem-headline .equipped-name { font-size: 13px; font-weight: 700; margin-top: 4px; }
   .totem-headline .equipped-name .none { opacity: .5; font-weight: 600; }
+
+  /* 토템 카드 — 큰 아이콘 + 풀폭 타입 색 */
   .totem-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 10px;
   }
   .totem-cell {
+    position: relative;
     background: var(--panel);
     border: 1px solid var(--divider);
     border-radius: var(--r-md);
-    padding: 12px;
+    overflow: hidden;
     cursor: pointer;
-    display: flex; align-items: center; gap: 12px;
+    display: flex; flex-direction: column;
     text-align: left;
     font-family: var(--display);
   }
@@ -870,25 +928,102 @@
     cursor: default;
   }
   .totem-cell.equipped {
-    border-color: var(--ink); border-width: 2px; padding: 11px;
+    border-color: var(--ink); border-width: 2px;
   }
-  .tc-icon {
-    width: 36px; height: 36px;
+  .totem-cell .eq-tag {
+    position: absolute; top: 0; left: 0;
+    background: var(--ink); color: #fff;
+    font-size: 9px; font-weight: 800;
+    padding: 3px 8px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-bottom-right-radius: var(--r-sm);
+    z-index: 3;
+    display: none;
+  }
+  .totem-cell.equipped .eq-tag { display: inline-block; }
+
+  /* 큰 아이콘 영역 */
+  .tc-stage {
+    height: 96px;
     display: grid; place-items: center;
-    border-radius: var(--r-sm);
-    flex-shrink: 0;
+    position: relative;
   }
-  .tc-icon svg { width: 22px; height: 22px; color: #fff; }
-  .totem-cell.locked .tc-icon { background: var(--divider) !important; }
-  .totem-cell.locked .tc-icon svg { color: var(--ink-mute); opacity: .5; }
-  .tc-info { flex: 1; min-width: 0; }
-  .tc-name { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 3px; }
+  .tc-stage::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: var(--r-pill);
+    background: rgba(255,255,255,.18);
+  }
+  .totem-cell.locked .tc-stage {
+    background: var(--bg) !important;
+    border-bottom: 1px dashed var(--divider-deep);
+  }
+  .totem-cell.locked .tc-stage::before { display: none; }
+  .tc-icon {
+    width: 56px; height: 56px;
+    display: grid; place-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .tc-icon svg {
+    width: 44px; height: 44px;
+    color: #fff;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.2));
+  }
+  .totem-cell.locked .tc-icon svg {
+    color: var(--ink-mute);
+    opacity: .35;
+    width: 36px; height: 36px;
+    filter: none;
+  }
+  /* 우상단 큰 ×배수 */
+  .tc-mult-big {
+    position: absolute; top: 8px; right: 10px;
+    font-size: 14px; font-weight: 900;
+    color: #fff;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.02em;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .totem-cell.locked .tc-mult-big { display: none; }
+  /* 좌하단 타입 칩 */
+  .tc-type-chip {
+    position: absolute; bottom: 8px; left: 10px;
+    font-size: 9px; font-weight: 800;
+    color: rgba(255,255,255,.95);
+    background: rgba(0,0,0,.25);
+    padding: 2px 7px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    z-index: 2;
+  }
+  .totem-cell.locked .tc-type-chip { display: none; }
+
+  .tc-info {
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--divider);
+    background: var(--panel);
+  }
+  .totem-cell.locked .tc-info {
+    border-top-color: var(--divider-deep);
+    background: transparent;
+  }
+  .tc-name {
+    font-size: 14px; font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
+    line-height: 1.1;
+  }
   .totem-cell.locked .tc-name { color: var(--ink-mute); }
   .tc-mult {
     font-size: 11px; font-weight: 700;
-    color: var(--ink-mute);
+    color: var(--ink-soft);
     font-feature-settings: "tnum";
+    letter-spacing: 0.02em;
   }
+  .totem-cell.locked .tc-mult { color: var(--ink-mute); }
   .totem-cell.equipped .tc-mult { color: var(--pri); }
   .tc-type {
     display: inline-block;
@@ -2139,21 +2274,24 @@
     FRIENDS.forEach((f, i) => {
       const ok = masteredCount() >= f.need;
       if (ok) unlocked++;
-      const row = document.createElement('div');
-      row.className = 'dex-row' + (ok ? '' : ' locked');
-      row.innerHTML = `
-        <div class="dex-num">No.${String(i+1).padStart(3,'0')}</div>
-        <div class="dex-spr">${ok ? f.emoji : '?'}</div>
+      const card = document.createElement('div');
+      card.className = 'dex-card' + (ok ? '' : ' locked');
+      const stageBg = ok ? `style="background: var(--t-${f.type})"` : '';
+      card.innerHTML = `
+        <span class="num">No.${String(i+1).padStart(3,'0')}</span>
+        ${ok ? `<span class="stage">${TYPE_LABEL[f.type]}</span>` : ''}
+        <div class="dex-stage-area" ${stageBg}>
+          <div class="dex-spr">${ok ? f.emoji : '?'}</div>
+        </div>
         <div class="dex-info">
-          <div class="dex-name">
-            ${ok ? f.name : '???'}
-            ${ok ? `<span class="tc-type bg-${f.type}">${TYPE_LABEL[f.type]}</span>` : ''}
+          <div class="top-row">
+            <span class="dex-name">${ok ? f.name : '???'}</span>
+            <span class="dex-status">${ok ? '획득' : '미발견'}</span>
           </div>
           <div class="dex-need">${ok ? f.desc : `단어 ${f.need}개 모으기`}</div>
         </div>
-        <div class="dex-status">${ok ? '획득' : '미발견'}</div>
       `;
-      list.appendChild(row);
+      list.appendChild(card);
     });
     document.getElementById('dex-count').textContent = unlocked;
   }
@@ -2179,13 +2317,19 @@
       cell.className = 'totem-cell' + (owned ? '' : ' locked') + (equipped ? ' equipped' : '');
       cell.setAttribute('aria-label',
         owned ? `${t.name}${equipped ? ' (장착됨)' : ''}, EXP ×${t.mult}` : '잠긴 토템');
+      const stageClass = owned ? `tc-stage bg-${t.type}` : 'tc-stage';
       cell.innerHTML = `
-        <div class="tc-icon bg-${t.type}">
-          <svg aria-hidden="true"><use href="#${t.svg}"/></svg>
+        ${equipped ? '<span class="eq-tag">장착중</span>' : ''}
+        <div class="${stageClass}">
+          <span class="tc-mult-big">×${t.mult.toFixed(1)}</span>
+          <div class="tc-icon">
+            <svg aria-hidden="true"><use href="#${t.svg}"/></svg>
+          </div>
+          <span class="tc-type-chip">${TYPE_LABEL[t.type]}</span>
         </div>
         <div class="tc-info">
           <div class="tc-name">${owned ? t.name : '???'}</div>
-          <div class="tc-mult">${owned ? '×' + t.mult.toFixed(1) : '미발견'}</div>
+          <div class="tc-mult">${owned ? 'EXP ×' + t.mult.toFixed(1) + ' BOOST' : '미발견'}</div>
         </div>
       `;
       if (owned) cell.onclick = () => toggleEquipTotem(t.id);
