@@ -18,11 +18,10 @@
     --divider:     #e5e8ee;
     --divider-deep:#cfd5e0;
 
-    --pri:         #d4232c;   /* 와와 레드 */
+    --pri:         #d4232c;
     --pri-deep:    #9a161d;
     --pri-soft:    #fde6e7;
 
-    /* 타입 컬러 — 토템/단원/난이도 분류 */
     --t-grass:    #2f9e57;
     --t-fire:     #e85a2c;
     --t-water:    #2174d4;
@@ -64,7 +63,6 @@
   .skip { position: absolute; left: -9999px; padding: 8px 14px; background: var(--ink); color: var(--bg); border-radius: var(--r-sm); }
   .skip:focus { left: 12px; top: 12px; z-index: 999; }
 
-  /* === App shell === */
   .app {
     max-width: 480px;
     margin: 0 auto;
@@ -81,7 +79,6 @@
     height: 56px;
   }
   .wordmark {
-    font-family: var(--display);
     font-weight: 900;
     font-size: 18px;
     letter-spacing: -0.04em;
@@ -106,11 +103,11 @@
 
   /* === Screens === */
   .screen { display: none; padding: 0 20px; }
-  body[data-screen="home"]    .screen.home    { display: block; }
-  body[data-screen="mission"] .screen.mission { display: block; }
-  body[data-screen="dex"]     .screen.dex     { display: block; }
-  body[data-screen="totems"]  .screen.totems  { display: block; }
-  body[data-screen="me"]      .screen.me      { display: block; }
+  body[data-screen="home"]     .screen.home     { display: block; }
+  body[data-screen="learn"]    .screen.learn    { display: block; }
+  body[data-screen="practice"] .screen.practice { display: block; }
+  body[data-screen="dex"]      .screen.dex      { display: block; }
+  body[data-screen="me"]       .screen.me       { display: block; }
 
   .screen-h {
     font-size: 22px;
@@ -121,11 +118,38 @@
   .screen-sub {
     font-size: 12px;
     color: var(--ink-mute);
-    margin: 0 0 18px;
+    margin: 0 0 14px;
     font-weight: 500;
   }
 
-  /* === HOME — 트레이너 카드 === */
+  /* === Sub-tab nav === */
+  .subnav {
+    display: flex;
+    border-bottom: 1px solid var(--divider);
+    margin-bottom: 16px;
+    gap: 0;
+  }
+  .subnav button {
+    flex: 1;
+    background: none; border: none;
+    padding: 10px 4px;
+    font-family: var(--display);
+    font-weight: 700; font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    text-transform: uppercase;
+  }
+  .subnav button[aria-selected="true"] {
+    color: var(--ink);
+    border-bottom-color: var(--pri);
+  }
+  .subpane { display: none; }
+  .subpane.active { display: block; }
+
+  /* === Trainer card === */
   .trainer-card {
     background: var(--panel);
     border: 1px solid var(--divider);
@@ -148,31 +172,18 @@
     display: flex; align-items: baseline; gap: 8px;
     margin-bottom: 8px;
   }
-  .tc-name {
-    font-size: 17px; font-weight: 800;
-    letter-spacing: -0.02em;
-  }
+  .tc-name { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
   .tc-stage {
     font-size: 11px; font-weight: 600;
     color: var(--ink-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
 
-  /* HP-bar 스타일 (포켓몬 배틀 EXP) */
-  .lv-row {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 4px;
-  }
+  .lv-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .lv-badge {
-    font-family: var(--num);
-    font-weight: 800;
-    font-size: 11px;
-    color: var(--ink);
-    background: var(--ink);
-    color: #fff;
-    padding: 2px 7px;
-    border-radius: var(--r-sm);
+    font-weight: 800; font-size: 11px;
+    background: var(--ink); color: #fff;
+    padding: 2px 7px; border-radius: var(--r-sm);
     letter-spacing: 0.02em;
     font-feature-settings: "tnum";
   }
@@ -180,8 +191,7 @@
   .lv-label {
     font-size: 11px; font-weight: 600;
     color: var(--ink-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
   .exp-track {
     height: 8px;
@@ -203,11 +213,8 @@
     margin-top: 4px;
     font-feature-settings: "tnum";
   }
-  .exp-text .totem-on {
-    color: var(--pri);
-  }
+  .exp-text .totem-on { color: var(--pri); }
 
-  /* 장착 토템 슬롯 (트레이너 카드 옆) */
   .tc-slot {
     width: 40px; height: 40px;
     border: 1px solid var(--divider);
@@ -222,19 +229,16 @@
   .tc-slot.equipped { background: var(--pri-soft); border-color: var(--pri); }
   .tc-slot svg { width: 22px; height: 22px; color: var(--ink); }
   .tc-slot.equipped svg { color: var(--pri); }
-  .tc-slot .plus {
-    color: var(--ink-mute); font-size: 18px; font-weight: 700;
-  }
+  .tc-slot .plus { color: var(--ink-mute); font-size: 18px; font-weight: 700; }
   .tc-slot-mult {
     position: absolute; bottom: -7px; right: -6px;
     background: var(--ink); color: #fff;
     font-size: 9px; font-weight: 800;
     padding: 1px 4px; border-radius: var(--r-sm);
     font-feature-settings: "tnum";
-    letter-spacing: 0;
   }
 
-  /* 홈 통계 그리드 — 4개 셀 */
+  /* Home stats */
   .home-stats {
     display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 1px;
@@ -257,12 +261,11 @@
   .home-stats .cell .l {
     font-size: 10px; font-weight: 600;
     color: var(--ink-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
     margin-top: 2px;
   }
 
-  /* CTA 버튼 */
+  /* === CTA === */
   .cta {
     width: 100%;
     background: var(--ink);
@@ -270,25 +273,20 @@
     border: none;
     padding: 14px 16px;
     border-radius: var(--r-md);
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: 15px;
+    font-weight: 800; font-size: 15px;
     letter-spacing: -0.01em;
     cursor: pointer;
     display: flex; align-items: center; justify-content: space-between;
   }
   .cta:active { transform: translateY(1px); }
   .cta .arr { font-weight: 600; opacity: .7; }
-  .cta-sub {
-    background: transparent;
-    color: var(--ink);
+  .cta-pri { background: var(--pri); }
+  .cta-sec {
+    background: transparent; color: var(--ink);
     border: 1px solid var(--divider-deep);
   }
-  .cta-pri {
-    background: var(--pri);
-  }
 
-  /* === 미션(퀴즈) === */
+  /* === Quiz === */
   .quiz-meta {
     display: flex; justify-content: space-between;
     font-size: 11px; font-weight: 600; color: var(--ink-mute);
@@ -297,7 +295,6 @@
     font-feature-settings: "tnum";
   }
   .quiz-meta b { color: var(--ink); font-weight: 800; }
-
   .word-card {
     background: var(--panel);
     border: 1px solid var(--divider);
@@ -309,21 +306,15 @@
   .word-num {
     font-size: 11px; font-weight: 700;
     color: var(--ink-mute);
-    font-feature-settings: "tnum";
-    letter-spacing: 0.05em;
+    font-feature-settings: "tnum"; letter-spacing: 0.05em;
   }
   .word-en {
     font-size: clamp(34px, 9vw, 44px);
     font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1;
+    letter-spacing: -0.04em; line-height: 1;
     margin: 8px 0 4px;
   }
-  .word-hint {
-    font-size: 12px; color: var(--ink-mute);
-    font-weight: 500;
-  }
-
+  .word-hint { font-size: 12px; color: var(--ink-mute); font-weight: 500; }
   .choices { display: grid; gap: 8px; }
   .choice {
     background: var(--panel);
@@ -331,7 +322,6 @@
     border-radius: var(--r-md);
     padding: 14px 16px;
     text-align: left;
-    font-family: var(--display);
     font-weight: 600; font-size: 15px;
     color: var(--ink);
     cursor: pointer;
@@ -354,43 +344,452 @@
     border-color: var(--t-grass);
     color: var(--t-grass);
   }
-  .choice.correct .key {
-    background: var(--t-grass); color: #fff; border-color: var(--t-grass);
-  }
-  .choice.wrong {
-    background: var(--pri-soft);
-    border-color: var(--pri);
-    color: var(--pri-deep);
-  }
-  .choice.wrong .key {
-    background: var(--pri); color: #fff; border-color: var(--pri);
-  }
-
+  .choice.correct .key { background: var(--t-grass); color: #fff; border-color: var(--t-grass); }
+  .choice.wrong { background: var(--pri-soft); border-color: var(--pri); color: var(--pri-deep); }
+  .choice.wrong .key { background: var(--pri); color: #fff; border-color: var(--pri); }
   .feedback {
     font-size: 13px; font-weight: 600;
     color: var(--ink-mute);
     margin-top: 14px;
     min-height: 18px;
     text-align: center;
-    opacity: 0;
-    transition: opacity .2s;
+    opacity: 0; transition: opacity .2s;
   }
   .feedback.show { opacity: 1; }
   .feedback.ok { color: var(--t-grass); }
   .feedback.no { color: var(--pri-deep); }
   .feedback small { font-weight: 500; opacity: .7; }
-
-  .next-btn {
-    margin-top: 16px;
-    visibility: hidden;
-  }
+  .next-btn { margin-top: 16px; visibility: hidden; }
   .next-btn.show { visibility: visible; }
 
-  /* === 도감 (포켓몬도감 스타일) === */
-  .dex-list {
-    display: flex; flex-direction: column;
-    gap: 8px;
+  /* === My Words === */
+  .word-list {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 16px;
   }
+  .word-item {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    border-left: 3px solid var(--divider-deep);
+  }
+  .word-item.pending  { border-left-color: var(--t-bolt); }
+  .word-item.approved { border-left-color: var(--t-grass); }
+  .word-item .we { font-weight: 800; font-size: 14px; flex: 1; }
+  .word-item .wk { color: var(--ink-soft); font-size: 13px; flex: 1; }
+  .word-item .wb {
+    font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 2px 7px; border-radius: var(--r-pill);
+  }
+  .word-item.pending .wb  { background: #fef3c7; color: #92400e; }
+  .word-item.approved .wb { background: #ecf6ef; color: #065f46; }
+  .empty {
+    text-align: center; color: var(--ink-mute);
+    padding: 28px 12px; font-size: 13px;
+  }
+
+  /* === Textbook === */
+  .unit-row {
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .unit-row::-webkit-scrollbar { display: none; }
+  .unit-btn {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--divider-deep);
+    background: var(--panel);
+    border-radius: var(--r-pill);
+    font-family: var(--display);
+    font-weight: 700; font-size: 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .unit-btn[aria-selected="true"] {
+    background: var(--ink); color: #fff;
+    border-color: var(--ink);
+  }
+  .tb-progress {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .tb-progress strong { color: var(--ink); font-weight: 800; }
+  .tb-progress .reload {
+    margin-left: auto;
+    background: var(--ink); color: #fff;
+    border: none; padding: 6px 12px;
+    border-radius: var(--r-sm);
+    font-size: 11px; font-weight: 700;
+    cursor: pointer;
+  }
+  .tb-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 16px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--t-water);
+  }
+  .tb-tags { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tb-tag {
+    font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: var(--r-pill);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .tb-tag.unit { background: #e0ecf9; color: var(--t-water); }
+  .tb-tag.pos  { background: #ecf6ef; color: var(--t-grass); }
+  .tb-en {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 2px;
+  }
+  .tb-ko { font-size: 13px; color: var(--ink-soft); margin-bottom: 8px; }
+  .tb-ex {
+    font-size: 11px; color: var(--ink-mute);
+    background: var(--bg);
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    margin-bottom: 10px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .tb-actions { display: flex; gap: 6px; }
+  .tb-know, .tb-dontknow {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: var(--r-sm);
+    font-family: var(--display);
+    font-weight: 800; font-size: 12px;
+    cursor: pointer;
+    background: var(--panel);
+  }
+  .tb-know { border-color: var(--t-grass); color: var(--t-grass); }
+  .tb-dontknow { border-color: var(--pri); color: var(--pri); flex: 1.4; }
+  .tb-added {
+    flex: 1; padding: 10px;
+    border: 1px solid var(--divider);
+    border-radius: var(--r-sm);
+    font-weight: 700; font-size: 12px;
+    color: var(--ink-mute);
+    background: var(--bg);
+    cursor: default;
+  }
+
+  /* Grammar item (in textbook + Q&A) */
+  .gr-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--t-mind);
+  }
+  .gr-tag {
+    font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: var(--r-pill);
+    background: #f3e7f0; color: var(--t-mind);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    display: inline-block; margin-bottom: 8px;
+  }
+  .gr-sentence {
+    font-size: 13px; color: var(--ink);
+    background: var(--bg);
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .gr-explain { font-size: 12px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 6px; }
+  .gr-pattern {
+    font-size: 11px;
+    background: var(--bg);
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    color: var(--ink-soft);
+    font-family: ui-monospace, monospace;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+  .gr-q { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+  .gr-toggle {
+    background: none; border: none;
+    color: var(--pri); font-weight: 700; font-size: 11px;
+    cursor: pointer; padding: 0;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .gr-answer {
+    display: none;
+    margin-top: 8px;
+    padding: 10px;
+    background: #ecf6ef;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    color: #065f46;
+    line-height: 1.6;
+  }
+  .gr-answer.show { display: block; }
+
+  /* === Grammar Q&A === */
+  .ask-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .ask-card .label {
+    font-size: 10px; font-weight: 800;
+    color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .ask-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-sm);
+    font-family: var(--display);
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--bg);
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.6;
+  }
+  .ask-input:focus { outline: none; border-color: var(--ink); background: var(--panel); }
+  .ask-input::placeholder { color: var(--ink-mute); }
+  .ask-card .cta { margin-top: 10px; }
+
+  .qa-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  .qa-q {
+    font-weight: 800; font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .qa-a {
+    background: var(--bg);
+    padding: 10px 12px;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .qa-pending {
+    font-size: 11px;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    font-weight: 600;
+  }
+  .qa-mine {
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    background: #e0ecf9; color: var(--t-water);
+    padding: 2px 7px; border-radius: var(--r-pill);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-top: 8px;
+  }
+  .label-row {
+    font-size: 10px; font-weight: 800;
+    color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin: 18px 0 8px;
+  }
+  .label-row:first-child { margin-top: 0; }
+
+  /* === Writing practice === */
+  .wp-types {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .wp-type {
+    background: var(--panel);
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-md);
+    padding: 14px 10px;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--display);
+  }
+  .wp-type[aria-selected="true"] {
+    border-color: var(--ink); border-width: 2px; padding: 13px 9px;
+  }
+  .wp-type .lab {
+    font-weight: 800; font-size: 13px;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+  }
+  .wp-type .desc {
+    font-size: 11px; color: var(--ink-mute); font-weight: 500;
+  }
+  .hint-box {
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .hint-box .label {
+    font-size: 10px; font-weight: 800;
+    color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .hint-words {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .hint-word {
+    background: var(--panel);
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-pill);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .hint-word .gloss { color: var(--ink-mute); font-weight: 500; }
+
+  .wp-problem {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .wp-tag {
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    background: var(--ink); color: #fff;
+    padding: 2px 7px; border-radius: var(--r-pill);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .wp-instr {
+    font-weight: 800; font-size: 14px;
+    margin-bottom: 10px; line-height: 1.5;
+  }
+  .wp-prompt {
+    background: var(--bg);
+    padding: 10px 12px;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+  .wp-cond {
+    font-size: 12px; padding: 3px 0;
+    color: var(--ink-soft);
+    display: flex; gap: 6px;
+  }
+  .wp-cond .n { font-weight: 800; color: var(--pri); min-width: 16px; }
+  .wp-area {
+    width: 100%;
+    min-height: 130px;
+    padding: 12px;
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-md);
+    font-family: var(--display);
+    font-size: 14px;
+    line-height: 1.7;
+    resize: none;
+    background: var(--panel);
+  }
+  .wp-area:focus { outline: none; border-color: var(--ink); }
+  .wp-count {
+    font-size: 10px; color: var(--ink-mute);
+    text-align: right; margin-top: 4px;
+    font-feature-settings: "tnum";
+  }
+  .wp-row { display: flex; gap: 8px; margin-top: 12px; }
+  .wp-row .cta { flex: 1; }
+  .wp-row .cta-sec { flex: 0 0 auto; padding: 14px 16px; }
+
+  .wp-score {
+    background: var(--ink); color: #fff;
+    border-radius: var(--r-md);
+    padding: 18px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .wp-score .total {
+    font-size: 38px; font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-feature-settings: "tnum";
+  }
+  .wp-score .total small { opacity: .5; font-weight: 700; font-size: 18px; }
+  .wp-score .pct {
+    font-size: 11px;
+    margin-top: 4px; opacity: .7;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+  .wp-bar-wrap {
+    height: 6px; background: rgba(255,255,255,.15);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .wp-bar { height: 100%; background: var(--pri); border-radius: var(--r-pill); transition: width .6s var(--ease-quart); }
+
+  .rb-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    margin-bottom: 6px;
+  }
+  .rb-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .rb-name { font-weight: 800; font-size: 13px; flex: 1; }
+  .rb-dots { display: flex; gap: 3px; }
+  .rb-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--divider);
+  }
+  .rb-dot.on { background: var(--ink); }
+  .rb-score {
+    font-weight: 800; font-size: 14px;
+    font-feature-settings: "tnum";
+    min-width: 28px; text-align: right;
+  }
+  .rb-score.s0 { color: var(--pri); }
+  .rb-score.s1 { color: var(--t-fire); }
+  .rb-score.s2 { color: var(--t-bolt); }
+  .rb-score.s3 { color: var(--t-grass); }
+  .rb-comment { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  .wp-loading {
+    text-align: center;
+    padding: 36px 12px;
+    color: var(--ink-mute);
+    font-size: 13px;
+  }
+
+  /* === Dex === */
+  .dex-list { display: flex; flex-direction: column; gap: 6px; }
   .dex-row {
     background: var(--panel);
     border: 1px solid var(--divider);
@@ -405,12 +804,10 @@
     color: var(--ink-mute);
   }
   .dex-num {
-    font-family: var(--num);
     font-weight: 800; font-size: 12px;
     color: var(--ink-mute);
     font-feature-settings: "tnum";
     width: 36px;
-    letter-spacing: 0;
   }
   .dex-spr {
     width: 44px; height: 44px;
@@ -423,34 +820,25 @@
   }
   .dex-row.locked .dex-spr { opacity: .25; filter: grayscale(1); }
   .dex-info { flex: 1; min-width: 0; }
-  .dex-name {
-    font-weight: 800; font-size: 14px;
-    letter-spacing: -0.01em;
-  }
-  .dex-need {
-    font-size: 11px; color: var(--ink-mute);
-    font-weight: 500;
-    margin-top: 2px;
-  }
+  .dex-name { font-weight: 800; font-size: 14px; letter-spacing: -0.01em; }
+  .dex-need { font-size: 11px; color: var(--ink-mute); font-weight: 500; margin-top: 2px; }
   .dex-status {
     font-size: 10px; font-weight: 800;
     color: var(--t-grass);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
   .dex-row.locked .dex-status { color: var(--ink-mute); }
 
-  /* === 토템 — 타입 카드 그룹 === */
+  /* === Totems === */
   .totem-headline {
-    background: var(--ink);
-    color: #fff;
+    background: var(--ink); color: #fff;
     border-radius: var(--r-md);
     padding: 14px 16px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .totem-headline .label {
-    font-size: 10px; font-weight: 700;
+    font-size: 10px; font-weight: 800;
     text-transform: uppercase; letter-spacing: 0.08em;
     opacity: .7;
   }
@@ -459,17 +847,9 @@
     line-height: 1; letter-spacing: -0.03em;
     font-feature-settings: "tnum";
   }
-  .totem-headline .right {
-    text-align: right;
-  }
-  .totem-headline .equipped-name {
-    font-size: 14px; font-weight: 700;
-    margin-top: 4px;
-  }
-  .totem-headline .equipped-name .none {
-    opacity: .5; font-weight: 600;
-  }
-
+  .totem-headline .right { text-align: right; }
+  .totem-headline .equipped-name { font-size: 13px; font-weight: 700; margin-top: 4px; }
+  .totem-headline .equipped-name .none { opacity: .5; font-weight: 600; }
   .totem-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 8px;
@@ -491,9 +871,7 @@
     cursor: default;
   }
   .totem-cell.equipped {
-    border-color: var(--ink);
-    border-width: 2px;
-    padding: 11px;
+    border-color: var(--ink); border-width: 2px; padding: 11px;
   }
   .tc-icon {
     width: 36px; height: 36px;
@@ -505,11 +883,7 @@
   .totem-cell.locked .tc-icon { background: var(--divider) !important; }
   .totem-cell.locked .tc-icon svg { color: var(--ink-mute); opacity: .5; }
   .tc-info { flex: 1; min-width: 0; }
-  .tc-name {
-    font-size: 13px; font-weight: 800;
-    letter-spacing: -0.01em;
-    margin-bottom: 3px;
-  }
+  .tc-name { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 3px; }
   .totem-cell.locked .tc-name { color: var(--ink-mute); }
   .tc-mult {
     font-size: 11px; font-weight: 700;
@@ -521,14 +895,10 @@
     display: inline-block;
     font-size: 9px; font-weight: 800;
     color: #fff;
-    padding: 1px 6px;
-    border-radius: var(--r-pill);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    padding: 1px 6px; border-radius: var(--r-pill);
+    letter-spacing: 0.05em; text-transform: uppercase;
     margin-left: 6px;
   }
-
-  /* type background colors */
   .bg-grass { background: var(--t-grass); }
   .bg-fire  { background: var(--t-fire); }
   .bg-water { background: var(--t-water); }
@@ -552,10 +922,7 @@
     color: var(--ink-soft);
   }
   .stat-table li:last-child { border-bottom: none; }
-  .stat-table li b {
-    color: var(--ink); font-weight: 800;
-    font-feature-settings: "tnum";
-  }
+  .stat-table li b { color: var(--ink); font-weight: 800; font-feature-settings: "tnum"; }
   .reset-btn {
     width: 100%;
     background: transparent;
@@ -592,12 +959,82 @@
     text-transform: uppercase;
   }
   .tabbar button svg { width: 22px; height: 22px; }
-  .tabbar button[aria-selected="true"] {
-    color: var(--ink);
-  }
+  .tabbar button[aria-selected="true"] { color: var(--ink); }
   .tabbar button[aria-selected="true"] svg { color: var(--pri); }
 
-  /* === Modal (드랍 / 레벨업) === */
+  /* === FAB === */
+  .fab {
+    position: fixed;
+    right: max(16px, calc(50% - 220px));
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    z-index: 45;
+    width: 52px; height: 52px;
+    border-radius: var(--r-md);
+    background: var(--ink); color: #fff;
+    border: none; cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(20,23,31,.25);
+  }
+  .fab.show { display: flex; }
+  .fab:active { transform: translateY(1px); }
+  .fab svg { width: 24px; height: 24px; }
+
+  /* === Bottom sheet === */
+  .sheet-ov {
+    position: fixed; inset: 0;
+    background: rgba(20,23,31,.5);
+    z-index: 60;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .sheet-ov.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 61;
+    background: var(--panel);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-top: 1px solid var(--divider);
+    padding: 16px 20px calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform .25s var(--ease-quart);
+    max-width: 480px; margin: 0 auto;
+  }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 3px;
+    background: var(--divider-deep);
+    border-radius: 2px;
+    margin: -4px auto 14px;
+  }
+  .sheet h3 {
+    font-size: 14px; font-weight: 800;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .sheet input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--divider-deep);
+    border-radius: var(--r-sm);
+    font-family: var(--display);
+    font-size: 14px;
+    margin-bottom: 8px;
+    background: var(--bg);
+  }
+  .sheet input:focus { outline: none; border-color: var(--ink); background: var(--panel); }
+  .sheet .cta { margin-top: 6px; }
+  .sheet .msg {
+    font-size: 11px;
+    margin-top: 8px;
+    min-height: 14px;
+    font-weight: 600;
+  }
+  .sheet .msg.ok { color: var(--t-grass); }
+  .sheet .msg.err { color: var(--pri); }
+
+  /* === Modals === */
   .ov {
     position: fixed; inset: 0;
     background: rgba(20,23,31,.6);
@@ -609,7 +1046,6 @@
   .ov-card {
     background: var(--panel);
     border-radius: var(--r-md);
-    padding: 0;
     max-width: 320px; width: 100%;
     overflow: hidden;
     animation: slide .2s var(--ease-quart);
@@ -635,21 +1071,13 @@
     border-radius: var(--r-md);
   }
   .ov-icon svg { width: 36px; height: 36px; color: #fff; }
-  .ov-name {
-    font-size: 18px; font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 4px;
-  }
+  .ov-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
   .ov-mult {
-    font-size: 13px; font-weight: 700;
-    color: var(--pri);
+    font-size: 13px; font-weight: 700; color: var(--pri);
     margin-bottom: 16px;
     font-feature-settings: "tnum";
   }
-  .ov-btns {
-    display: flex; gap: 8px;
-    padding: 0 16px 16px;
-  }
+  .ov-btns { display: flex; gap: 8px; padding: 0 16px 16px; }
   .ov-btn {
     flex: 1; padding: 12px;
     border: none; border-radius: var(--r-sm);
@@ -661,7 +1089,6 @@
   .ov-btn-pri { background: var(--ink); color: #fff; }
   .ov-btn-sec { background: var(--bg); color: var(--ink-soft); }
 
-  /* === Toast === */
   .toast {
     position: fixed;
     top: calc(70px + env(safe-area-inset-top));
@@ -669,20 +1096,18 @@
     background: var(--ink); color: var(--bg);
     padding: 10px 16px; border-radius: var(--r-sm);
     font-weight: 700; font-size: 12px;
-    letter-spacing: -0.01em;
     z-index: 200; max-width: 380px;
     transition: transform .25s var(--ease-quart);
     pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* === Levelup card === */
   .lvup-num {
     font-size: 56px; font-weight: 900;
     color: var(--pri);
     line-height: 1; letter-spacing: -0.04em;
     font-feature-settings: "tnum";
-    margin: 8px 0 8px;
+    margin: 8px 0;
   }
   .lvup-msg { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; font-weight: 600; }
 
@@ -700,7 +1125,6 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <defs>
-  <!-- 버디(작은 마스코트 = 토토) — 단순화된 일러스트 -->
   <symbol id="buddy" viewBox="0 0 48 48">
     <circle cx="24" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="2"/>
     <ellipse cx="14" cy="14" rx="4" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -710,14 +1134,13 @@
     <path d="M 21 30 Q 24 32 27 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   </symbol>
 
-  <!-- Tab icons — sharp/geometric -->
   <symbol id="ic-home" viewBox="0 0 24 24"><path d="M 4 11 L 12 4 L 20 11 L 20 20 L 14 20 L 14 14 L 10 14 L 10 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-  <symbol id="ic-mission" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 8 10 L 16 10 M 8 14 L 13 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="ic-learn" viewBox="0 0 24 24"><path d="M 4 6 L 12 4 L 20 6 L 20 18 L 12 20 L 4 18 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M 12 4 L 12 20" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-practice" viewBox="0 0 24 24"><path d="M 4 17 L 16 5 L 19 8 L 7 20 L 4 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="ic-dex" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 9 L 20 9" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="6.5" r="1" fill="currentColor"/></symbol>
-  <symbol id="ic-totem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 12 L 20 12" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="ic-me" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M 12 5 L 12 19 M 5 12 L 19 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
 
-  <!-- Totem icons -->
   <symbol id="t-leaf" viewBox="0 0 32 32">
     <path d="M 16 5 C 8 11 7 21 11 27 C 18 25 25 18 25 8 C 22 7 19 6 16 5 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
     <path d="M 16 9 L 13 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -785,7 +1208,7 @@
           </div>
         </div>
         <button class="tc-slot empty" id="home-slot" type="button"
-                onclick="goto('totems')" aria-label="장착 토템">
+                onclick="goto('dex'); selectSub('dex','totems')" aria-label="장착 토템">
           <span class="plus" id="home-slot-plus">＋</span>
           <svg id="home-slot-svg" hidden aria-hidden="true"><use id="home-slot-use" href=""/></svg>
           <span class="tc-slot-mult" id="home-slot-mult" hidden>×1.5</span>
@@ -800,60 +1223,124 @@
       <div class="cell"><div class="v" id="hs-days">1</div><div class="l">일차</div></div>
     </div>
 
-    <button class="cta cta-pri" type="button" onclick="goto('mission')">
+    <button class="cta cta-pri" type="button" onclick="goto('learn'); selectSub('learn','quiz')">
       <span>오늘의 단어 풀기</span>
       <span class="arr">→</span>
     </button>
   </section>
 
-  <!-- ─── MISSION ─── -->
-  <section class="screen mission" aria-labelledby="mission-h">
-    <h2 id="mission-h" class="screen-h">단어</h2>
-    <p class="screen-sub">알맞은 뜻을 골라요</p>
+  <!-- ─── LEARN (퀴즈 / 내단어 / 교재) ─── -->
+  <section class="screen learn" aria-labelledby="learn-h">
+    <h2 id="learn-h" class="screen-h">학습</h2>
+    <p class="screen-sub">단어를 풀고 모으세요</p>
 
-    <div class="quiz-meta">
-      <span>EXP <b id="exp-mission">0</b></span>
-      <span>외운 단어 <b id="mastered-mission">0</b></span>
+    <div class="subnav" role="tablist" data-screen="learn">
+      <button role="tab" aria-selected="true"  data-sub="quiz"    onclick="selectSub('learn','quiz')">퀴즈</button>
+      <button role="tab" aria-selected="false" data-sub="mywords" onclick="selectSub('learn','mywords')">내 단어장</button>
+      <button role="tab" aria-selected="false" data-sub="textbook" onclick="selectSub('learn','textbook')">교재</button>
     </div>
 
-    <div class="word-card">
-      <div class="word-num" id="word-num">#01</div>
-      <div class="word-en" id="word-en">—</div>
-      <div class="word-hint">뜻을 골라보세요</div>
+    <!-- 퀴즈 -->
+    <div class="subpane active" data-sub="quiz">
+      <div class="quiz-meta">
+        <span>EXP <b id="exp-mission">0</b></span>
+        <span>외운 단어 <b id="mastered-mission">0</b></span>
+      </div>
+      <div class="word-card">
+        <div class="word-num" id="word-num">#01</div>
+        <div class="word-en" id="word-en">—</div>
+        <div class="word-hint">뜻을 골라보세요</div>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback" role="status"></div>
+      <button class="cta next-btn" id="next-btn" type="button" onclick="nextQuiz()">
+        <span>다음 단어</span><span class="arr">→</span>
+      </button>
     </div>
 
-    <div class="choices" id="choices"></div>
-    <div class="feedback" id="feedback" role="status"></div>
-    <button class="cta next-btn" id="next-btn" type="button" onclick="nextQuiz()">
-      <span>다음 단어</span>
-      <span class="arr">→</span>
-    </button>
+    <!-- 내 단어장 -->
+    <div class="subpane" data-sub="mywords">
+      <div class="word-list" id="my-word-list">
+        <div class="empty">단어를 추가해보세요</div>
+      </div>
+    </div>
+
+    <!-- 교재 -->
+    <div class="subpane" data-sub="textbook">
+      <div class="unit-row" id="tb-units"></div>
+      <div class="tb-progress">
+        <span id="tb-progress-text">교재 단어 <strong>0개</strong></span>
+        <button class="reload" type="button" onclick="reloadTextbook()">새 단어</button>
+      </div>
+      <div id="tb-words"></div>
+
+      <div class="label-row">교재 핵심 문법</div>
+      <div id="tb-grammar"></div>
+    </div>
   </section>
 
-  <!-- ─── DEX ─── -->
+  <!-- ─── PRACTICE (문법Q&A / 수행평가) ─── -->
+  <section class="screen practice" aria-labelledby="practice-h">
+    <h2 id="practice-h" class="screen-h">연습</h2>
+    <p class="screen-sub">선생님과 영작 연습</p>
+
+    <div class="subnav" role="tablist" data-screen="practice">
+      <button role="tab" aria-selected="true"  data-sub="grammar" onclick="selectSub('practice','grammar')">문법 Q&amp;A</button>
+      <button role="tab" aria-selected="false" data-sub="writing" onclick="selectSub('practice','writing')">수행평가</button>
+    </div>
+
+    <!-- 문법 Q&A -->
+    <div class="subpane active" data-sub="grammar">
+      <div class="ask-card">
+        <div class="label">문법 질문하기</div>
+        <textarea class="ask-input" id="ask-input"
+          placeholder="궁금한 영어 문법을 질문해주세요&#10;예) 현재완료와 과거시제의 차이?"></textarea>
+        <button class="cta" type="button" onclick="submitQuestion()">
+          <span>질문 올리기</span><span class="arr">→</span>
+        </button>
+        <div class="msg" id="ask-msg"></div>
+      </div>
+
+      <div class="label-row">내 질문</div>
+      <div id="my-questions"></div>
+
+      <div class="label-row">선생님 자료</div>
+      <div id="teacher-grammar"></div>
+    </div>
+
+    <!-- 수행평가 -->
+    <div class="subpane" data-sub="writing">
+      <div id="wp-app"></div>
+    </div>
+  </section>
+
+  <!-- ─── DEX (친구 / 토템) ─── -->
   <section class="screen dex" aria-labelledby="dex-h">
-    <h2 id="dex-h" class="screen-h">친구 도감</h2>
-    <p class="screen-sub">단어를 모으면 친구가 늘어나요 · <span id="dex-count">1</span>/6</p>
-    <div class="dex-list" id="dex-list"></div>
-  </section>
+    <h2 id="dex-h" class="screen-h">도감</h2>
+    <p class="screen-sub">단어를 모으면 친구와 토템이 늘어나요</p>
 
-  <!-- ─── TOTEMS ─── -->
-  <section class="screen totems" aria-labelledby="totems-h">
-    <h2 id="totems-h" class="screen-h">토템</h2>
-    <p class="screen-sub">하나 장착하면 EXP가 배수로 적립돼요</p>
-
-    <div class="totem-headline">
-      <div>
-        <div class="label">현재 배수</div>
-        <div class="mult-now" id="totem-mult-now">×1.0</div>
-      </div>
-      <div class="right">
-        <div class="label"><span id="totem-owned">0</span>/8 보유</div>
-        <div class="equipped-name" id="totem-eq-name"><span class="none">미장착</span></div>
-      </div>
+    <div class="subnav" role="tablist" data-screen="dex">
+      <button role="tab" aria-selected="true"  data-sub="friends" onclick="selectSub('dex','friends')">친구 <span id="dex-count">1</span>/6</button>
+      <button role="tab" aria-selected="false" data-sub="totems"  onclick="selectSub('dex','totems')">토템 <span id="dex-totem-count">0</span>/8</button>
     </div>
 
-    <div class="totem-grid" id="totem-grid"></div>
+    <div class="subpane active" data-sub="friends">
+      <div class="dex-list" id="dex-list"></div>
+    </div>
+
+    <div class="subpane" data-sub="totems">
+      <div class="totem-headline">
+        <div>
+          <div class="label">현재 배수</div>
+          <div class="mult-now" id="totem-mult-now">×1.0</div>
+        </div>
+        <div class="right">
+          <div class="label"><span id="totem-owned">0</span>/8 보유</div>
+          <div class="equipped-name" id="totem-eq-name"><span class="none">미장착</span></div>
+        </div>
+      </div>
+      <div class="totem-grid" id="totem-grid"></div>
+    </div>
   </section>
 
   <!-- ─── ME ─── -->
@@ -874,12 +1361,30 @@
 
 </div>
 
+<!-- FAB (mywords sub-tab일 때만 표시) -->
+<button class="fab" id="fab" type="button" aria-label="단어 추가" onclick="openSheet()">
+  <svg aria-hidden="true"><use href="#ic-plus"/></svg>
+</button>
+
+<!-- Bottom sheet (단어 추가) -->
+<div class="sheet-ov" id="sheet-ov" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <h3>단어 추가</h3>
+  <input id="add-en" type="text" placeholder="영어 단어 (예: ambiguous)">
+  <input id="add-ko" type="text" placeholder="한국어 뜻 (예: 모호한)">
+  <button class="cta cta-pri" type="button" onclick="addWord()">
+    <span>추가하기</span><span class="arr">→</span>
+  </button>
+  <div class="msg" id="add-msg"></div>
+</div>
+
 <nav class="tabbar" role="tablist" aria-label="주요 메뉴">
-  <button role="tab" data-screen="home" aria-selected="true" onclick="goto('home')"><svg aria-hidden="true"><use href="#ic-home"/></svg>홈</button>
-  <button role="tab" data-screen="mission" aria-selected="false" onclick="goto('mission')"><svg aria-hidden="true"><use href="#ic-mission"/></svg>단어</button>
-  <button role="tab" data-screen="dex" aria-selected="false" onclick="goto('dex')"><svg aria-hidden="true"><use href="#ic-dex"/></svg>도감</button>
-  <button role="tab" data-screen="totems" aria-selected="false" onclick="goto('totems')"><svg aria-hidden="true"><use href="#ic-totem"/></svg>토템</button>
-  <button role="tab" data-screen="me" aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>기록</button>
+  <button role="tab" data-screen="home"     aria-selected="true"  onclick="goto('home')"><svg aria-hidden="true"><use href="#ic-home"/></svg>홈</button>
+  <button role="tab" data-screen="learn"    aria-selected="false" onclick="goto('learn')"><svg aria-hidden="true"><use href="#ic-learn"/></svg>학습</button>
+  <button role="tab" data-screen="practice" aria-selected="false" onclick="goto('practice')"><svg aria-hidden="true"><use href="#ic-practice"/></svg>연습</button>
+  <button role="tab" data-screen="dex"      aria-selected="false" onclick="goto('dex')"><svg aria-hidden="true"><use href="#ic-dex"/></svg>도감</button>
+  <button role="tab" data-screen="me"       aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>기록</button>
 </nav>
 
 <!-- Drop modal -->
@@ -931,7 +1436,6 @@
     { en: "silence", ko: "침묵",   choices: ["소음","대화","음악"] },
   ];
 
-  // ── 친구 도감 (#47: 마지막은 초록 티라노) ──
   const FRIENDS = [
     { id:"toto",  emoji:"●", name:"토토",   need:0,  type:"mind",  desc:"시작을 함께한 친구" },
     { id:"mimi",  emoji:"🐱", name:"미미",   need:2,  type:"mind",  desc:"호기심 많은 고양이" },
@@ -941,7 +1445,6 @@
     { id:"trex",  emoji:"🦖", name:"티라노", need:10, type:"grass", desc:"가장 강한 동료" },
   ];
 
-  // ── 토템 (타입 + 배수) ──
   const TOTEMS = [
     { id:'tot-001', name:'새싹',    svg:'t-leaf',  type:'grass', mult:1.5 },
     { id:'tot-002', name:'불꽃',    svg:'t-flame', type:'fire',  mult:1.5 },
@@ -956,6 +1459,70 @@
   const getTotem = id => TOTEMS.find(t => t.id === id);
   const currentMult = () => state.equippedTotem ? getTotem(state.equippedTotem).mult : 1.0;
 
+  // ── 교재 mock 데이터 ──
+  const TB_UNITS = [1, 2, 3, 4];
+  const TB_WORDS = [
+    { id:'w1', unit:1, en:'ambitious', ko:'야망 있는', pos:'형용사', ex:'She is ambitious about her future career.' },
+    { id:'w2', unit:1, en:'consequence', ko:'결과', pos:'명사', ex:'Every choice has a consequence.' },
+    { id:'w3', unit:2, en:'sustain', ko:'유지하다', pos:'동사', ex:'How can we sustain economic growth?' },
+    { id:'w4', unit:2, en:'inevitable', ko:'불가피한', pos:'형용사', ex:'Change is inevitable in our lives.' },
+    { id:'w5', unit:3, en:'perceive', ko:'인식하다', pos:'동사', ex:'How do you perceive this situation?' },
+    { id:'w6', unit:3, en:'fundamental', ko:'근본적인', pos:'형용사', ex:'Trust is fundamental to friendship.' },
+    { id:'w7', unit:4, en:'deliberate', ko:'의도적인', pos:'형용사', ex:'It was a deliberate decision.' },
+  ];
+  const TB_GRAMMAR = [
+    { id:'g1', point:'현재완료', sentence:'I have lived here for 5 years.',
+      explain:'과거부터 현재까지 계속되는 상태/행위를 표현',
+      pattern:'have/has + p.p.',
+      q:'다음 중 현재완료가 아닌 것은?', a:'I lived here last year. (단순 과거)' },
+    { id:'g2', point:'관계대명사', sentence:'The book that I read was great.',
+      explain:'명사를 수식하는 형용사절을 이끄는 대명사',
+      pattern:'명사 + that/which/who + 절',
+      q:'that과 which의 차이는?', a:'that은 사람·사물 모두 가능, which는 사물에만 사용' },
+  ];
+
+  // ── 문법 Q&A mock ──
+  const TEACHER_GRAMMAR = [
+    { q:'be + p.p. 와 have + p.p. 의 차이?',
+      a:'be + p.p.는 수동태 (~되어지다), have + p.p.는 완료/경험 시제. 의미가 완전히 달라요.' },
+    { q:'so that vs in order to 차이?',
+      a:'so that 뒤에는 절(주어+동사)이 오고, in order to 뒤에는 동사원형이 옵니다.' },
+  ];
+
+  // ── 수행평가 mock ──
+  const WP_TYPES = {
+    sentence_completion: { label:'조건 영작',   desc:'조건에 맞게 영작' },
+    word_arrangement:    { label:'단어 배열',   desc:'단어 순서 맞추기' },
+    summary_writing:     { label:'요약문 완성', desc:'지문 읽고 요약' },
+    free_writing:        { label:'자유 영작',   desc:'주제 보고 자유롭게' },
+  };
+  const WP_PROBLEMS = {
+    sentence_completion: {
+      type: 'sentence_completion',
+      instruction: '주어진 단어를 사용해 우리말 문장을 영작하세요.',
+      prompt: '나는 어렸을 때부터 책 읽기를 좋아해 왔다.',
+      conditions: ['현재완료 시제 사용', 'since I was young 표현 포함', '15단어 이내'],
+    },
+    word_arrangement: {
+      type: 'word_arrangement',
+      instruction: '주어진 단어를 알맞은 순서로 배열하세요.',
+      prompt: '[ have / I / since / been / interested / in / music / I was a child / . ]',
+      conditions: ['모든 단어 사용', '알맞은 시제'],
+    },
+    summary_writing: {
+      type: 'summary_writing',
+      instruction: '아래 지문을 한 문장으로 요약하세요.',
+      prompt: 'Reading books has many benefits. It helps you learn new words, broadens your perspective, and reduces stress. Many people enjoy reading as a way to relax.',
+      conditions: ['1문장으로', '핵심 키워드 2개 이상', '20단어 이내'],
+    },
+    free_writing: {
+      type: 'free_writing',
+      instruction: '아래 주제로 자유롭게 영작하세요.',
+      prompt: 'My favorite hobby and why',
+      conditions: ['3문장 이상', '구체적인 이유 포함', '50단어 이상'],
+    },
+  };
+
   // ── 상태 ──
   const STORAGE_KEY = "wg_state_v1";
   const DEFAULT_STATE = {
@@ -967,6 +1534,11 @@
     ownedTotems: [],
     equippedTotem: null,
     pendingDrop: null,
+    myWords: [],          // [{en, ko, status: 'pending'|'approved'}]
+    myQuestions: [],      // [{q, a, status}]
+    addedTbWords: [],     // [tb word ids]
+    knownTbWords: [],     // [tb word ids]
+    currentUnit: 0,       // 0 = 전체
   };
   let state = load();
 
@@ -1000,6 +1572,7 @@
     const seed = state.startDate % 1000;
     return String(seed).padStart(3, '0');
   }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   // ── 라우팅 ──
   function goto(name) {
@@ -1007,12 +1580,43 @@
     document.querySelectorAll('.tabbar button').forEach(b => {
       b.setAttribute('aria-selected', b.dataset.screen === name ? 'true' : 'false');
     });
-    if (name === "mission") loadQuiz();
+    if (name === "learn") loadQuiz();
     if (name === "dex") {
       unlockedFriends().forEach(f => { if (!state.seenDex.includes(f.id)) state.seenDex.push(f.id); });
       save();
     }
+    if (name === "practice" && !WP.initialized) wpInit();
+    updateFab();
     window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function selectSub(screen, sub) {
+    const sel = `.screen.${screen}`;
+    const root = document.querySelector(sel);
+    if (!root) return;
+    root.querySelectorAll('.subnav[data-screen="'+screen+'"] button').forEach(b => {
+      b.setAttribute('aria-selected', b.dataset.sub === sub ? 'true' : 'false');
+    });
+    root.querySelectorAll('.subpane').forEach(p => {
+      p.classList.toggle('active', p.dataset.sub === sub);
+    });
+    if (screen === 'learn' && sub === 'mywords') renderMyWords();
+    if (screen === 'learn' && sub === 'textbook') renderTextbook();
+    if (screen === 'practice' && sub === 'grammar') renderGrammar();
+    if (screen === 'practice' && sub === 'writing' && WP.step === 'select') wpRenderSelect();
+    updateFab();
+  }
+
+  function activeSub(screen) {
+    const root = document.querySelector('.screen.'+screen);
+    const btn = root?.querySelector('.subnav button[aria-selected="true"]');
+    return btn?.dataset.sub;
+  }
+
+  function updateFab() {
+    const fab = document.getElementById('fab');
+    const onMyWords = document.body.dataset.screen === 'learn' && activeSub('learn') === 'mywords';
+    fab.classList.toggle('show', onMyWords);
   }
 
   // ── 퀴즈 ──
@@ -1092,6 +1696,323 @@
     }
   }
   function nextQuiz() { state.quizIdx++; save(); loadQuiz(); }
+
+  // ── 내 단어장 ──
+  function renderMyWords() {
+    const list = document.getElementById('my-word-list');
+    if (!state.myWords.length) {
+      list.innerHTML = '<div class="empty">단어를 추가해보세요</div>';
+      return;
+    }
+    list.innerHTML = state.myWords.map(w => `
+      <div class="word-item ${w.status}">
+        <span class="we">${esc(w.en)}</span>
+        <span class="wk">${esc(w.ko)}</span>
+        <span class="wb">${w.status === 'pending' ? '대기' : '승인'}</span>
+      </div>`).join('');
+  }
+  function openSheet() {
+    document.getElementById('sheet').classList.add('open');
+    document.getElementById('sheet-ov').classList.add('open');
+    setTimeout(() => document.getElementById('add-en').focus(), 250);
+  }
+  function closeSheet() {
+    document.getElementById('sheet').classList.remove('open');
+    document.getElementById('sheet-ov').classList.remove('open');
+    document.getElementById('add-msg').textContent = '';
+  }
+  function addWord() {
+    const en = document.getElementById('add-en').value.trim();
+    const ko = document.getElementById('add-ko').value.trim();
+    const msg = document.getElementById('add-msg');
+    msg.className = 'msg';
+    if (!en || !ko) { msg.className = 'msg err'; msg.textContent = '단어와 뜻을 모두 입력하세요.'; return; }
+    state.myWords.unshift({ en, ko, status: 'pending' });
+    save();
+    document.getElementById('add-en').value = '';
+    document.getElementById('add-ko').value = '';
+    msg.className = 'msg ok'; msg.textContent = '추가됐어요. 선생님 확인 후 승인됩니다.';
+    renderMyWords();
+    setTimeout(closeSheet, 900);
+    // mock approval after 3s
+    setTimeout(() => {
+      const w = state.myWords.find(x => x.en === en && x.status === 'pending');
+      if (w) { w.status = 'approved'; save(); renderMyWords(); }
+    }, 3000);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('sheet').classList.contains('open')) closeSheet();
+    }
+  });
+
+  // ── 교재 ──
+  function reloadTextbook() { renderTextbook(); }
+  function renderTextbook() {
+    const u = state.currentUnit;
+    const ub = document.getElementById('tb-units');
+    ub.innerHTML = `<button class="unit-btn" type="button" aria-selected="${u===0}" onclick="selectUnit(0)">전체</button>` +
+      TB_UNITS.map(n => `<button class="unit-btn" type="button" aria-selected="${u===n}" onclick="selectUnit(${n})">L${n}</button>`).join('');
+
+    const filtered = TB_WORDS.filter(w => u === 0 || w.unit === u);
+    const visible = filtered.filter(w => !state.knownTbWords.includes(w.id));
+    const prog = document.getElementById('tb-progress-text');
+    if (!visible.length) prog.innerHTML = '<strong>모두 완료!</strong>';
+    else prog.innerHTML = `교재 단어 <strong>${visible.length}개</strong> · 모르는 건 단어장으로`;
+
+    const wEl = document.getElementById('tb-words');
+    if (!visible.length) {
+      wEl.innerHTML = '<div class="empty">이 단원의 단어를 모두 외웠어요</div>';
+    } else {
+      wEl.innerHTML = visible.map(w => {
+        const added = state.addedTbWords.includes(w.id);
+        return `
+        <div class="tb-card" id="tb-${w.id}">
+          <div class="tb-tags">
+            <span class="tb-tag unit">UNIT ${w.unit}</span>
+            <span class="tb-tag pos">${esc(w.pos)}</span>
+          </div>
+          <div class="tb-en">${esc(w.en)}</div>
+          <div class="tb-ko">${esc(w.ko)}</div>
+          <div class="tb-ex">"${esc(w.ex)}"</div>
+          <div class="tb-actions">
+            <button class="tb-know" type="button" onclick="tbKnow('${w.id}')">알아요</button>
+            ${added
+              ? `<button class="tb-added" type="button">단어장에 추가됨</button>`
+              : `<button class="tb-dontknow" type="button" onclick="tbDontKnow('${w.id}')">몰라요 → 단어장</button>`}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const grEl = document.getElementById('tb-grammar');
+    const grFiltered = u === 0 ? TB_GRAMMAR : TB_GRAMMAR.slice(0, 1);
+    grEl.innerHTML = grFiltered.map(g => `
+      <div class="gr-card">
+        <span class="gr-tag">${esc(g.point)}</span>
+        <div class="gr-sentence">${esc(g.sentence)}</div>
+        <div class="gr-explain">${esc(g.explain)}</div>
+        <span class="gr-pattern">${esc(g.pattern)}</span>
+        <div class="gr-q">Q. ${esc(g.q)}</div>
+        <button class="gr-toggle" type="button" onclick="toggleGrAnswer(this)">▶ 정답 보기</button>
+        <div class="gr-answer">A. ${esc(g.a)}</div>
+      </div>`).join('');
+  }
+  function selectUnit(n) { state.currentUnit = n; save(); renderTextbook(); }
+  function tbKnow(id) {
+    if (!state.knownTbWords.includes(id)) state.knownTbWords.push(id);
+    save();
+    const card = document.getElementById('tb-' + id);
+    if (card) {
+      card.style.transition = 'opacity .25s';
+      card.style.opacity = '0';
+      setTimeout(() => renderTextbook(), 280);
+    }
+  }
+  function tbDontKnow(id) {
+    const w = TB_WORDS.find(x => x.id === id);
+    if (!w) return;
+    if (!state.addedTbWords.includes(id)) state.addedTbWords.push(id);
+    if (!state.myWords.find(x => x.en === w.en)) {
+      state.myWords.unshift({ en: w.en, ko: w.ko, status: 'pending' });
+    }
+    save();
+    renderTextbook();
+    toast(`${w.en} 단어장 추가`);
+  }
+  function toggleGrAnswer(btn) {
+    const ans = btn.nextElementSibling;
+    const open = ans.classList.toggle('show');
+    btn.textContent = open ? '▼ 정답 숨기기' : '▶ 정답 보기';
+  }
+
+  // ── 문법 Q&A ──
+  function renderGrammar() {
+    const my = document.getElementById('my-questions');
+    if (!state.myQuestions.length) {
+      my.innerHTML = '<div class="empty">아직 질문이 없어요</div>';
+    } else {
+      my.innerHTML = state.myQuestions.map(g => `
+        <div class="qa-card">
+          <div class="qa-q">Q. ${esc(g.q)}</div>
+          ${g.status === 'answered' && g.a
+            ? `<div class="qa-a">${esc(g.a)}</div>`
+            : `<div class="qa-pending">선생님 답변을 기다리는 중</div>`}
+          <div><span class="qa-mine">내 질문</span></div>
+        </div>`).join('');
+    }
+    const tg = document.getElementById('teacher-grammar');
+    tg.innerHTML = TEACHER_GRAMMAR.map(g => `
+      <div class="qa-card">
+        <div class="qa-q">Q. ${esc(g.q)}</div>
+        <div class="qa-a">${esc(g.a)}</div>
+      </div>`).join('');
+  }
+  function submitQuestion() {
+    const q = document.getElementById('ask-input').value.trim();
+    const msg = document.getElementById('ask-msg');
+    msg.className = 'msg';
+    if (!q) { msg.className = 'msg err'; msg.textContent = '질문을 입력해주세요.'; return; }
+    state.myQuestions.unshift({ q, a: null, status: 'pending' });
+    save();
+    document.getElementById('ask-input').value = '';
+    msg.className = 'msg ok'; msg.textContent = '질문이 등록됐어요. 선생님이 답변할 예정.';
+    renderGrammar();
+    // mock answer after 4s
+    setTimeout(() => {
+      const item = state.myQuestions.find(x => x.q === q && x.status === 'pending');
+      if (item) {
+        item.status = 'answered';
+        item.a = '좋은 질문이에요. (목업 자동 답변 — 실제 서비스에서는 선생님이 직접 답변합니다)';
+        save(); renderGrammar();
+      }
+    }, 4000);
+  }
+
+  // ── 수행평가 ──
+  const WP = { step:'select', selectedType:'sentence_completion', problem:null, grade:null, initialized:false, history:[] };
+
+  function wpInit() {
+    WP.step = 'select'; WP.initialized = true;
+    wpRenderSelect();
+  }
+
+  function wpRenderSelect() {
+    const types = Object.entries(WP_TYPES).map(([k, m]) => `
+      <button class="wp-type" type="button" data-type="${k}"
+              aria-selected="${WP.selectedType===k}" onclick="wpSelectType('${k}')">
+        <div class="lab">${m.label}</div>
+        <div class="desc">${m.desc}</div>
+      </button>`).join('');
+
+    const hintWords = state.myWords.filter(w => w.status === 'approved').slice(0, 5);
+    const hintHtml = hintWords.length
+      ? hintWords.map(w => `<div class="hint-word">${esc(w.en)} <span class="gloss">· ${esc(w.ko)}</span></div>`).join('')
+      : '<div style="font-size:11px;color:var(--ink-mute)">승인된 단어가 없어요</div>';
+
+    document.getElementById('wp-app').innerHTML = `
+      <div class="label-row" style="margin-top:0">유형 선택</div>
+      <div class="wp-types">${types}</div>
+      <div class="hint-box">
+        <div class="label">오늘의 집중 단어</div>
+        <div class="hint-words">${hintHtml}</div>
+      </div>
+      <button class="cta cta-pri" type="button" onclick="wpGenerate()">
+        <span>문제 생성하기</span><span class="arr">→</span>
+      </button>
+      ${WP.history.length ? `
+        <div class="label-row">최근 연습</div>
+        ${WP.history.slice(0,5).map(h => `
+          <div class="word-item approved">
+            <span class="we" style="font-size:13px">${WP_TYPES[h.type]?.label ?? h.type}</span>
+            <span class="wk" style="font-size:12px">${h.dateStr}</span>
+            <span class="wb" style="background:var(--ink);color:#fff;font-feature-settings:'tnum'">${h.score}/9</span>
+          </div>`).join('')}
+      ` : ''}`;
+  }
+  function wpSelectType(t) {
+    WP.selectedType = t;
+    document.querySelectorAll('.wp-type').forEach(b => {
+      b.setAttribute('aria-selected', b.dataset.type === t ? 'true' : 'false');
+    });
+  }
+  function wpGenerate() {
+    document.getElementById('wp-app').innerHTML = '<div class="wp-loading">맞춤 문제를 만드는 중...</div>';
+    setTimeout(() => {
+      WP.problem = WP_PROBLEMS[WP.selectedType];
+      WP.step = 'write';
+      wpRenderWrite();
+    }, 600);
+  }
+  function wpRenderWrite() {
+    const p = WP.problem;
+    const cond = (p.conditions || []).map((c, i) => `<div class="wp-cond"><span class="n">${i+1}.</span>${esc(c)}</div>`).join('');
+    const hintWords = state.myWords.filter(w => w.status === 'approved').slice(0, 5);
+    const hintHtml = hintWords.length
+      ? hintWords.map(w => `<div class="hint-word">${esc(w.en)} <span class="gloss">· ${esc(w.ko)}</span></div>`).join('')
+      : '';
+
+    document.getElementById('wp-app').innerHTML = `
+      <div class="wp-problem">
+        <span class="wp-tag">${WP_TYPES[p.type].label}</span>
+        <div class="wp-instr">${esc(p.instruction)}</div>
+        <div class="wp-prompt">${esc(p.prompt)}</div>
+        ${cond ? `<div>${cond}</div>` : ''}
+      </div>
+      ${hintHtml ? `<div class="hint-box"><div class="label">활용 단어</div><div class="hint-words">${hintHtml}</div></div>` : ''}
+      <textarea class="wp-area" id="wp-input" placeholder="여기에 영어 답안을 작성하세요"
+        oninput="document.getElementById('wp-count').textContent=this.value.length+'자'"></textarea>
+      <div class="wp-count" id="wp-count">0자</div>
+      <div class="wp-row">
+        <button class="cta cta-pri" type="button" onclick="wpSubmit()">
+          <span>제출하고 채점받기</span><span class="arr">→</span>
+        </button>
+        <button class="cta cta-sec" type="button" onclick="wpInit()">새 문제</button>
+      </div>
+      <div class="msg" id="wp-msg" style="font-size:11px;margin-top:8px;min-height:14px"></div>`;
+  }
+  function wpSubmit() {
+    const ans = document.getElementById('wp-input')?.value?.trim();
+    const msg = document.getElementById('wp-msg');
+    if (!ans) { msg.className='msg err'; msg.textContent='답안을 입력해주세요.'; return; }
+    if (ans.length < 10) { msg.className='msg err'; msg.textContent='더 자세하게 써보세요.'; return; }
+    document.getElementById('wp-app').innerHTML = '<div class="wp-loading">AI가 답안을 분석하고 채점하는 중...</div>';
+    setTimeout(() => {
+      // mock grading
+      const len = ans.length;
+      const sContent = len > 80 ? 3 : len > 40 ? 2 : 1;
+      const sStruct  = ans.match(/[.!?]/g)?.length >= 1 ? 3 : 2;
+      const sExpr    = /[a-zA-Z]/.test(ans) ? 2 : 1;
+      WP.grade = {
+        total: sContent + sStruct + sExpr,
+        content:    { score: sContent, comment: '핵심 내용을 잘 다루었어요.' },
+        structure:  { score: sStruct,  comment: '문장 구조가 자연스러워요.' },
+        expression: { score: sExpr,    comment: '표현을 다양하게 시도해보세요.' },
+        model_answer: 'I have loved reading books since I was young.',
+      };
+      WP.step = 'result';
+      const d = new Date();
+      WP.history.unshift({ type: WP.problem.type, score: WP.grade.total, dateStr: `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` });
+      wpRenderResult();
+    }, 900);
+  }
+  function wpRenderResult() {
+    const g = WP.grade;
+    const pct = Math.round((g.total / 9) * 100);
+    const rubrics = [
+      { key:'content',    label:'내용' },
+      { key:'structure',  label:'구성' },
+      { key:'expression', label:'표현' },
+    ];
+    const rbHtml = rubrics.map(r => {
+      const item = g[r.key]; const s = item.score;
+      const dots = [0,1,2,3].map(i => `<span class="rb-dot ${i<s?'on':''}"></span>`).join('');
+      return `<div class="rb-card">
+        <div class="rb-row">
+          <span class="rb-name">${r.label}</span>
+          <span class="rb-dots">${dots}</span>
+          <span class="rb-score s${s}">${s}/3</span>
+        </div>
+        <div class="rb-comment">${esc(item.comment)}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('wp-app').innerHTML = `
+      <div class="wp-score">
+        <div class="total">${g.total}<small>/9</small></div>
+        <div class="pct">${pct}% 달성</div>
+        <div class="wp-bar-wrap"><div class="wp-bar" id="wp-bar" style="width:0%"></div></div>
+      </div>
+      ${rbHtml}
+      <div class="hint-box" style="margin-top:10px">
+        <div class="label">모범 답안</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--ink)">${esc(g.model_answer)}</div>
+      </div>
+      <button class="cta cta-sec" type="button" onclick="wpInit()" style="margin-top:14px">
+        <span>다시 연습하기</span><span class="arr">→</span>
+      </button>`;
+    setTimeout(() => { const bar = document.getElementById('wp-bar'); if (bar) bar.style.width = pct + '%'; }, 80);
+  }
 
   // ── 드랍 / 모달 ──
   function rollTotem(trigger) {
@@ -1187,15 +2108,12 @@
     if (m > 1) {
       onEl.hidden = false;
       document.getElementById('totem-on-val').textContent = m.toFixed(1);
-    } else {
-      onEl.hidden = true;
-    }
+    } else { onEl.hidden = true; }
     document.getElementById('hs-words').textContent = masteredCount();
     document.getElementById('hs-friends').textContent = unlockedFriends().length;
     document.getElementById('hs-totems').textContent = state.ownedTotems.length;
     document.getElementById('hs-days').textContent = daysSince();
 
-    // 슬롯
     const slot = document.getElementById('home-slot');
     const plus = document.getElementById('home-slot-plus');
     const svg = document.getElementById('home-slot-svg');
@@ -1244,6 +2162,7 @@
   function renderTotems() {
     document.getElementById('totem-mult-now').textContent = '×' + currentMult().toFixed(1);
     document.getElementById('totem-owned').textContent = state.ownedTotems.length;
+    document.getElementById('dex-totem-count').textContent = state.ownedTotems.length;
     const eqEl = document.getElementById('totem-eq-name');
     if (state.equippedTotem) {
       eqEl.innerHTML = getTotem(state.equippedTotem).name;
