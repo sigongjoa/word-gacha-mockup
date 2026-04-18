@@ -365,6 +365,192 @@
     .name-line { margin-bottom: 12px; }
     .mission-call { padding: 18px; }
   }
+
+  /* ── 토템 시스템 ── */
+  :root {
+    --gold: oklch(82% 0.16 86);
+    --r-common: oklch(75% 0.04 240);
+    --r-rare:   oklch(70% 0.16 250);
+    --r-epic:   oklch(65% 0.22 305);
+    --r-leg:    oklch(78% 0.18 80);
+  }
+
+  /* 홈 화면 토템 슬롯 (스테이지 우상단) */
+  .stage { position: relative; }
+  .home-totem-slot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 62px; height: 62px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid var(--divider);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform .18s var(--ease-out);
+  }
+  .home-totem-slot:active { transform: scale(0.94); }
+  .home-totem-slot.equipped {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px oklch(82% 0.16 86 / .25);
+    animation: totem-glow 2s ease-in-out infinite;
+  }
+  @keyframes totem-glow {
+    0%, 100% { box-shadow: 0 0 0 3px oklch(82% 0.16 86 / .25); }
+    50%      { box-shadow: 0 0 0 7px oklch(82% 0.16 86 / .12); }
+  }
+  .home-totem-slot.empty { border-style: dashed; opacity: .7; }
+  .home-totem-slot .t-icon { font-size: 30px; line-height: 1; }
+  .home-totem-slot .t-mult {
+    font-family: var(--num);
+    font-size: 10px;
+    color: var(--berry);
+    margin-top: 2px;
+  }
+  .home-totem-slot .t-empty-label {
+    font-size: 9px; color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  /* 토템 화면 */
+  .screen.totems { padding: 0 20px 24px; }
+  body[data-screen="totems"] .screen.totems { display: block; }
+  .totems-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; margin: 8px 0 16px;
+  }
+  .stat-pill {
+    background: #fff;
+    border: 1px solid var(--divider);
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .stat-pill-label { font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; }
+  .stat-pill-value { font-family: var(--num); font-size: 18px; color: var(--ink); }
+
+  .totem-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .totem-cell {
+    aspect-ratio: 1;
+    background: #fff;
+    border: 2px solid var(--divider);
+    border-radius: 16px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; position: relative; padding: 4px;
+    font-family: var(--body); color: var(--ink);
+    transition: transform .12s var(--ease-out), border-color .12s var(--ease-out);
+  }
+  .totem-cell:active { transform: scale(0.96); }
+  .totem-cell.locked {
+    background: var(--cream-deep); cursor: default;
+  }
+  .totem-cell.locked .tc-icon {
+    filter: grayscale(1) brightness(0.6); opacity: 0.3;
+  }
+  .totem-cell.locked .tc-name { color: var(--ink-soft); opacity: 0.5; }
+  .totem-cell.equipped {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px oklch(82% 0.16 86 / .25);
+  }
+  .tc-icon { font-size: 36px; line-height: 1; margin-bottom: 4px; }
+  .tc-name { font-size: 10.5px; text-align: center; line-height: 1.15; }
+  .tc-mult {
+    position: absolute; top: 5px; right: 5px;
+    background: var(--berry); color: #fff;
+    font-family: var(--num); font-size: 9px;
+    padding: 2px 5px; border-radius: 6px; letter-spacing: .3px;
+  }
+  .totem-cell.locked .tc-mult { display: none; }
+  .rarity-dot {
+    position: absolute; bottom: 5px; left: 5px;
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .rarity-dot.common { background: var(--r-common); }
+  .rarity-dot.rare   { background: var(--r-rare); }
+  .rarity-dot.epic   { background: var(--r-epic); }
+  .rarity-dot.leg    { background: var(--r-leg); }
+  .totem-cell.locked .rarity-dot { opacity: 0.3; }
+
+  .totems-hint {
+    margin: 14px 4px 10px;
+    font-size: 12px; color: var(--ink-soft);
+    display: flex; justify-content: space-between;
+  }
+  .totems-hint strong { color: var(--ink); font-size: 14px; }
+
+  /* 드랍 모달 */
+  .drop-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none; place-items: center;
+    z-index: 150; padding: 20px;
+  }
+  .drop-overlay.show { display: grid; }
+  .drop-card {
+    background: var(--cream);
+    border-radius: 24px;
+    padding: 26px 22px;
+    max-width: 340px; width: 100%;
+    text-align: center;
+    border: 4px solid var(--ink);
+    box-shadow: 0 8px 0 var(--berry-deep);
+    animation: pop .4s var(--ease-out);
+  }
+  .drop-card .hint {
+    font-size: 13px; color: var(--ink-soft); margin-bottom: 4px;
+  }
+  .drop-card .icon {
+    font-size: 82px; line-height: 1; margin: 6px 0 10px;
+    display: inline-block;
+    animation: bounce .8s var(--ease-out);
+  }
+  @keyframes bounce {
+    0%  { transform: translateY(-40px) scale(.5); opacity: 0; }
+    55% { transform: translateY(6px) scale(1.05); opacity: 1; }
+    100%{ transform: translateY(0) scale(1); }
+  }
+  .drop-card .name {
+    font-size: 20px; font-weight: 700; margin-bottom: 6px;
+  }
+  .drop-card .rarity {
+    display: inline-block;
+    font-family: var(--num); font-size: 11px;
+    padding: 3px 10px; border-radius: 999px;
+    color: #fff; letter-spacing: .5px; margin-bottom: 8px;
+  }
+  .drop-card .rarity.common { background: var(--r-common); color: var(--ink); }
+  .drop-card .rarity.rare   { background: var(--r-rare); }
+  .drop-card .rarity.epic   { background: var(--r-epic); }
+  .drop-card .rarity.leg    { background: var(--r-leg); color: var(--ink); }
+  .drop-card .mult {
+    font-family: var(--num); font-size: 32px;
+    color: var(--berry); margin: 10px 0 4px;
+  }
+  .drop-card .desc {
+    font-size: 13px; color: var(--ink-soft);
+    margin-bottom: 18px; line-height: 1.5;
+  }
+  .drop-card .btn-row {
+    display: flex; gap: 8px;
+  }
+  .drop-card .btn {
+    flex: 1; padding: 12px 14px;
+    border: none; border-radius: 12px;
+    font-family: var(--display); font-size: 14px;
+    cursor: pointer;
+  }
+  .drop-card .btn-prim { background: var(--berry); color: #fff; }
+  .drop-card .btn-sec  { background: var(--cream-deep); color: var(--ink); border: 1px solid var(--divider); }
+
+  /* 탭바가 5개가 되면서 폭 조정 */
+  .tabbar { padding-left: 6px; padding-right: 6px; }
+  .tabbar button { font-size: 11px; }
 </style>
 </head>
 <body data-screen="home">
@@ -410,6 +596,7 @@
     <symbol id="ic-mission" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M 8 11 L 11 14 L 16 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="ic-dex" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="ic-me" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M 4 21 Q 4 14 12 14 Q 20 14 20 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ic-totem" viewBox="0 0 24 24"><path d="M 9 3 L 15 3 L 14 7 L 10 7 Z M 8 7 L 16 7 L 15 11 L 9 11 Z M 7 11 L 17 11 L 16 16 L 8 16 Z M 9 16 L 15 16 L 14 21 L 10 21 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M 6 17 Q 6 10 12 10 Q 18 10 18 17 L 19 19 L 5 19 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M 10 20 Q 12 22 14 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
@@ -432,6 +619,12 @@
     <h2 id="home-h" class="visually-hidden">홈</h2>
 
     <div class="stage" aria-label="토토와 함께하는 공간">
+      <button class="home-totem-slot empty" id="home-totem-slot" type="button"
+              onclick="goto('totems')" aria-label="장착한 토템">
+        <span class="t-icon" id="home-totem-icon">＋</span>
+        <span class="t-empty-label" id="home-totem-empty">토템</span>
+        <span class="t-mult" id="home-totem-mult" hidden></span>
+      </button>
       <svg class="toto" data-mood="happy" viewBox="0 0 120 120" role="img" aria-label="토토. 화면을 누르면 토토가 그쪽을 봐요.">
         <use href="#toto"/>
       </svg>
@@ -483,6 +676,33 @@
     <div class="dex-grid" id="dex-grid"></div>
   </section>
 
+  <!-- ─── 토템 ─── -->
+  <section class="screen totems" aria-labelledby="totems-h">
+    <h2 id="totems-h" class="screen-title">토템</h2>
+    <p class="screen-sub">장착하면 EXP 적립이 배수로 늘어나요</p>
+
+    <div class="totems-stats">
+      <div class="stat-pill">
+        <div class="stat-pill-label">보유</div>
+        <div class="stat-pill-value" id="totem-owned">0 / 8</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-label">현재 배수</div>
+        <div class="stat-pill-value" id="totem-mult-now">×1.0</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-label">보너스</div>
+        <div class="stat-pill-value" id="totem-bonus">+0</div>
+      </div>
+    </div>
+
+    <div class="totems-hint">
+      <strong>내 토템</strong>
+      <span>탭하여 장착 / 해제</span>
+    </div>
+    <div class="totem-grid" id="totem-grid"></div>
+  </section>
+
   <!-- ─── 나 ─── -->
   <section class="screen me" aria-labelledby="me-h">
     <div class="profile">
@@ -505,8 +725,25 @@
   <button role="tab" data-screen="home" aria-selected="true" onclick="goto('home')"><svg aria-hidden="true"><use href="#ic-home"/></svg>홈</button>
   <button role="tab" data-screen="mission" aria-selected="false" onclick="goto('mission')"><svg aria-hidden="true"><use href="#ic-mission"/></svg>학습</button>
   <button role="tab" data-screen="dex" aria-selected="false" onclick="goto('dex')"><svg aria-hidden="true"><use href="#ic-dex"/></svg>도감</button>
+  <button role="tab" data-screen="totems" aria-selected="false" onclick="goto('totems')"><svg aria-hidden="true"><use href="#ic-totem"/></svg>토템</button>
   <button role="tab" data-screen="me" aria-selected="false" onclick="goto('me')"><svg aria-hidden="true"><use href="#ic-me"/></svg>나</button>
 </nav>
+
+<!-- 토템 드랍 모달 -->
+<div class="drop-overlay" id="drop-overlay" role="dialog" aria-modal="true" aria-labelledby="drop-name" onclick="closeDrop()">
+  <div class="drop-card" onclick="event.stopPropagation()">
+    <div class="hint">새 토템 획득!</div>
+    <div class="icon" id="drop-icon">🌱</div>
+    <div class="name" id="drop-name">새싹 토템</div>
+    <div class="rarity common" id="drop-rarity">COMMON</div>
+    <div class="mult" id="drop-mult">×1.5</div>
+    <div class="desc" id="drop-desc">EXP 적립이 1.5배가 돼요!</div>
+    <div class="btn-row">
+      <button class="btn btn-sec" type="button" onclick="closeDrop()">나중에</button>
+      <button class="btn btn-prim" type="button" onclick="equipDropped()">바로 장착</button>
+    </div>
+  </div>
+</div>
 
 <div class="levelup-overlay" id="levelup" role="dialog" aria-modal="true" aria-labelledby="lu-title" onclick="closeLevelup()">
   <div class="levelup-card" onclick="event.stopPropagation()">
@@ -545,6 +782,24 @@
     { id: "whale",  emoji: "🐳", name: "고래",   need: 10, rare: "l" },
   ];
 
+  // ── 토템 카탈로그 ──
+  const TOTEMS = [
+    { id:'tot-001', name:'새싹 토템',   icon:'🌱', rarity:'common', mult:1.5 },
+    { id:'tot-002', name:'불꽃 토템',   icon:'🔥', rarity:'common', mult:1.5 },
+    { id:'tot-003', name:'물방울 토템', icon:'💧', rarity:'common', mult:1.5 },
+    { id:'tot-004', name:'별 토템',     icon:'⭐', rarity:'rare',   mult:2.0 },
+    { id:'tot-005', name:'번개 토템',   icon:'⚡', rarity:'rare',   mult:2.0 },
+    { id:'tot-006', name:'무지개 토템', icon:'🌈', rarity:'epic',   mult:2.5 },
+    { id:'tot-007', name:'공룡뼈 토템', icon:'🦴', rarity:'epic',   mult:2.5 },
+    { id:'tot-008', name:'황금 알',     icon:'🥚', rarity:'leg',    mult:3.0 },
+  ];
+  const RARITY_LABEL = { common:'COMMON', rare:'RARE', epic:'EPIC', leg:'LEGENDARY' };
+  function getTotem(id) { return TOTEMS.find(t => t.id === id); }
+  function currentMult() {
+    const t = state.equippedTotem ? getTotem(state.equippedTotem) : null;
+    return t ? t.mult : 1.0;
+  }
+
   // ── 상태 ──
   const STORAGE_KEY = "wg_state_v1";
   const DEFAULT_STATE = {
@@ -555,6 +810,10 @@
     seenDex: ["toto"], // 본 적 있는 친구 (NEW 배지 제거용)
     quizIdx: 0,
     startDate: Date.now(),
+    ownedTotems: [],   // string[] (totem id)
+    equippedTotem: null, // string | null
+    totemBonus: 0,     // 토템 배수로 추가 적립된 누적 EXP
+    pendingDrop: null, // 모달에 띄울 totem id
   };
 
   let state = load();
@@ -594,6 +853,7 @@
       save();
       renderDex();
     }
+    if (name === "totems") renderTotems();
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
@@ -638,16 +898,25 @@
     });
 
     const fb = document.getElementById("feedback");
+    const mult = currentMult();
     if (correct) {
-      state.exp += 20;
-      state.totalExp += 20;
+      const base = 20;
+      const gained = Math.round(base * mult);
+      state.exp += gained;
+      state.totalExp += gained;
+      state.totemBonus += (gained - base);
       state.mastered[word.en] = (state.mastered[word.en] || 0) + 1;
-      fb.textContent = "정답! +20 EXP 🎉";
+      fb.innerHTML = mult > 1
+        ? `정답! +${gained} EXP <small style="opacity:.8">(토템 ×${mult})</small> 🎉`
+        : `정답! +${gained} EXP 🎉`;
       fb.className = "feedback ok show";
     } else {
-      state.exp += 5;
-      state.totalExp += 5;
-      fb.innerHTML = `아쉬워요! 답은 <b>${word.ko}</b> · +5 EXP`;
+      const base = 5;
+      const gained = Math.round(base * mult);
+      state.exp += gained;
+      state.totalExp += gained;
+      state.totemBonus += (gained - base);
+      fb.innerHTML = `아쉬워요! 답은 <b>${word.ko}</b> · +${gained} EXP`;
       fb.className = "feedback no show";
     }
 
@@ -664,6 +933,14 @@
       leveledUp = true;
     }
 
+    // 토템 드랍 판정
+    let dropped = null;
+    if (leveledUp) {
+      dropped = rollTotem('levelup'); // 레벨업 시 확정
+    } else if (correct) {
+      dropped = rollTotem('correct'); // 정답 시 8% 확률
+    }
+
     save();
     renderAll();
 
@@ -671,8 +948,91 @@
 
     if (leveledUp) {
       setTimeout(() => showLevelup(newFriend), 600);
+      if (dropped) setTimeout(() => showDrop(dropped), 1800);
     } else if (newFriend) {
       setTimeout(() => toast(`새 친구! ${newFriend.name}이(가) 도감에 추가됐어요`), 600);
+      if (dropped) setTimeout(() => showDrop(dropped), 1600);
+    } else if (dropped) {
+      setTimeout(() => showDrop(dropped), 600);
+    }
+  }
+
+  // ── 토템 드랍 ──
+  function rollTotem(trigger) {
+    // 모든 토템을 다 가졌으면 드랍 없음
+    const unowned = TOTEMS.filter(t => !state.ownedTotems.includes(t.id));
+    if (unowned.length === 0) return null;
+
+    if (trigger === 'levelup') {
+      // 확정 드랍, 레벨에 따라 가중치 ↑
+      const r = Math.random();
+      let pickedRarity;
+      if (state.lv >= 5 && r < 0.10)      pickedRarity = 'leg';
+      else if (state.lv >= 3 && r < 0.30) pickedRarity = 'epic';
+      else if (r < 0.55)                  pickedRarity = 'rare';
+      else                                pickedRarity = 'common';
+      const pool = unowned.filter(t => t.rarity === pickedRarity);
+      if (pool.length === 0) {
+        // 해당 희귀도 다 가졌으면 가장 낮은 등급으로 fallback
+        return unowned[0] || null;
+      }
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    if (trigger === 'correct') {
+      // 8% 기본 확률, common 위주
+      if (Math.random() > 0.08) return null;
+      const r = Math.random();
+      let pickedRarity = (r < 0.05) ? 'epic' : (r < 0.25) ? 'rare' : 'common';
+      let pool = unowned.filter(t => t.rarity === pickedRarity);
+      if (pool.length === 0) pool = unowned.filter(t => t.rarity === 'common');
+      if (pool.length === 0) pool = unowned;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    return null;
+  }
+
+  function showDrop(totem) {
+    state.pendingDrop = totem.id;
+    save();
+    document.getElementById('drop-icon').textContent = totem.icon;
+    document.getElementById('drop-name').textContent = totem.name;
+    const rEl = document.getElementById('drop-rarity');
+    rEl.className = 'rarity ' + totem.rarity;
+    rEl.textContent = RARITY_LABEL[totem.rarity];
+    document.getElementById('drop-mult').textContent = `×${totem.mult}`;
+    document.getElementById('drop-desc').textContent = `EXP 적립이 ${totem.mult}배가 돼요!`;
+    document.getElementById('drop-overlay').classList.add('show');
+  }
+  function closeDrop() {
+    if (state.pendingDrop && !state.ownedTotems.includes(state.pendingDrop)) {
+      state.ownedTotems.push(state.pendingDrop);
+    }
+    state.pendingDrop = null;
+    save(); renderAll();
+    document.getElementById('drop-overlay').classList.remove('show');
+  }
+  function equipDropped() {
+    if (!state.pendingDrop) { closeDrop(); return; }
+    const id = state.pendingDrop;
+    if (!state.ownedTotems.includes(id)) state.ownedTotems.push(id);
+    state.equippedTotem = id;
+    state.pendingDrop = null;
+    save(); renderAll();
+    document.getElementById('drop-overlay').classList.remove('show');
+    const t = getTotem(id);
+    toast(`${t.name} 장착! EXP ×${t.mult}`);
+  }
+
+  function toggleEquipTotem(id) {
+    if (!state.ownedTotems.includes(id)) return;
+    state.equippedTotem = (state.equippedTotem === id) ? null : id;
+    save(); renderAll();
+    if (state.equippedTotem) {
+      const t = getTotem(id);
+      toast(`${t.name} 장착! EXP ×${t.mult}`);
+    } else {
+      toast('토템 해제');
     }
   }
 
@@ -782,10 +1142,60 @@
     document.getElementById("days-me").textContent = daysSince();
   }
 
+  function renderHomeTotem() {
+    const slot = document.getElementById('home-totem-slot');
+    const icon = document.getElementById('home-totem-icon');
+    const empty = document.getElementById('home-totem-empty');
+    const mult = document.getElementById('home-totem-mult');
+    if (!slot) return;
+    if (state.equippedTotem) {
+      const t = getTotem(state.equippedTotem);
+      slot.classList.add('equipped');
+      slot.classList.remove('empty');
+      icon.textContent = t.icon;
+      empty.hidden = true;
+      mult.hidden = false;
+      mult.textContent = `×${t.mult}`;
+    } else {
+      slot.classList.remove('equipped');
+      slot.classList.add('empty');
+      icon.textContent = '＋';
+      empty.hidden = false;
+      mult.hidden = true;
+    }
+  }
+
+  function renderTotems() {
+    document.getElementById('totem-owned').textContent = `${state.ownedTotems.length} / ${TOTEMS.length}`;
+    document.getElementById('totem-mult-now').textContent = `×${currentMult().toFixed(1)}`;
+    document.getElementById('totem-bonus').textContent = `+${state.totemBonus || 0}`;
+
+    const grid = document.getElementById('totem-grid');
+    grid.innerHTML = '';
+    TOTEMS.forEach(t => {
+      const owned = state.ownedTotems.includes(t.id);
+      const equipped = state.equippedTotem === t.id;
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'totem-cell' + (owned ? '' : ' locked') + (equipped ? ' equipped' : '');
+      cell.setAttribute('aria-label', owned ? t.name : '잠긴 토템');
+      cell.innerHTML = `
+        <span class="rarity-dot ${t.rarity}"></span>
+        <span class="tc-mult">×${t.mult}</span>
+        <span class="tc-icon">${owned ? t.icon : '?'}</span>
+        <span class="tc-name">${owned ? t.name : '???'}</span>
+      `;
+      if (owned) cell.onclick = () => toggleEquipTotem(t.id);
+      grid.appendChild(cell);
+    });
+  }
+
   function renderAll() {
     renderHome();
+    renderHomeTotem();
     updateMissionStats();
     renderDex();
+    renderTotems();
     renderMe();
   }
 
