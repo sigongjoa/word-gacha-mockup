@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Word Gacha — Browser Smoke</title>
+<style>
+  body { font: 14px/1.5 monospace; padding: 20px; }
+  .ok { color: #0a0; }
+  .fail { color: #c00; font-weight: bold; }
+  h2 { font-size: 14px; margin: 16px 0 4px; border-bottom: 1px solid #ccc; }
+  li { list-style: none; }
+</style>
+</head>
+<body>
+<h1>Word Gacha Module Smoke Test</h1>
+<div id="out">running…</div>
+<script type="module">
+  import { createStore, KEYS, seed, migrate } from './js/state.js';
+  import { startQuiz, answer, finishQuiz } from './js/quiz.js';
+  import { addWord } from './js/vocab.js';
+  import { syncSeen, collectionRate } from './js/dex.js';
+  import { updateStreak, checkBadges, grantCoins } from './js/streak.js';
+  import { trainerCard } from './js/me.js';
+
+  const results = [];
+  const check = (name, fn) => {
+    try { fn(); results.push({ name, ok: true }); }
+    catch (e) { results.push({ name, ok: false, err: String(e) }); }
+  };
+  const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
+
+  // --- P0 ---
+  check('P0: full quiz round via real localStorage', () => {
+    localStorage.clear();
+    const store = createStore(localStorage);
+    migrate(store); seed(store);
+    let profile = store.get(KEYS.profile);
+    profile = updateStreak(profile, '2026-04-19');
+    const words = store.get(KEYS.words);
+    let s = startQuiz(words, () => 0);
+    while (!s.finished) s = answer(s, s.questions[s.index].correctIndex);
+    const out = finishQuiz(s, words);
+    store.set(KEYS.words, out.updatedWords);
+    profile = grantCoins({ ...profile, exp: out.expGained }, out.correct);
+    store.set(KEYS.profile, profile);
+    assert(store.get(KEYS.profile).exp > 0, 'exp should be > 0');
+    assert(store.get(KEYS.profile).coin > 0, 'coin should be > 0');
+  });
+
+  // --- P1 ---
+  check('P1: addWord persists to real localStorage', () => {
+    localStorage.clear();
+    const store = createStore(localStorage);
+    migrate(store); seed(store);
+    const r = addWord(store.get(KEYS.words), { word: 'journey', meaning: '여정', pos: 'noun' });
+    assert(r.ok, 'add should succeed');
+    store.set(KEYS.words, r.words);
+    assert(store.get(KEYS.words).some(w => w.word === 'journey'), 'should persist');
+  });
+
+  // --- P2 ---
+  check('P2: dex unlock at box 5', () => {
+    const words = [{ id: 'x', box: 5, pos: 'noun' }, { id: 'y', box: 3, pos: 'verb' }];
+    const seen = syncSeen(words, []);
+    assert(seen.includes('x'), 'x should be unlocked');
+    assert(!seen.includes('y'), 'y should NOT be unlocked');
+  });
+
+  // --- P3 ---
+  check('P3: streak 7 → badge', () => {
+    let p = { streak: 0, lastActiveDate: null };
+    const days = ['13','14','15','16','17','18','19'];
+    for (const d of days) p = updateStreak(p, `2026-04-${d}`);
+    assert(p.streak === 7, `streak=${p.streak}`);
+    const { newBadges } = checkBadges(p, []);
+    assert(newBadges.some(b => b.id === 'streak-7'), 'streak-7 badge missing');
+  });
+
+  // --- P4 ---
+  check('P4: trainer card aggregates', () => {
+    const card = trainerCard({
+      profile: { lv: 1, exp: 50, coin: 10, streak: 3, lastActiveDate: '2026-04-19' },
+      words: [{ id: '1', box: 5 }, { id: '2', box: 2 }],
+      history: [{ date: '2026-04-19', correct: 8, total: 10 }],
+      seen: ['1'],
+      today: '2026-04-19',
+    });
+    assert(card.streak === 3, 'streak');
+    assert(card.dexCount === 1, 'dex');
+    assert(card.weeklyBars.length === 7, 'bars');
+    assert(card.weekAccuracy === 0.8, 'accuracy');
+  });
+
+  // Storage round-trip
+  check('Storage: round-trip via page reload sim', () => {
+    localStorage.clear();
+    const s1 = createStore(localStorage);
+    migrate(s1); seed(s1);
+    s1.set(KEYS.profile, { lv: 42, exp: 999, coin: 5, streak: 0, lastActiveDate: null });
+    const s2 = createStore(localStorage);
+    assert(s2.get(KEYS.profile).lv === 42, 'lv persisted');
+  });
+
+  const passed = results.filter(r => r.ok).length;
+  const failed = results.length - passed;
+  const html = [
+    `<h2>Summary: ${passed}/${results.length} passed${failed ? ` — <span class="fail">${failed} FAILED</span>` : ''}</h2>`,
+    '<ul>',
+    ...results.map(r => r.ok
+      ? `<li class="ok">✓ ${r.name}</li>`
+      : `<li class="fail">✗ ${r.name} — ${r.err}</li>`),
+    '</ul>',
+  ].join('');
+  document.getElementById('out').innerHTML = html;
+  document.title = failed ? `FAIL (${failed})` : `PASS (${passed})`;
+  window.__smokeResults = { passed, failed, results };
+</script>
+</body>
+</html>
