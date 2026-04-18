@@ -2116,6 +2116,7 @@
     const fb = document.getElementById("feedback");
     const mult = currentMult();
     state.lastActiveTs = Date.now();
+    const before = unlockedFriends().length;
     if (correct) {
       const base = 20, gained = Math.round(base * mult);
       state.exp += gained; state.totalExp += gained;
@@ -2137,7 +2138,6 @@
       quizBuddyReact('sad');
     }
 
-    const before = unlockedFriends().length;
     let leveledUp = false;
     while (state.exp >= 100) { state.exp -= 100; state.lv++; leveledUp = true; }
     const after = unlockedFriends().length;
