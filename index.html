@@ -49,8 +49,20 @@
     --t-verb: #d4232c; --t-verb-soft: #fbe5e7;
     --t-adj:  #2f9e57; --t-adj-soft:  #e2f2ea;
     --t-adv:  #b73d8a; --t-adv-soft:  #f8e6ef;
-    --t-prep: #c89200; --t-prep-soft: #fbf1d6;
+    --t-prep: #c89200; --t-prep-soft: #fbf1d6; --t-prep-ink: #8a6500;
     --t-conj: #6f5b48; --t-conj-soft: #ece5dc;
+
+    /* state tokens — 상태 표현 전용 (HP·단계·HUD 악센트) */
+    --hp-full: #28a86a;
+    --hp-low:  #e85a2c;
+    --hp-crit: var(--hot);
+    --stage-1-bg: var(--hot-soft);
+    --stage-2-bg: var(--gold-soft);
+    --stage-3-bg: var(--t-noun-soft);
+    --stage-4-bg: var(--t-adj-soft);
+    --stage-5-bg: var(--ink);
+    --accent-streak: #ff9d4d;
+    --accent-coin:   #ffd65c;
 
     --r-0: 0;
     --r-1: 2px;
@@ -58,11 +70,32 @@
     --r-3: 8px;
     --r-pill: 999px;
 
+    /* interaction scale */
+    --touch-min: 44px;
+    --focus-ring: 2px;
+    --focus-offset: 2px;
+
     --disp: 'SUIT Variable', 'Pretendard Variable', -apple-system, system-ui, sans-serif;
     --body: 'Pretendard Variable', -apple-system, system-ui, sans-serif;
 
     --e-out:  cubic-bezier(.2, .8, .2, 1);
     --e-expo: cubic-bezier(.16, 1, .3, 1);
+  }
+
+  /* global focus-visible — 키보드 사용자에게 명시적 포커스 링 */
+  :focus { outline: none; }
+  button:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="radio"]:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    outline: var(--focus-ring) solid var(--pri);
+    outline-offset: var(--focus-offset);
+    border-radius: var(--r-1);
+  }
+  .ask-box:focus-within {
+    outline: var(--focus-ring) solid var(--pri);
+    outline-offset: var(--focus-offset);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -127,7 +160,7 @@
     line-height: 1;
   }
   .hud-lv .t {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .1em;
     opacity: .85;
   }
@@ -148,7 +181,7 @@
     position: absolute;
     inset: 0;
     width: var(--exp, 72%);
-    background: linear-gradient(to bottom, #5ae0a0 0%, #28a86a 100%);
+    background: var(--hp-full);
     border-right: 1px solid rgba(255, 255, 255, .5);
   }
   .hud-stat {
@@ -159,8 +192,8 @@
     font-variant-numeric: tabular-nums;
   }
   .hud-stat svg { width: 13px; height: 13px; }
-  .hud-stat.streak { color: #ff9d4d; }
-  .hud-stat.coin   { color: #ffd65c; }
+  .hud-stat.streak { color: var(--accent-streak); }
+  .hud-stat.coin   { color: var(--accent-coin); }
 
   /* ==================================================================
      Main / screen routing
@@ -268,11 +301,8 @@
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-top: 6px solid var(--ink);
-    animation: blink 1.1s steps(2) infinite;
     z-index: 1;
   }
-  @keyframes blink { 50% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .dialog .arrow { animation: none; } }
 
   /* ==================================================================
      Home — THE ROOM
@@ -349,7 +379,7 @@
     bottom: -14px;
     left: 50%;
     transform: translateX(-50%);
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .06em;
     color: var(--ink-2);
     white-space: nowrap;
@@ -382,18 +412,8 @@
     background: radial-gradient(ellipse at center, rgba(20,23,31,.35), transparent 70%);
     z-index: -1;
   }
-  /* idle blink — 4초마다 1회 */
-  .mascot-eye {
-    transform-origin: center;
-    animation: idle-blink 4s infinite;
-  }
-  @keyframes idle-blink {
-    0%, 92%, 100% { transform: scaleY(1); }
-    95%, 97%      { transform: scaleY(.1); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mascot-eye { animation: none; }
-  }
+  /* 마스코트 눈 — 정적. 진입 애니메이션에서 한 번만 반짝 */
+  .mascot-eye { transform-origin: center; }
 
   /* ==================================================================
      Today's quests — 게시판 스타일
@@ -540,7 +560,7 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 6px;
-    font: 700 9px/1 var(--disp);
+    font: 700 11px/1 var(--disp);
     letter-spacing: .04em;
     color: var(--ink-3);
     text-align: center;
@@ -573,11 +593,12 @@
   }
   .subnav button {
     flex: 1;
-    padding: 8px 0;
+    min-height: var(--touch-min);
+    padding: 10px 0;
     background: var(--surface);
     border: 1.5px solid var(--ink-3);
     border-radius: var(--r-1);
-    font: 700 12px/1 var(--disp);
+    font: 700 13px/1 var(--disp);
     color: var(--ink-3);
     letter-spacing: -.005em;
   }
@@ -653,10 +674,10 @@
     position: absolute;
     inset: 0;
     width: var(--hp, 40%);
-    background: linear-gradient(to bottom, #5ae0a0, #28a86a);
+    background: var(--hp-full);
   }
-  .enemy-hp[data-level="low"]::after  { background: linear-gradient(to bottom, #ff9e5c, #e85a2c); }
-  .enemy-hp[data-level="crit"]::after { background: linear-gradient(to bottom, #ff6b77, #d4232c); }
+  .enemy-hp[data-level="low"]::after  { background: var(--hp-low); }
+  .enemy-hp[data-level="crit"]::after { background: var(--hp-crit); }
   .enemy-hp-val {
     font: 800 10px/1 var(--disp);
     font-variant-numeric: tabular-nums;
@@ -754,7 +775,7 @@
   .move-hd {
     position: relative; z-index: 1;
     display: flex; align-items: center; gap: 5px;
-    font: 700 9px/1 var(--disp);
+    font: 700 11px/1 var(--disp);
     letter-spacing: .08em;
     color: var(--ink-3);
     text-transform: uppercase;
@@ -765,7 +786,7 @@
     color: #fff;
     border-radius: 2px;
     display: grid; place-items: center;
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     font-variant-numeric: tabular-nums;
   }
   .move-text {
@@ -805,7 +826,7 @@
     position: relative; z-index: 1;
   }
   .progress-inline .lbl {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .08em;
     color: var(--ink-3);
     text-transform: uppercase;
@@ -853,11 +874,12 @@
   }
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter {
-    padding: 6px 10px;
+    min-height: var(--touch-min);
+    padding: 10px 14px;
     background: var(--surface);
     border: 1.5px solid var(--ink);
     border-radius: var(--r-1);
-    font: 700 11px/1 var(--disp);
+    font: 700 12px/1 var(--disp);
     color: var(--ink-2);
     white-space: nowrap;
     flex-shrink: 0;
@@ -907,11 +929,11 @@
     position: relative;
   }
   .stage-icon svg { width: 20px; height: 20px; }
-  .stage-icon[data-stage="1"] { background: #fbe5e7; }
-  .stage-icon[data-stage="2"] { background: #fef1d3; }
-  .stage-icon[data-stage="3"] { background: #e4eefb; }
-  .stage-icon[data-stage="4"] { background: #e2f2ea; }
-  .stage-icon[data-stage="5"] { background: var(--ink); }
+  .stage-icon[data-stage="1"] { background: var(--stage-1-bg); }
+  .stage-icon[data-stage="2"] { background: var(--stage-2-bg); }
+  .stage-icon[data-stage="3"] { background: var(--stage-3-bg); }
+  .stage-icon[data-stage="4"] { background: var(--stage-4-bg); }
+  .stage-icon[data-stage="5"] { background: var(--stage-5-bg); }
   .stage-icon[data-stage="5"] svg { color: #fff; }
   .stage-icon .num {
     position: absolute;
@@ -919,7 +941,7 @@
     width: 16px; height: 16px;
     background: var(--ink);
     color: #fff;
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     font-variant-numeric: tabular-nums;
     border: 1.5px solid #fff;
     border-radius: 50%;
@@ -947,7 +969,7 @@
     padding: 2px 5px;
     border: 1px solid;
     border-radius: var(--r-1);
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .08em;
     text-transform: uppercase;
     font-variant-numeric: tabular-nums;
@@ -956,7 +978,7 @@
   .chip[data-t="verb"] { background: var(--t-verb-soft); color: var(--t-verb); border-color: var(--t-verb); }
   .chip[data-t="adj"]  { background: var(--t-adj-soft);  color: var(--t-adj);  border-color: var(--t-adj);  }
   .chip[data-t="adv"]  { background: var(--t-adv-soft);  color: var(--t-adv);  border-color: var(--t-adv);  }
-  .chip[data-t="prep"] { background: var(--t-prep-soft); color: #8a6500;       border-color: var(--t-prep); }
+  .chip[data-t="prep"] { background: var(--t-prep-soft); color: var(--t-prep-ink); border-color: var(--t-prep); }
   .chip[data-t="conj"] { background: var(--t-conj-soft); color: var(--t-conj); border-color: var(--t-conj); }
   .wr-right {
     display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
@@ -976,7 +998,7 @@
   }
   .wr-hp[data-l="mastered"] i { background: var(--t-adj); }
   .wr-tag {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .08em;
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
@@ -995,7 +1017,8 @@
   .units::-webkit-scrollbar { display: none; }
   .unit {
     flex-shrink: 0;
-    padding: 8px 12px;
+    min-height: var(--touch-min);
+    padding: 10px 12px;
     background: var(--surface);
     border: 1.5px solid var(--ink);
     border-radius: var(--r-1);
@@ -1139,7 +1162,7 @@
     padding: 2px 6px;
     border: 1.5px solid;
     border-radius: var(--r-1);
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .08em;
     text-transform: uppercase;
   }
@@ -1167,7 +1190,7 @@
   }
   .q-answer .src {
     display: inline-block;
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .08em;
     color: var(--pri-deep);
     margin-bottom: 5px;
@@ -1198,7 +1221,7 @@
      ================================================================== */
   .dex-hero {
     margin: 0 16px 14px;
-    padding: 14px;
+    padding: 12px 14px;
     background: var(--surface);
     border: 2px solid var(--ink);
     border-radius: var(--r-2);
@@ -1218,19 +1241,26 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    gap: 10px;
+  }
+  .dex-hero .lbl {
+    font: 800 11px/1 var(--disp);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
   .dex-hero .big {
-    font: 800 30px/1 var(--disp);
-    letter-spacing: -.02em;
+    font: 800 18px/1 var(--disp);
+    letter-spacing: -.01em;
     font-variant-numeric: tabular-nums;
   }
   .dex-hero .big .s {
-    font: 500 14px/1 var(--body);
+    font: 500 12px/1 var(--body);
     color: var(--ink-3);
-    margin-left: 4px;
+    margin-left: 3px;
   }
   .dex-hero .pct {
-    font: 800 14px/1 var(--disp);
+    font: 800 12px/1 var(--disp);
     color: var(--pri);
     font-variant-numeric: tabular-nums;
     padding: 3px 7px;
@@ -1240,8 +1270,8 @@
   }
   .dex-hero .bar {
     position: relative; z-index: 1;
-    margin-top: 12px;
-    height: 10px;
+    margin-top: 10px;
+    height: 8px;
     background: var(--surface-3);
     border: 1.5px solid var(--ink);
     border-radius: var(--r-1);
@@ -1250,7 +1280,7 @@
   .dex-hero .bar i {
     display: block; height: 100%;
     width: 28%;
-    background: linear-gradient(to right, var(--t-noun), var(--pri));
+    background: var(--pri);
   }
 
   .dex-grid {
@@ -1297,13 +1327,13 @@
     align-items: baseline;
   }
   .tc-lbl {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .12em;
     color: var(--tc);
     text-transform: uppercase;
   }
   .tc-num {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
   }
@@ -1345,7 +1375,7 @@
   .trainer-card {
     margin: 14px 16px 0;
     padding: 14px;
-    background: linear-gradient(135deg, var(--pri-soft) 0%, var(--surface) 60%);
+    background: var(--pri-soft);
     border: 2px solid var(--ink);
     border-radius: var(--r-2);
     box-shadow: 3px 3px 0 var(--ink);
@@ -1432,7 +1462,7 @@
     box-shadow: 2px 2px 0 var(--ink);
   }
   .stat-box .lbl {
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .1em;
     color: var(--ink-3);
     text-transform: uppercase;
@@ -1492,7 +1522,7 @@
     gap: 3px;
     padding: 8px 4px 10px;
     color: rgba(255, 255, 255, .55);
-    font: 800 9px/1 var(--disp);
+    font: 800 11px/1 var(--disp);
     letter-spacing: .04em;
     position: relative;
   }
@@ -1932,14 +1962,14 @@
         <span class="sub">퀴즈 · 단어장 · 교재</span>
       </div>
 
-      <div class="subnav" role="tablist" data-screen="learn">
-        <button role="tab" aria-selected="true"  data-sub="quiz"     onclick="selectSub('learn','quiz')">퀴즈</button>
-        <button role="tab" aria-selected="false" data-sub="mywords"  onclick="selectSub('learn','mywords')">내 단어장</button>
-        <button role="tab" aria-selected="false" data-sub="textbook" onclick="selectSub('learn','textbook')">교재</button>
+      <div class="subnav" role="tablist" data-screen="learn" aria-label="학습 모드">
+        <button role="tab" id="tab-learn-quiz"     aria-controls="pane-learn-quiz"     aria-selected="true"  data-sub="quiz"     onclick="selectSub('learn','quiz')">퀴즈</button>
+        <button role="tab" id="tab-learn-mywords"  aria-controls="pane-learn-mywords"  aria-selected="false" data-sub="mywords"  onclick="selectSub('learn','mywords')" tabindex="-1">내 단어장</button>
+        <button role="tab" id="tab-learn-textbook" aria-controls="pane-learn-textbook" aria-selected="false" data-sub="textbook" onclick="selectSub('learn','textbook')" tabindex="-1">교재</button>
       </div>
 
       <!-- QUIZ — 배틀 스타일 -->
-      <div class="subpane active" data-sub="quiz">
+      <div class="subpane active" data-sub="quiz" role="tabpanel" id="pane-learn-quiz" aria-labelledby="tab-learn-quiz">
         <div class="battle-wrap">
           <!-- 상대 = 단어 -->
           <div class="enemy-plate">
@@ -1998,12 +2028,12 @@
       </div>
 
       <!-- MY WORDS -->
-      <div class="subpane" data-sub="mywords">
-        <div class="filter-bar">
-          <button class="filter" aria-pressed="true" onclick="toggleFilter(this)">전체<span class="n">342</span></button>
-          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">NEW<span class="n">18</span></button>
-          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">학습 중<span class="n">74</span></button>
-          <button class="filter" aria-pressed="false" onclick="toggleFilter(this)">외움<span class="n">250</span></button>
+      <div class="subpane" data-sub="mywords" role="tabpanel" id="pane-learn-mywords" aria-labelledby="tab-learn-mywords">
+        <div class="filter-bar" role="group" aria-label="단어 상태 필터">
+          <button type="button" class="filter" aria-pressed="true"  onclick="toggleFilter(this)">전체<span class="n">342</span></button>
+          <button type="button" class="filter" aria-pressed="false" onclick="toggleFilter(this)">NEW<span class="n">18</span></button>
+          <button type="button" class="filter" aria-pressed="false" onclick="toggleFilter(this)">학습 중<span class="n">74</span></button>
+          <button type="button" class="filter" aria-pressed="false" onclick="toggleFilter(this)">외움<span class="n">250</span></button>
         </div>
 
         <div class="word-list">
@@ -2116,7 +2146,7 @@
       </div>
 
       <!-- TEXTBOOK -->
-      <div class="subpane" data-sub="textbook">
+      <div class="subpane" data-sub="textbook" role="tabpanel" id="pane-learn-textbook" aria-labelledby="tab-learn-textbook">
         <div class="units">
           <button class="unit" aria-pressed="false">
             <div class="u-n">Unit 1</div>
@@ -2219,19 +2249,20 @@
         <span class="sub">선생님과 문답</span>
       </div>
 
-      <div class="subnav" role="tablist" data-screen="practice">
-        <button role="tab" aria-selected="true"  data-sub="grammar" onclick="selectSub('practice','grammar')">문법 Q&amp;A</button>
-        <button role="tab" aria-selected="false" data-sub="writing" onclick="selectSub('practice','writing')">수행평가</button>
+      <div class="subnav" role="tablist" data-screen="practice" aria-label="연습 모드">
+        <button role="tab" id="tab-practice-grammar" aria-controls="pane-practice-grammar" aria-selected="true"  data-sub="grammar" onclick="selectSub('practice','grammar')">문법 Q&amp;A</button>
+        <button role="tab" id="tab-practice-writing" aria-controls="pane-practice-writing" aria-selected="false" data-sub="writing" onclick="selectSub('practice','writing')" tabindex="-1">수행평가</button>
       </div>
 
-      <div class="subpane active" data-sub="grammar">
+      <div class="subpane active" data-sub="grammar" role="tabpanel" id="pane-practice-grammar" aria-labelledby="tab-practice-grammar">
         <div class="ask">
           <div class="ask-box">
-            <textarea placeholder="궁금한 영어 문법을 질문하세요.
+            <label for="ask-input" class="vh">문법 질문 입력</label>
+            <textarea id="ask-input" maxlength="500" placeholder="궁금한 영어 문법을 질문하세요.
 예) 현재완료와 과거시제의 차이?"></textarea>
             <div class="ask-bar">
-              <span class="cnt">0 / 500</span>
-              <button>올리기</button>
+              <span class="cnt" aria-live="polite">0 / 500</span>
+              <button type="button">올리기</button>
             </div>
           </div>
         </div>
@@ -2298,7 +2329,7 @@
         <div style="height: 24px"></div>
       </div>
 
-      <div class="subpane" data-sub="writing">
+      <div class="subpane" data-sub="writing" role="tabpanel" id="pane-practice-writing" aria-labelledby="tab-practice-writing">
         <div class="empty-box">
           <div class="ttl">수행평가 과제가 없습니다</div>
           <div class="sub">선생님이 과제를 올리면 여기에 나와요</div>
@@ -2317,7 +2348,10 @@
 
       <div class="dex-hero">
         <div class="dex-hero-top">
-          <div class="big">342<span class="s">/ 1,200</span></div>
+          <div>
+            <div class="lbl">전체 수집</div>
+            <div class="big">342<span class="s">/ 1,200</span></div>
+          </div>
           <div class="pct">28%</div>
         </div>
         <div class="bar"><i></i></div>
@@ -2470,20 +2504,20 @@
 
   </main>
 
-  <nav class="tabbar" role="tablist" aria-label="주 메뉴">
-    <button role="tab" aria-current="page"   data-to="home"     onclick="goto('home')">
+  <nav class="tabbar" aria-label="주 메뉴">
+    <button data-to="home" aria-current="page" onclick="goto('home')">
       <svg fill="none"><use href="#ic-home"/></svg>홈
     </button>
-    <button role="tab" aria-current="false"  data-to="learn"    onclick="goto('learn')">
+    <button data-to="learn" onclick="goto('learn')">
       <svg fill="none"><use href="#ic-learn"/></svg>학습
     </button>
-    <button role="tab" aria-current="false"  data-to="practice" onclick="goto('practice')">
+    <button data-to="practice" onclick="goto('practice')">
       <svg fill="none"><use href="#ic-practice"/></svg>연습
     </button>
-    <button role="tab" aria-current="false"  data-to="dex"      onclick="goto('dex')">
+    <button data-to="dex" onclick="goto('dex')">
       <svg fill="none"><use href="#ic-dex"/></svg>도감
     </button>
-    <button role="tab" aria-current="false"  data-to="me"       onclick="goto('me')">
+    <button data-to="me" onclick="goto('me')">
       <svg fill="none"><use href="#ic-me"/></svg>기록
     </button>
   </nav>
@@ -2496,7 +2530,8 @@
   function goto(screen, sub) {
     body.dataset.screen = screen;
     document.querySelectorAll('.tabbar button').forEach(b => {
-      b.setAttribute('aria-current', b.dataset.to === screen ? 'page' : 'false');
+      if (b.dataset.to === screen) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
     });
     if (sub) selectSub(screen, sub);
     document.querySelector('main.app').scrollTo({ top: 0, behavior: 'instant' });
@@ -2504,7 +2539,10 @@
 
   function selectSub(screen, sub) {
     document.querySelectorAll(`.subnav[data-screen="${screen}"] button`).forEach(b => {
-      b.setAttribute('aria-selected', b.dataset.sub === sub ? 'true' : 'false');
+      const active = b.dataset.sub === sub;
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+      if (active) b.removeAttribute('tabindex');
+      else b.setAttribute('tabindex', '-1');
     });
     document.querySelectorAll(`.screen[data-s="${screen}"] .subpane`).forEach(p => {
       p.classList.toggle('active', p.dataset.sub === sub);
