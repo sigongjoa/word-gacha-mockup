@@ -1245,6 +1245,133 @@
   }
   .lvup-msg { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; font-weight: 600; }
 
+  /* === Buddy speech bubble (home) === */
+  .tc-buddy { cursor: pointer; position: relative; }
+  .tc-buddy:active { transform: scale(.96); }
+  .tc-buddy { transition: transform .12s var(--ease-quart); }
+  .speech {
+    position: absolute;
+    top: -8px; left: calc(100% + 8px);
+    background: var(--ink); color: #fff;
+    padding: 8px 12px;
+    border-radius: var(--r-md);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    z-index: 5;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .18s, transform .18s var(--ease-quart);
+    pointer-events: none;
+    max-width: 180px;
+  }
+  .speech.show { opacity: 1; transform: translateY(0); }
+  .speech::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 14px;
+    width: 8px; height: 8px;
+    background: var(--ink);
+    transform: rotate(45deg);
+  }
+
+  /* === Friend detail modal (pokedex entry) === */
+  .fd-card {
+    max-width: 340px;
+    background: var(--panel);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .fd-stage {
+    padding: 28px 20px 36px;
+    position: relative;
+    text-align: center;
+  }
+  .fd-stage .fd-num {
+    position: absolute; top: 10px; left: 14px;
+    font-size: 12px; font-weight: 900;
+    color: rgba(255,255,255,.85);
+    font-feature-settings: "tnum";
+    letter-spacing: 0.04em;
+  }
+  .fd-stage .fd-close {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px;
+    border: none; background: rgba(0,0,0,.2);
+    color: #fff;
+    border-radius: var(--r-pill);
+    font-size: 16px; font-weight: 800;
+    cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .fd-sprite {
+    font-size: 96px; line-height: 1;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.22));
+    margin-bottom: 10px;
+  }
+  .fd-name {
+    color: #fff;
+    font-size: 24px; font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    text-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .fd-type {
+    display: inline-block;
+    background: rgba(0,0,0,.25);
+    color: #fff;
+    font-size: 10px; font-weight: 800;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .fd-body { padding: 16px 18px 18px; }
+  .fd-speech {
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .fd-speech::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 20px;
+    width: 10px; height: 10px;
+    background: var(--bg);
+    border-left: 1px solid var(--divider);
+    border-top: 1px solid var(--divider);
+    transform: rotate(45deg);
+  }
+  .fd-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--divider);
+    border: 1px solid var(--divider);
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .fd-meta .cell {
+    background: var(--panel);
+    padding: 8px 12px;
+  }
+  .fd-meta .l {
+    font-size: 9px; font-weight: 800;
+    color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+  .fd-meta .v {
+    font-size: 13px; font-weight: 800;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.01em;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -1321,8 +1448,11 @@
 
     <div class="trainer-card">
       <div class="tc-row">
-        <div class="tc-buddy" style="color: var(--ink)">
+        <div class="tc-buddy" style="color: var(--ink)" id="home-buddy"
+             role="button" tabindex="0" aria-label="토토와 인사하기"
+             onclick="buddyTalk()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();buddyTalk();}">
           <svg aria-hidden="true"><use href="#buddy"/></svg>
+          <span class="speech" id="buddy-speech"></span>
         </div>
         <div class="tc-meta">
           <div class="tc-name-row">
@@ -1539,6 +1669,32 @@
   </div>
 </div>
 
+<!-- Friend detail modal (pokedex entry) -->
+<div class="ov" id="fd-ov" role="dialog" aria-modal="true" onclick="closeFriend()">
+  <div class="fd-card" onclick="event.stopPropagation()">
+    <div class="fd-stage" id="fd-stage">
+      <span class="fd-num" id="fd-num">No.001</span>
+      <button class="fd-close" type="button" onclick="closeFriend()" aria-label="닫기">✕</button>
+      <div class="fd-sprite" id="fd-sprite">●</div>
+      <div class="fd-name" id="fd-name">토토</div>
+      <span class="fd-type" id="fd-type">마음</span>
+    </div>
+    <div class="fd-body">
+      <div class="fd-speech" id="fd-speech">안녕!</div>
+      <div class="fd-meta">
+        <div class="cell">
+          <div class="l">획득 조건</div>
+          <div class="v" id="fd-need">—</div>
+        </div>
+        <div class="cell">
+          <div class="l">타입</div>
+          <div class="v" id="fd-type-k">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Levelup modal -->
 <div class="ov" id="lvup-ov" role="dialog" aria-modal="true" onclick="closeLevelup()">
   <div class="ov-card" onclick="event.stopPropagation()">
@@ -1571,12 +1727,27 @@
   ];
 
   const FRIENDS = [
-    { id:"toto",  emoji:"●", name:"토토",   need:0,  type:"mind",  desc:"시작을 함께한 친구" },
-    { id:"mimi",  emoji:"🐱", name:"미미",   need:2,  type:"mind",  desc:"호기심 많은 고양이" },
-    { id:"choco", emoji:"🐰", name:"초코",   need:4,  type:"grass", desc:"부지런한 토끼" },
-    { id:"vani",  emoji:"🦊", name:"바닐라", need:6,  type:"fire",  desc:"빠른 발을 가진 여우" },
-    { id:"uni",   emoji:"🦄", name:"유니콘", need:8,  type:"mind",  desc:"전설 속의 친구" },
-    { id:"trex",  emoji:"🦖", name:"티라노", need:10, type:"grass", desc:"가장 강한 동료" },
+    { id:"toto",  emoji:"●", name:"토토",   need:0,  type:"mind",  desc:"시작을 함께한 친구",
+      line:"우리 같이 단어 많이 외우자!" },
+    { id:"mimi",  emoji:"🐱", name:"미미",   need:2,  type:"mind",  desc:"호기심 많은 고양이",
+      line:"새 단어는 나한테 제일 먼저 알려줘, 냥." },
+    { id:"choco", emoji:"🐰", name:"초코",   need:4,  type:"grass", desc:"부지런한 토끼",
+      line:"하루 10개씩만 외워도 금방 늘어요!" },
+    { id:"vani",  emoji:"🦊", name:"바닐라", need:6,  type:"fire",  desc:"빠른 발을 가진 여우",
+      line:"속도는 중요하지 않아. 꾸준함이 답이지." },
+    { id:"uni",   emoji:"🦄", name:"유니콘", need:8,  type:"mind",  desc:"전설 속의 친구",
+      line:"여기까지 오다니… 진짜 대단하네요." },
+    { id:"trex",  emoji:"🦖", name:"티라노", need:10, type:"grass", desc:"가장 강한 동료",
+      line:"쿠어어! 최강 트레이너 인정한다." },
+  ];
+
+  const BUDDY_LINES = [
+    "오늘도 같이 공부하자!",
+    "단어 외우면 친구가 늘어나!",
+    "토템 끼면 경험치 2배야.",
+    "어제보다 한 개라도 더!",
+    "나 토토, 잊지 말아줘!",
+    "졸리면 잠깐 쉬어도 돼.",
   ];
 
   const TOTEMS = [
@@ -1877,6 +2048,7 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (document.getElementById('sheet').classList.contains('open')) closeSheet();
+      if (document.getElementById('fd-ov').classList.contains('show')) closeFriend();
     }
   });
 
@@ -2217,6 +2389,37 @@
   }
   function closeLevelup() { document.getElementById('lvup-ov').classList.remove('show'); }
 
+  // ── Buddy speech ──
+  let buddySpeechT = null;
+  function buddyTalk() {
+    const line = BUDDY_LINES[Math.floor(Math.random() * BUDDY_LINES.length)];
+    const el = document.getElementById('buddy-speech');
+    el.textContent = line;
+    el.classList.add('show');
+    clearTimeout(buddySpeechT);
+    buddySpeechT = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  // ── Friend detail modal ──
+  function openFriend(idx) {
+    const f = FRIENDS[idx];
+    if (!f) return;
+    const ok = masteredCount() >= f.need;
+    if (!ok) return;
+    document.getElementById('fd-num').textContent = 'No.' + String(idx+1).padStart(3,'0');
+    document.getElementById('fd-sprite').textContent = f.emoji;
+    document.getElementById('fd-name').textContent = f.name;
+    document.getElementById('fd-type').textContent = TYPE_LABEL[f.type];
+    document.getElementById('fd-type-k').textContent = TYPE_LABEL[f.type];
+    document.getElementById('fd-need').textContent = f.need === 0 ? '기본 동료' : `단어 ${f.need}개`;
+    document.getElementById('fd-speech').textContent = '"' + f.line + '"';
+    document.getElementById('fd-stage').style.background = `var(--t-${f.type})`;
+    document.getElementById('fd-ov').classList.add('show');
+  }
+  function closeFriend() {
+    document.getElementById('fd-ov').classList.remove('show');
+  }
+
   let toastT = null;
   function toast(msg) {
     const el = document.getElementById('toast');
@@ -2274,8 +2477,10 @@
     FRIENDS.forEach((f, i) => {
       const ok = masteredCount() >= f.need;
       if (ok) unlocked++;
-      const card = document.createElement('div');
+      const card = document.createElement(ok ? 'button' : 'div');
+      if (ok) { card.type = 'button'; card.onclick = () => openFriend(i); card.setAttribute('aria-label', `${f.name} 상세`); }
       card.className = 'dex-card' + (ok ? '' : ' locked');
+      card.style.cssText = ok ? 'cursor:pointer;text-align:left;font-family:inherit;padding:0;border-color:var(--divider)' : '';
       const stageBg = ok ? `style="background: var(--t-${f.type})"` : '';
       card.innerHTML = `
         <span class="num">No.${String(i+1).padStart(3,'0')}</span>
