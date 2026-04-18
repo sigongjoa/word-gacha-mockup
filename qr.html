@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Gacha · QR 포스터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+  :root {
+    --cream:        oklch(97% 0.018 78);
+    --cream-deep:   oklch(93% 0.04 78);
+    --ink:          oklch(34% 0.05 330);
+    --ink-soft:     oklch(48% 0.05 330);
+    --berry:        oklch(58% 0.20 10);
+    --berry-deep:   oklch(46% 0.22 10);
+
+    --pal-fur:        oklch(86% 0.09 50);
+    --pal-ear:        oklch(78% 0.13 28);
+    --pal-ear-inner:  oklch(86% 0.09 18);
+    --pal-belly:      oklch(95% 0.04 78);
+    --pal-cheek:      oklch(72% 0.18 18);
+    --pal-eye:        oklch(20% 0.04 330);
+
+    --display: "Jua", system-ui, sans-serif;
+    --num:     "Bagel Fat One", "Jua", sans-serif;
+    --en:      "Fredoka", "Jua", sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--display);
+    background: oklch(90% 0.04 78);
+    color: var(--ink);
+    min-height: 100dvh;
+    padding: 24px 16px;
+    display: grid;
+    place-items: start center;
+  }
+
+  /* ─ A4 비율 포스터 (210 × 297) ─ */
+  .poster {
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 210 / 297;
+    background: var(--cream);
+    border-radius: 28px;
+    box-shadow: 0 12px 48px rgba(0,0,0,.16);
+    padding: 6% 7% 5%;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto auto;
+    gap: 3%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 배경 점 패턴 */
+  .poster::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 18% 22%, var(--pal-cheek) 0 6px, transparent 6.5px),
+      radial-gradient(circle at 82% 14%, var(--pal-ear-inner) 0 5px, transparent 5.5px),
+      radial-gradient(circle at 12% 78%, var(--pal-fur) 0 7px, transparent 7.5px),
+      radial-gradient(circle at 88% 84%, var(--pal-cheek) 0 4px, transparent 4.5px);
+    opacity: .55;
+    pointer-events: none;
+  }
+  .poster > * { position: relative; z-index: 1; }
+
+  /* 헤더 */
+  .head { text-align: center; }
+  .wordmark {
+    width: 60%; max-width: 280px;
+    height: auto; margin: 0 auto;
+    display: block;
+  }
+  .tagline {
+    margin: 8px 0 0;
+    font-family: var(--display);
+    font-size: clamp(14px, 2.4vw, 20px);
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  /* 캐릭터 */
+  .toto-row {
+    text-align: center;
+    position: relative;
+  }
+  .toto-row .bubble {
+    display: inline-block;
+    background: white;
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-family: var(--display);
+    font-size: clamp(13px, 2.2vw, 18px);
+    color: var(--ink);
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .toto-row .bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 14px;
+    background: white;
+    border-right: 3px solid var(--ink);
+    border-bottom: 3px solid var(--ink);
+    rotate: 45deg;
+  }
+  .toto {
+    width: 32%;
+    max-width: 160px;
+    aspect-ratio: 1;
+    margin: 14px auto 0;
+    display: block;
+  }
+
+  /* QR 카드 */
+  .qr-card {
+    background: white;
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    box-shadow: 0 8px 0 var(--berry-deep);
+    padding: 5%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 5%;
+    align-items: center;
+    margin: 0 2%;
+  }
+  #qr {
+    width: clamp(120px, 26vw, 180px);
+    height: clamp(120px, 26vw, 180px);
+    display: grid;
+    place-items: center;
+  }
+  #qr svg, #qr canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .qr-text { display: grid; gap: 8px; }
+  .qr-text .label {
+    font-family: var(--display);
+    font-size: clamp(15px, 2.8vw, 22px);
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .qr-text .label b {
+    color: var(--berry);
+    font-family: var(--num);
+    font-size: 1.2em;
+    font-weight: normal;
+  }
+  .qr-text .url {
+    font-family: var(--en);
+    font-size: clamp(10px, 1.6vw, 13px);
+    color: var(--ink-soft);
+    word-break: break-all;
+    background: var(--cream-deep);
+    padding: 6px 10px;
+    border-radius: 8px;
+    letter-spacing: 0;
+  }
+
+  /* 안내 단계 */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .step {
+    background: var(--cream-deep);
+    border-radius: 16px;
+    padding: 14px 8px 12px;
+    text-align: center;
+  }
+  .step .num {
+    font-family: var(--num);
+    font-size: clamp(20px, 3.6vw, 28px);
+    color: var(--berry);
+    line-height: 1;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .step .desc {
+    font-family: var(--display);
+    font-size: clamp(11px, 1.8vw, 14px);
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* 푸터 */
+  .foot {
+    text-align: center;
+    font-family: var(--display);
+    font-size: clamp(10px, 1.6vw, 13px);
+    color: var(--ink-soft);
+  }
+
+  /* 도구 모음 (인쇄 시 숨김) */
+  .toolbar {
+    position: fixed;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    background: var(--ink); color: var(--cream);
+    padding: 8px 12px;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    font-family: var(--display);
+    font-size: 13px;
+    z-index: 99;
+  }
+  .toolbar button {
+    background: transparent; color: inherit;
+    border: 0; padding: 6px 12px;
+    border-radius: 999px;
+    font-family: inherit; font-size: inherit;
+    cursor: pointer;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,.12); }
+
+  /* 인쇄 */
+  @page { size: A4; margin: 8mm; }
+  @media print {
+    body { background: white; padding: 0; }
+    .poster {
+      max-width: none; width: 100%;
+      box-shadow: none;
+      border-radius: 0;
+      page-break-after: always;
+    }
+    .toolbar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="toto" viewBox="0 0 120 120">
+      <g class="ear-l">
+        <ellipse cx="38" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
+        <ellipse cx="38" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
+      </g>
+      <g class="ear-r">
+        <ellipse cx="82" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
+        <ellipse cx="82" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
+      </g>
+      <ellipse cx="60" cy="62" rx="34" ry="32" fill="var(--pal-fur)" stroke="var(--ink)" stroke-width="2.5"/>
+      <ellipse cx="60" cy="78" rx="20" ry="13" fill="var(--pal-belly)"/>
+      <circle cx="36" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
+      <circle cx="84" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
+      <ellipse cx="48" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
+      <ellipse cx="72" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
+      <circle cx="49.5" cy="56.5" r="1.5" fill="white"/>
+      <circle cx="73.5" cy="56.5" r="1.5" fill="white"/>
+      <path d="M 56 70 Q 60 73 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="wordmark" viewBox="0 0 220 60">
+      <text x="2" y="34" font-family="Fredoka" font-weight="700" font-size="28" fill="var(--ink)" letter-spacing="-0.5">word</text>
+      <circle cx="80" cy="14" r="2.4" fill="var(--berry)"/>
+      <text x="80" y="36" font-family="Bagel Fat One" font-size="30" fill="var(--berry)" letter-spacing="-0.5">gacha</text>
+      <text x="2" y="52" font-family="Jua" font-size="11" fill="var(--ink-soft)">단어 가챠</text>
+    </symbol>
+  </defs>
+</svg>
+
+<article class="poster" aria-label="Word Gacha QR 포스터">
+
+  <header class="head">
+    <svg class="wordmark" viewBox="0 0 220 60" aria-hidden="true"><use href="#wordmark"/></svg>
+    <p class="tagline">단어 외우고 친구 모으자</p>
+  </header>
+
+  <div class="toto-row">
+    <div class="bubble">같이 놀자!</div>
+    <svg class="toto" viewBox="0 0 120 120" role="img" aria-label="토토"><use href="#toto"/></svg>
+  </div>
+
+  <div class="qr-card">
+    <div id="qr" role="img" aria-label="Word Gacha 접속 QR 코드"></div>
+    <div class="qr-text">
+      <div class="label">스마트폰 카메라로<br><b>여기</b>를 찍어요</div>
+      <div class="url" id="url-text"></div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step"><span class="num">1</span><span class="desc">카메라 켜기</span></div>
+    <div class="step"><span class="num">2</span><span class="desc">QR 비추기</span></div>
+    <div class="step"><span class="num">3</span><span class="desc">학습 시작!</span></div>
+  </div>
+
+  <footer class="foot">매일 단어 외우면 토토가 자라요 · 와와 학원</footer>
+
+</article>
+
+<div class="toolbar">
+  <button type="button" onclick="window.print()">🖨 인쇄</button>
+  <button type="button" onclick="copyURL()">📋 URL 복사</button>
+</div>
+
+<script>
+  const APP_URL = "https://sigongjoa.github.io/word-gacha-mockup/";
+  document.getElementById("url-text").textContent = APP_URL.replace(/^https:\/\//, "");
+
+  // QR 생성 (오류복원율 H = 30%, 가운데 토토 박을 여유)
+  QRCode.toString(APP_URL, {
+    type: "svg",
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: 360,
+    color: {
+      dark: "#3d2747",   // ink 근사값
+      light: "#00000000"
+    }
+  }, (err, svg) => {
+    if (err) { document.getElementById("qr").textContent = APP_URL; return; }
+    document.getElementById("qr").innerHTML = svg;
+
+    // 가운데 토토 오버레이
+    const container = document.getElementById("qr");
+    container.style.position = "relative";
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+      position: absolute; inset: 0; margin: auto;
+      width: 28%; height: 28%;
+      background: white;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      padding: 4%;
+    `;
+    overlay.innerHTML = `<svg viewBox="0 0 120 120" style="width:100%;height:100%"><use href="#toto"/></svg>`;
+    container.appendChild(overlay);
+  });
+
+  function copyURL() {
+    navigator.clipboard.writeText(APP_URL).then(() => {
+      alert("주소가 복사됐어요\n" + APP_URL);
+    });
+  }
+</script>
+
+</body>
+</html>
