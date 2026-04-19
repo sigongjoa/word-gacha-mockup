@@ -266,10 +266,35 @@
     max-width: 54px;
     aspect-ratio: 2 / 3;
   }
-  .char.batter-me { animation: batter-ready 1.5s ease-in-out infinite; }
+  .char.batter-me { animation: batter-ready 1.5s ease-in-out infinite; transform-origin: 50% 80%; }
   @keyframes batter-ready {
     0%,100% { transform: rotate(-2deg) translateY(0); }
     50%     { transform: rotate(2deg)  translateY(-2px); }
+  }
+  .char.batter-me.swung {
+    animation: batter-swing 0.5s ease-out;
+  }
+  @keyframes batter-swing {
+    0%   { transform: rotate(-10deg) scale(1); }
+    30%  { transform: rotate(35deg)  scale(1.1); }
+    60%  { transform: rotate(45deg)  scale(1.05); }
+    100% { transform: rotate(0)      scale(1); }
+  }
+  .char.batter-me.whiff {
+    animation: batter-whiff 0.45s ease-out;
+  }
+  @keyframes batter-whiff {
+    0%   { transform: rotate(-10deg) translateX(0); }
+    40%  { transform: rotate(30deg)  translateX(-2px); }
+    100% { transform: rotate(-5deg)  translateX(0); }
+  }
+  .char.pitcher-me.threw {
+    animation: pitcher-throw 0.5s ease-out;
+  }
+  @keyframes pitcher-throw {
+    0%   { transform: translate(-50%, -55%) rotate(-10deg) scale(1.1); }
+    50%  { transform: translate(-50%, -40%) rotate(20deg)  scale(1.15); }
+    100% { transform: translate(-50%, -50%) rotate(0)      scale(1); }
   }
 
   /* 투수 (mound 위) */
@@ -992,7 +1017,7 @@
   <div class="ball-wrap">
     <div class="ball" id="ball"></div>
   </div>
-  <div class="callout" id="callout"></div>
+  <div class="callout" id="callout" aria-live="polite" role="status"></div>
 </div>
 
 <!-- HUD -->
@@ -1067,6 +1092,8 @@
     <span class="sep">:</span>
     <span class="opp" id="finalOpp">0</span>
   </div>
+  <div class="review-stats" id="finalStats"></div>
+  <div id="bestBox" style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:1px"></div>
   <p id="finalMsg"></p>
   <button id="btnRestart">다시 플레이 🔄</button>
 </div>
@@ -1128,6 +1155,64 @@
   const THROW_MS = 2800;
   const MAX_INNING = 4;
   const MAX_PITCHES_PER_HALF = 7;
+  const BEST_KEY = 'wb_best_v1';
+
+  // ===== Audio (WebAudio synth — no files) =====
+  const audio = (() => {
+    let ctx = null;
+    let muted = false;
+    const ensure = () => {
+      if (muted) return null;
+      if (!ctx) {
+        try { ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch { ctx = null; }
+      }
+      return ctx;
+    };
+    const tone = (freq, dur, type = 'square', vol = 0.15, delay = 0) => {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime + delay;
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g).connect(c.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    };
+    const slide = (f1, f2, dur, type = 'sawtooth', vol = 0.2) => {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime;
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(f1, t);
+      osc.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g).connect(c.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    };
+    return {
+      resume: () => { const c = ensure(); if (c && c.state === 'suspended') c.resume(); },
+      toggle: () => { muted = !muted; return muted; },
+      isMuted: () => muted,
+      batCrack: () => { tone(220, 0.08, 'sawtooth', 0.3); tone(90, 0.15, 'triangle', 0.25, 0.02); },
+      strike:   () => { tone(900, 0.06, 'square', 0.2); tone(1300, 0.06, 'square', 0.2, 0.08); },
+      ballCall: () => { tone(350, 0.12, 'sine', 0.12); },
+      homerun:  () => {
+        [440, 554, 659, 880, 1047].forEach((f, i) => tone(f, 0.18, 'triangle', 0.2, i * 0.08));
+      },
+      out:      () => { slide(280, 100, 0.35, 'sawtooth', 0.25); },
+      walk:     () => { tone(440, 0.1, 'sine', 0.15); tone(330, 0.14, 'sine', 0.15, 0.12); },
+      pitch:    () => { slide(700, 1100, 0.08, 'triangle', 0.08); },
+      click:    () => { tone(1200, 0.03, 'square', 0.08); },
+    };
+  })();
+  const vibe = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch {} };
 
   const state = {
     inning: 1,
@@ -1141,7 +1226,39 @@
     halfLog: [],
     pitchesThisHalf: 0,
     streak: 0,
+    // Game-total stats (reset in startGame)
+    stats: { totalHR: 0, totalK: 0, totalWalk: 0, totalOut: 0, totalAnswered: 0, totalCorrect: 0, fastestMs: null },
+    // Spaced repetition pool of [eng, ko] pairs the player got wrong.
+    missedPool: [],
   };
+
+  function loadBest() {
+    try {
+      const raw = localStorage.getItem(BEST_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+  function saveBest(rec) {
+    try { localStorage.setItem(BEST_KEY, JSON.stringify(rec)); } catch {}
+  }
+  function maybeUpdateBest() {
+    const prev = loadBest();
+    const now = {
+      myScore: state.myScore, oppScore: state.oppScore,
+      diff: state.myScore - state.oppScore,
+      hr: state.stats.totalHR, k: state.stats.totalK,
+      acc: state.stats.totalAnswered ? Math.round(state.stats.totalCorrect / state.stats.totalAnswered * 100) : 0,
+      ts: Date.now(),
+    };
+    const isWin = now.diff > 0;
+    const prevDiff = prev?.diff ?? -Infinity;
+    // Best = biggest margin of victory; on tie, more HR wins.
+    if (isWin && (now.diff > prevDiff || (now.diff === prevDiff && now.hr > (prev?.hr ?? 0)))) {
+      saveBest(now);
+      return { updated: true, rec: now, prev };
+    }
+    return { updated: false, rec: now, prev };
+  }
 
   const $ = id => document.getElementById(id);
   const ball = $('ball');
@@ -1213,14 +1330,6 @@
     streakBox.classList.toggle('dead', state.streak === 0);
   }
 
-  function showCallout(text, cls) {
-    callout.className = 'callout ' + cls;
-    callout.textContent = text;
-    void callout.offsetWidth;
-    callout.classList.add('show');
-    setTimeout(() => callout.classList.remove('show'), 1300);
-  }
-
   function showXP(text) {
     const t = $('xpToast');
     t.textContent = text;
@@ -1271,11 +1380,57 @@
   }
 
   function pickQuestion() {
-    const pool = shuffle(WORD_TIERS[state.inning]);
-    const [eng, ko] = pool[0];
-    const wrongs = pool.slice(1).filter(w => w[1] !== ko).slice(0, 3).map(w => w[1]);
-    const options = shuffle([ko, ...wrongs]);
+    const tierPool = WORD_TIERS[state.inning];
+    // 30% chance to re-ask a previously missed word (spaced repetition).
+    let eng, ko;
+    if (state.missedPool.length && Math.random() < 0.30) {
+      [eng, ko] = state.missedPool[Math.floor(Math.random() * state.missedPool.length)];
+    } else {
+      [eng, ko] = shuffle(tierPool)[0];
+    }
+    const distractors = shuffle(tierPool.filter(w => w[1] !== ko)).slice(0, 3).map(w => w[1]);
+    const options = shuffle([ko, ...distractors]);
     return { eng, ko, options };
+  }
+
+  function recordMiss(eng, ko) {
+    if (!eng || !ko) return;
+    if (!state.missedPool.some(p => p[0] === eng)) state.missedPool.push([eng, ko]);
+    // cap to last 20 entries
+    if (state.missedPool.length > 20) state.missedPool.shift();
+  }
+  function clearMissOnCorrect(eng) {
+    state.missedPool = state.missedPool.filter(p => p[0] !== eng);
+  }
+
+  // Callout queue — prevents overlap when multiple calls fire in sequence.
+  const _calloutQ = [];
+  let _calloutRunning = false;
+  function showCallout_queued(text, cls, hold = 1200) {
+    _calloutQ.push({ text, cls, hold });
+    if (!_calloutRunning) _drainCallout();
+  }
+  function _drainCallout() {
+    const next = _calloutQ.shift();
+    if (!next) { _calloutRunning = false; return; }
+    _calloutRunning = true;
+    callout.className = 'callout ' + next.cls;
+    callout.textContent = next.text;
+    void callout.offsetWidth;
+    callout.classList.add('show');
+    setTimeout(() => {
+      callout.classList.remove('show');
+      setTimeout(_drainCallout, 150);
+    }, next.hold);
+  }
+
+  function charFlash(selector, className, dur = 500) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.classList.remove(className);
+    void el.offsetWidth;
+    el.classList.add(className);
+    setTimeout(() => el.classList.remove(className), dur);
   }
 
   function renderChoices(options) {
@@ -1300,6 +1455,9 @@
     if (state.outs >= 3) { endHalf(); return; }
     if (state.pitchesThisHalf >= MAX_PITCHES_PER_HALF) { endHalf(); return; }
     state.pitchesThisHalf++;
+    audio.pitch();
+    // defense: our pitcher throws; offense: opponent pitcher throws (no feedback needed)
+    if (!isOffense()) charFlash('.char.pitcher-me', 'threw', 500);
     const q = pickQuestion();
     state.current = { ...q, startAt: 0, answered: false };
     state.locked = false;
@@ -1342,18 +1500,26 @@
   function onTimeout() {
     state.streak = 0;
     if (isOffense()) {
-      showCallout('놓쳤다! 아웃', 'out');
+      showCallout_queued('놓쳤다! 아웃', 'out');
+      audio.out();
+      vibe([100, 50, 100]);
+      charFlash('.char.batter-me', 'whiff', 450);
       state.outs++;
+      state.stats.totalOut++;
+      recordMiss(state.current.eng, state.current.ko);
       logPlay({ word: state.current.eng, ko: state.current.ko, picked: null, elapsed: null, result: '아웃', correct: false });
     } else {
       state.balls++;
-      showCallout('볼', 'ball');
+      showCallout_queued('볼', 'ball');
+      audio.ballCall();
       logPlay({ word: state.current.eng, ko: state.current.ko, picked: null, elapsed: null, result: '볼', correct: false });
       if (state.balls >= 4) {
         const runs = advanceRunners(1);
         state.oppScore += runs;
         state.balls = 0; state.strikes = 0;
-        setTimeout(() => showCallout('볼넷!' + (runs>0?` +${runs}실점`:''), 'out'), 500);
+        state.stats.totalWalk++;
+        audio.walk();
+        setTimeout(() => showCallout_queued('볼넷!' + (runs>0?` +${runs}실점`:''), 'out'), 500);
       }
     }
     renderScore();
@@ -1373,22 +1539,32 @@
   }
 
   function handleOffense(picked, btn, correct, elapsed) {
+    state.stats.totalAnswered++;
     if (!correct) {
       state.streak = 0;
       btn.classList.add('wrong');
       disableChoicesMarkCorrect();
       ball.classList.remove('throwing');
       ball.classList.add('missed');
-      showCallout('스윙 아웃!', 'out');
+      showCallout_queued('스윙 아웃!', 'out');
+      audio.out();
+      vibe([100, 50, 100]);
+      charFlash('.char.batter-me', 'whiff', 450);
       state.outs++;
+      state.stats.totalOut++;
+      recordMiss(state.current.eng, state.current.ko);
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: '스윙아웃', correct: false });
       renderScore();
       setTimeout(nextPitch, 1200);
       return;
     }
     state.streak++;
+    state.stats.totalCorrect++;
+    if (state.stats.fastestMs == null || elapsed < state.stats.fastestMs) state.stats.fastestMs = elapsed;
+    clearMissOnCorrect(state.current.eng);
     btn.classList.add('correct');
     [...choicesBox.children].forEach(b => b.disabled = true);
+    charFlash('.char.batter-me', 'swung', 500);
 
     let bases, label, cls, isHR = false;
     if (elapsed < 1200)      { bases = 4; label = 'HOMERUN! ⚾'; cls = 'homerun'; isHR = true; }
@@ -1402,13 +1578,18 @@
     const runs = advanceRunners(bases);
     state.myScore += runs;
 
-    showCallout(label, cls);
+    showCallout_queued(label, cls);
     if (isHR) {
+      state.stats.totalHR++;
+      audio.homerun();
+      vibe([40, 20, 80, 20, 120]);
       screenFlash();
       burstConfetti();
       showXP(`+${runs * 100} XP · 홈런!`);
-    } else if (runs > 0) {
-      showXP(`+${runs} 득점!`);
+    } else {
+      audio.batCrack();
+      vibe(30);
+      if (runs > 0) showXP(`+${runs} 득점!`);
     }
 
     logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: label.replace('!','').trim() + (runs>0?` +${runs}`:''), correct: true });
@@ -1417,6 +1598,7 @@
   }
 
   function handleDefense(picked, btn, correct, elapsed) {
+    state.stats.totalAnswered++;
     if (!correct) {
       state.streak = 0;
       btn.classList.add('wrong');
@@ -1426,13 +1608,19 @@
       const runs = advanceRunners(1);
       state.oppScore += runs;
       state.balls = 0; state.strikes = 0;
-      showCallout('피안타!' + (runs>0 ? ` -${runs}` : ''), 'run');
+      showCallout_queued('피안타!' + (runs>0 ? ` -${runs}` : ''), 'run');
+      audio.out();
+      vibe([80, 40, 80]);
+      recordMiss(state.current.eng, state.current.ko);
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: '피안타' + (runs>0?` +${runs}`:''), correct: false });
       renderScore();
       setTimeout(nextPitch, 1400);
       return;
     }
     state.streak++;
+    state.stats.totalCorrect++;
+    if (state.stats.fastestMs == null || elapsed < state.stats.fastestMs) state.stats.fastestMs = elapsed;
+    clearMissOnCorrect(state.current.eng);
     btn.classList.add('correct');
     [...choicesBox.children].forEach(b => b.disabled = true);
     ball.classList.remove('throwing');
@@ -1440,23 +1628,32 @@
 
     if (elapsed < 1500) {
       state.strikes++;
-      showCallout('STRIKE!', 'strike');
+      showCallout_queued('STRIKE!', 'strike');
+      audio.strike();
+      vibe(20);
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: `K${state.strikes}`, correct: true });
       if (state.strikes >= 3) {
-        setTimeout(() => showCallout('삼진 아웃! 🔥', 'strike'), 500);
+        setTimeout(() => showCallout_queued('삼진 아웃! 🔥', 'strike'), 500);
         state.outs++;
+        state.stats.totalK++;
+        state.stats.totalOut++;
+        audio.homerun();
+        vibe([40, 20, 80, 20, 120]);
         state.balls = 0; state.strikes = 0;
         showXP('+50 XP · 삼진!');
       }
     } else {
       state.balls++;
-      showCallout('볼', 'ball');
+      showCallout_queued('볼', 'ball');
+      audio.ballCall();
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: `B${state.balls}`, correct: true });
       if (state.balls >= 4) {
         const runs = advanceRunners(1);
         state.oppScore += runs;
         state.balls = 0; state.strikes = 0;
-        setTimeout(() => showCallout('볼넷!' + (runs>0?` -${runs}`:''), 'out'), 500);
+        state.stats.totalWalk++;
+        audio.walk();
+        setTimeout(() => showCallout_queued('볼넷!' + (runs>0?` -${runs}`:''), 'out'), 500);
       }
     }
     renderScore();
@@ -1534,21 +1731,57 @@
     if (state.myScore > state.oppScore) {
       title = '🏆 WIN!';
       msg = `멋진 경기! ${state.myScore - state.oppScore}점 차 승리 🎉`;
+      audio.homerun();
+      vibe([40, 20, 80, 20, 120, 20, 160]);
       burstConfetti();
       screenFlash();
     } else if (state.myScore < state.oppScore) {
       title = '😢 LOSE';
       msg = `아쉽다... ${state.oppScore - state.myScore}점 차 패배. 다시 도전!`;
+      audio.out();
     } else {
       title = '🤝 TIE';
       msg = '무승부! 아슬아슬한 경기였어';
+      audio.ballCall();
     }
     $('endTitle').textContent = title;
     $('finalMsg').textContent = msg;
+
+    // Render game-total stats
+    const s = state.stats;
+    const acc = s.totalAnswered ? Math.round(s.totalCorrect / s.totalAnswered * 100) : 0;
+    const fastest = s.fastestMs != null ? (s.fastestMs / 1000).toFixed(2) + 's' : '—';
+    $('finalStats').innerHTML = `
+      <div class="row" style="grid-template-columns:1fr 1fr 1fr;text-align:center;gap:8px">
+        <span><b>${s.totalHR}</b><small>홈런</small></span>
+        <span><b>${s.totalK}</b><small>삼진</small></span>
+        <span><b>${s.totalWalk}</b><small>볼넷</small></span>
+      </div>
+      <div class="row" style="grid-template-columns:1fr 1fr;text-align:center;gap:8px;margin-top:6px">
+        <span><b>${acc}%</b><small>정답률 (${s.totalCorrect}/${s.totalAnswered})</small></span>
+        <span><b>${fastest}</b><small>최고 반응속도</small></span>
+      </div>
+    `;
+
+    // Best record
+    const bestInfo = maybeUpdateBest();
+    const bestBox = $('bestBox');
+    if (bestBox) {
+      if (bestInfo.updated) {
+        bestBox.textContent = `🌟 NEW BEST! ${bestInfo.rec.myScore}:${bestInfo.rec.oppScore} (+${bestInfo.rec.diff}) · HR ${bestInfo.rec.hr}`;
+      } else if (bestInfo.prev) {
+        bestBox.textContent = `역대 최고: ${bestInfo.prev.myScore}:${bestInfo.prev.oppScore} (+${bestInfo.prev.diff}) · HR ${bestInfo.prev.hr}`;
+      } else {
+        bestBox.textContent = '';
+      }
+    }
+
     $('end').classList.remove('hide');
   }
 
   function startGame() {
+    audio.resume(); // iOS unlock — must run from user gesture
+    audio.click();
     state.myScore = 0; state.oppScore = 0;
     state.inning = 1; state.half = 'top';
     state.outs = 0; state.balls = 0; state.strikes = 0;
@@ -1556,6 +1789,8 @@
     state.halfLog = [];
     state.pitchesThisHalf = 0;
     state.streak = 0;
+    state.stats = { totalHR: 0, totalK: 0, totalWalk: 0, totalOut: 0, totalAnswered: 0, totalCorrect: 0, fastestMs: null };
+    state.missedPool = [];
     $('start').classList.add('hide');
     $('end').classList.add('hide');
     $('review').classList.add('hide');
