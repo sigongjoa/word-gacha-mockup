@@ -9,82 +9,131 @@
     --lime:#58cc02; --lime-d:#46a302;
     --red:#e53e3e; --blue:#2b8cff; --gold:#ffc800;
     --ink:#1f2933; --sub:#6b7280; --bg:#f7f8fb; --card:#fff; --line:#e5e7eb;
+    --ball-dur: 900ms;
+    --slide-dur: 400ms;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans KR', system-ui, sans-serif; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: 1fr 320px; gap:16px; }
-  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } .sidebar { order: 2; } }
-  h1 { margin:0 0 12px; font-size: 18px; }
+  body.shake-screen { animation: shake-screen 400ms ease-out; }
+  .wrap { max-width:1080px; margin:0 auto; padding:16px; display:grid; grid-template-columns:1fr 320px; gap:16px; }
+  @media (max-width:820px) { .wrap { grid-template-columns:1fr; } .sidebar { order:2; } }
+  h1 { margin:0 0 12px; font-size:18px; }
   .pill { display:inline-block; padding:2px 10px; background:var(--gold); color:#000; border-radius:999px; font-weight:700; font-size:12px; margin-left:6px; }
-
   .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
 
   /* Scoreboard */
-  .score { display:grid; grid-template-columns:auto auto auto 1fr auto; gap:10px; align-items:center; font-family: 'SF Mono', Menlo, monospace; }
+  .score { display:grid; grid-template-columns:auto auto auto 1fr auto; gap:10px; align-items:center; font-family:'SF Mono', Menlo, monospace; }
   .score .teamname { font-weight:800; font-size:14px; }
-  .score .num { font-size:24px; font-weight:800; min-width: 28px; text-align:center; }
+  .score .num { font-size:24px; font-weight:800; min-width:28px; text-align:center; display:inline-block; }
+  .score .num.rolling { animation: num-roll 500ms ease-out; }
   .score .vs { color:var(--sub); font-size:12px; }
   .meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:13px; color:var(--sub); }
-  .meta b { color:var(--ink); }
+  .meta b { color:var(--ink); display:inline-block; }
+  .meta b.tick { animation: inning-tick 500ms ease-out; }
 
-  /* Bases (diamond) */
-  .diamond { position:relative; width:160px; height:140px; margin:8px auto; }
-  .base { position:absolute; width:18px; height:18px; background:#fff; border:2px solid var(--ink); transform:rotate(45deg); }
+  /* Field — includes pitcher / batter / ball */
+  .field { position:relative; width:260px; height:300px; margin:8px auto; }
+  .diamond { position:absolute; left:50px; top:60px; width:160px; height:160px; }
+  .diamond.pulse { animation: diamond-pulse 700ms ease-out; }
+  .pitcher-icon, .batter-icon { position:absolute; font-size:34px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.15)); transition:transform .2s; user-select:none; }
+  .pitcher-icon { left:50%; top:-2px; transform:translateX(-50%); }
+  .batter-icon  { left:50%; bottom:-10px; transform:translateX(-50%); }
+  .pitcher-icon.windup { animation: windup 450ms ease-out; }
+  .batter-icon.swung { animation: swing 300ms ease-out; }
+  .batter-icon.whiff { animation: whiff 400ms ease-out; }
+
+  .base { position:absolute; width:18px; height:18px; background:#fff; border:2px solid var(--ink); transform:rotate(45deg); transition:background var(--slide-dur); }
   .base.on { background:var(--gold); }
+  .base.scored { animation: base-flash 500ms ease-out; }
   .b1 { right:14px; top:56px; }
   .b2 { left:50%; top:8px; transform:translateX(-50%) rotate(45deg); }
   .b3 { left:14px; top:56px; }
   .home { position:absolute; left:50%; bottom:4px; transform:translateX(-50%) rotate(45deg); width:14px; height:14px; background:var(--ink); }
+  .home.glow { animation: home-glow 800ms ease-out; }
+
+  /* Ball — flies from pitcher (top) toward batter (bottom) */
+  .ball { position:absolute; width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #fff, #bbb 70%); box-shadow:0 2px 4px rgba(0,0,0,.25); left:50%; top:6px; transform:translateX(-50%); display:none; z-index:10; }
+  .ball.flying-fastball { display:block; animation: ball-fastball var(--ball-dur) cubic-bezier(.22,.9,.32,1) forwards; }
+  .ball.flying-slider   { display:block; animation: ball-slider   var(--ball-dur) ease-in forwards; }
+  .ball.flying-curve    { display:block; animation: ball-curve    var(--ball-dur) cubic-bezier(.3,.1,.9,.6) forwards; }
 
   /* Count */
   .count { display:flex; gap:14px; align-items:center; justify-content:center; }
-  .count .dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--ink); background:#fff; }
+  .count .dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--ink); background:#fff; transition:background 200ms, border-color 200ms; }
   .count .dot.on-s { background:var(--lime); border-color:var(--lime-d); }
   .count .dot.on-b { background:var(--blue); border-color:var(--blue); }
   .count .dot.on-o { background:var(--red); border-color:var(--red); }
+  .count .dot.pulse { animation: count-pulse 600ms ease-out; }
   .count .label { font-size:12px; color:var(--sub); margin-right:4px; }
 
-  /* Turn badge */
+  /* Turn */
   .turn { display:inline-block; padding:6px 14px; border-radius:999px; font-weight:700; font-size:14px; }
   .turn.pitch { background:#fff6d6; color:#7a5a00; border:1px solid var(--gold); }
   .turn.bat   { background:#e6f4e6; color:#0d6a0d; border:1px solid var(--lime); }
 
-  /* Pitch cards (투수 손패) */
+  /* Pitch cards */
   .hand { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .pcard { background:#fff; border:2px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; transition:transform .12s, border-color .12s; font-weight:800; }
-  .pcard:hover { transform: translateY(-3px); border-color:var(--ink); }
+  .pcard { position:relative; background:#fff; border:2px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; transition:transform .12s, border-color .12s; font-weight:800; }
+  .pcard:not([disabled]):not(.playing) { animation: card-shimmer 2400ms ease-in-out infinite; }
+  .pcard:hover { transform:translateY(-3px); border-color:var(--ink); }
   .pcard.fastball { background:#fffaf0; }
   .pcard.slider   { background:#fff6d6; }
   .pcard.curve    { background:#ffe8e8; }
+  .pcard.playing  { animation: card-played 600ms ease-out; }
   .pcard small { display:block; font-size:11px; color:var(--sub); font-weight:500; margin-top:4px; }
   .pcard[disabled] { opacity:.4; cursor:not-allowed; pointer-events:none; }
 
   /* Prompt + choices */
-  .prompt { font-size:28px; font-weight:800; text-align:center; padding:18px 8px; border-radius:12px; margin-bottom:10px; min-height:70px; display:flex; align-items:center; justify-content:center; word-break:keep-all; }
+  .prompt { font-size:26px; font-weight:800; text-align:center; padding:18px 8px; border-radius:12px; margin-bottom:10px; min-height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; word-break:keep-all; transition:opacity 200ms; }
+  .prompt.hidden { opacity:0; pointer-events:none; }
   .prompt.fastball { background:#fff3d9; }
   .prompt.slider   { background:#fff6b8; }
   .prompt.curve    { background:#ffd6d6; }
-  .prompt .ptype { display:block; font-size:12px; color:var(--sub); font-weight:600; margin-bottom:6px; }
-  .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .prompt .ptype { font-size:12px; color:var(--sub); font-weight:600; margin-bottom:6px; }
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; transition:opacity 200ms; }
+  .choices.hidden { opacity:0; pointer-events:none; }
   .choice { padding:14px 10px; font-size:15px; font-weight:700; background:#fff; border:2px solid var(--line); border-radius:12px; cursor:pointer; transition:transform .1s, border-color .1s; }
   .choice:hover { border-color:var(--ink); }
-  .choice.correct { background:#dff3dd; border-color:var(--lime); }
-  .choice.wrong   { background:#fde2e2; border-color:var(--red); }
+  .choice.correct { background:#dff3dd; border-color:var(--lime); animation: bounce-correct 500ms ease-out; }
+  .choice.wrong   { background:#fde2e2; border-color:var(--red); animation: shake-wrong 400ms ease-out; }
   .choice[disabled] { cursor:not-allowed; }
 
+  /* Flash layers */
+  .flash { position:fixed; inset:0; pointer-events:none; opacity:0; z-index:900; }
+  .flash.green { background:rgba(88,204,2,.3); }
+  .flash.red   { background:rgba(229,62,62,.3); }
+  .flash.green.on { animation: flash-green 450ms ease-out; }
+  .flash.red.on   { animation: flash-red   450ms ease-out; }
+
+  /* Callout */
   .callout { text-align:center; padding:10px; font-weight:800; font-size:16px; border-radius:10px; margin:10px 0; opacity:0; transition:opacity .2s; min-height:42px; }
   .callout.show { opacity:1; }
   .callout.hit  { background:#dff3dd; color:#0d6a0d; }
   .callout.out  { background:#fde2e2; color:#9b1c1c; }
   .callout.info { background:#eef2ff; color:#374151; }
 
-  /* Sidebar — event log */
-  .sidebar { position: sticky; top: 12px; align-self: start; }
-  .log { max-height: 420px; overflow:auto; font-family: 'SF Mono', Menlo, monospace; font-size:12px; }
-  .log .row { padding:6px 8px; border-bottom:1px dashed var(--line); }
-  .log .row:last-child { border-bottom: none; }
+  /* Half switch overlay */
+  .half-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:900; color:#fff; text-shadow:0 4px 20px rgba(0,0,0,.5); background:rgba(31,41,51,.85); z-index:820; opacity:0; pointer-events:none; }
+  .half-overlay.show { animation: half-show 1400ms ease-in-out; }
+
+  /* End overlay */
+  .end-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; background:linear-gradient(135deg, #fff7e0, #ffe8c8, #ffddaa, #fff7e0); background-size:300% 300%; z-index:830; opacity:0; pointer-events:none; transition:opacity 300ms; }
+  .end-overlay.show { opacity:1; pointer-events:auto; animation: bg-gradient-move 6s ease-in-out infinite; }
+  .end-overlay .trophy { font-size:120px; animation: trophy-zoom 800ms cubic-bezier(.3,1.5,.5,1); }
+  .end-overlay .title { font-size:32px; font-weight:900; margin-top:12px; }
+  .end-overlay .score-final { font-size:22px; margin-top:8px; font-family:'SF Mono', Menlo, monospace; }
+  .end-overlay .close-btn { margin-top:24px; padding:10px 24px; background:var(--lime); color:#fff; border:none; border-radius:999px; font-weight:800; font-size:14px; cursor:pointer; }
+
+  /* Confetti canvas */
+  canvas.confetti { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:950; }
+
+  /* Sidebar */
+  .sidebar { position:sticky; top:12px; align-self:start; }
+  .log { max-height:420px; overflow:auto; font-family:'SF Mono', Menlo, monospace; font-size:12px; }
+  .log .row { padding:6px 8px; border-bottom:1px dashed var(--line); animation: log-slidedown 300ms ease-out; }
+  .log .row:last-child { border-bottom:none; }
   .log .dir { display:inline-block; width:40px; color:var(--sub); }
-  .log .t   { color:var(--sub); }
+  .log .t { color:var(--sub); }
   .log .type { color:var(--blue); font-weight:700; }
   .log details { margin-top:4px; }
   .log details pre { margin:4px 0 0; color:#374151; background:#f3f4f6; padding:6px; border-radius:6px; font-size:11px; overflow:auto; }
@@ -93,17 +142,131 @@
   .btn { padding:8px 14px; border-radius:10px; border:2px solid var(--line); background:#fff; cursor:pointer; font-weight:700; font-size:13px; }
   .btn.primary { background:var(--lime); color:#fff; border-color:var(--lime-d); }
   .btn:hover { border-color:var(--ink); }
-
   .role-switch { display:flex; gap:6px; }
   .role-switch .btn.on { background:var(--ink); color:#fff; border-color:var(--ink); }
 
-  .end { text-align:center; padding:20px; background:#fff7e0; border-radius:12px; font-weight:800; font-size:18px; color:#7a5a00; }
+  /* ===== Keyframes ===== */
+  @keyframes ball-fastball {
+    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
+    100% { top:258px; transform:translate(-50%, 0) rotate(720deg); }
+  }
+  @keyframes ball-slider {
+    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
+    25%  { top:70px;  transform:translate(calc(-50% + 30px), 0) rotate(180deg); }
+    50%  { top:140px; transform:translate(calc(-50% - 30px), 0) rotate(360deg); }
+    75%  { top:210px; transform:translate(calc(-50% + 20px), 0) rotate(540deg); }
+    100% { top:258px; transform:translate(-50%, 0) rotate(720deg); }
+  }
+  @keyframes ball-curve {
+    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
+    55%  { top:110px; transform:translate(-50%, 0) rotate(360deg); }
+    100% { top:258px; transform:translate(calc(-50% + 16px), 32px) rotate(720deg); }
+  }
+  @keyframes bounce-correct {
+    0%   { transform:scale(1); }
+    30%  { transform:scale(1.12); }
+    60%  { transform:scale(0.96); }
+    100% { transform:scale(1); }
+  }
+  @keyframes shake-wrong {
+    0%,100% { transform:translateX(0); }
+    20% { transform:translateX(-6px); }
+    40% { transform:translateX(6px); }
+    60% { transform:translateX(-4px); }
+    80% { transform:translateX(4px); }
+  }
+  @keyframes shake-screen {
+    0%,100% { transform:translate(0,0); }
+    25% { transform:translate(-2px, 1px); }
+    50% { transform:translate(2px, -1px); }
+    75% { transform:translate(-1px, 2px); }
+  }
+  @keyframes flash-green { 0% { opacity:0; } 30% { opacity:1; } 100% { opacity:0; } }
+  @keyframes flash-red   { 0% { opacity:0; } 30% { opacity:1; } 100% { opacity:0; } }
+  @keyframes windup {
+    0%   { transform:translateX(-50%) scale(1)     rotate(0); }
+    40%  { transform:translateX(-50%) scale(1.15) rotate(-15deg); }
+    70%  { transform:translateX(-50%) scale(0.9)  rotate(20deg); }
+    100% { transform:translateX(-50%) scale(1)     rotate(0); }
+  }
+  @keyframes swing {
+    0%,100% { transform:translateX(-50%) rotate(0); }
+    50% { transform:translateX(-42%) rotate(-32deg); }
+  }
+  @keyframes whiff {
+    0%,100% { transform:translateX(-50%) rotate(0); }
+    30% { transform:translateX(-58%) rotate(40deg); }
+    60% { transform:translateX(-45%) rotate(-20deg); }
+  }
+  @keyframes card-played {
+    0%   { transform:translateY(0) scale(1); }
+    30%  { transform:translateY(-40px) scale(1.15); }
+    70%  { transform:translateY(-18px) scale(0.95); }
+    100% { transform:translateY(0) scale(1); }
+  }
+  @keyframes card-shimmer {
+    0%,100% { box-shadow: 0 0 0 rgba(255,200,0,0); }
+    50%     { box-shadow: 0 0 14px rgba(255,200,0,.5); }
+  }
+  @keyframes count-pulse {
+    0%   { transform:scale(1); }
+    40%  { transform:scale(1.6); }
+    100% { transform:scale(1); }
+  }
+  @keyframes diamond-pulse {
+    0%,100% { transform:scale(1); filter:drop-shadow(0 0 0 rgba(255,200,0,0)); }
+    50% { transform:scale(1.06); filter:drop-shadow(0 0 20px rgba(255,200,0,.8)); }
+  }
+  @keyframes home-glow {
+    0%,100% { box-shadow:0 0 0 rgba(255,200,0,0); transform:translateX(-50%) rotate(45deg) scale(1); }
+    50% { box-shadow:0 0 28px 10px rgba(255,200,0,.85); transform:translateX(-50%) rotate(45deg) scale(1.4); }
+  }
+  @keyframes base-flash {
+    0%,100% { background:var(--gold); }
+    50% { background:#fff; }
+  }
+  @keyframes num-roll {
+    0%   { transform:translateY(0); opacity:1; }
+    40%  { transform:translateY(-12px); opacity:0; }
+    41%  { transform:translateY(12px); opacity:0; }
+    100% { transform:translateY(0); opacity:1; }
+  }
+  @keyframes inning-tick {
+    0%   { transform:rotateX(0); }
+    50%  { transform:rotateX(90deg); }
+    100% { transform:rotateX(0); }
+  }
+  @keyframes log-slidedown {
+    0% { opacity:0; transform:translateY(-8px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  @keyframes half-show {
+    0%,100% { opacity:0; transform:scale(0.9); }
+    20%,80% { opacity:1; transform:scale(1); }
+  }
+  @keyframes trophy-zoom {
+    0%   { transform:scale(0); }
+    80%  { transform:scale(1.25); }
+    100% { transform:scale(1); }
+  }
+  @keyframes bg-gradient-move {
+    0%,100% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <main>
-    <h1>⚾ 단어야구 보드게임 <span class="pill">PvP 목업</span></h1>
+    <h1>⚾ 단어야구 보드게임 <span class="pill">PvP 목업 v2</span></h1>
 
     <div class="card">
       <div class="controls" style="justify-content:space-between;">
@@ -121,12 +284,19 @@
         <div class="vs">VS</div>
         <div class="teamname" style="text-align:right;">HOME</div><div class="num" id="homeScore">0</div>
       </div>
-      <div class="diamond" aria-label="베이스 상황">
-        <div class="base b2" id="base2"></div>
-        <div class="base b3" id="base3"></div>
-        <div class="base b1" id="base1"></div>
-        <div class="home"></div>
+
+      <div class="field" aria-label="야구장">
+        <div class="pitcher-icon" id="pitcherChar">🧢</div>
+        <div class="diamond" id="diamond">
+          <div class="base b2" id="base2"></div>
+          <div class="base b3" id="base3"></div>
+          <div class="base b1" id="base1"></div>
+          <div class="home" id="homePlate"></div>
+        </div>
+        <div class="batter-icon" id="batterChar">🏏</div>
+        <div class="ball" id="ball"></div>
       </div>
+
       <div class="count">
         <span class="label">B</span>
         <span class="dot" id="b1"></span><span class="dot" id="b2"></span><span class="dot" id="b3"></span>
@@ -151,12 +321,11 @@
     </div>
 
     <div class="card" id="batterPanel" hidden>
-      <div class="prompt" id="prompt"><span class="ptype" id="ptype"></span><span id="promptText">대기 중…</span></div>
-      <div class="choices" id="choices"></div>
+      <div class="prompt hidden" id="prompt"><span class="ptype" id="ptype"></span><span id="promptText">대기 중…</span></div>
+      <div class="choices hidden" id="choices"></div>
     </div>
 
     <div class="callout" id="callout"></div>
-    <div id="endBox"></div>
   </main>
 
   <aside class="sidebar">
@@ -170,15 +339,31 @@
   </aside>
 </div>
 
+<div class="flash green" id="flashGreen"></div>
+<div class="flash red" id="flashRed"></div>
+<div class="half-overlay" id="halfOverlay">🔄 공수교대!</div>
+<canvas class="confetti" id="confetti"></canvas>
+<div class="end-overlay" id="endOverlay">
+  <div class="trophy">🏆</div>
+  <div class="title" id="endTitle">GAME END</div>
+  <div class="score-final" id="endScore"></div>
+  <button class="close-btn" id="endClose">다시하기</button>
+</div>
+
 <script type="module">
   import { EV } from './js/pvp-proto.js';
   import { createMockTransport } from './js/pvp-transport-mock.js';
 
   const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
   const els = {
     awayScore: $('#awayScore'), homeScore: $('#homeScore'),
     inningLabel: $('#inningLabel'), turnBadge: $('#turnBadge'),
     base1: $('#base1'), base2: $('#base2'), base3: $('#base3'),
+    homePlate: $('#homePlate'), diamond: $('#diamond'),
     bDots: [$('#b1'),$('#b2'),$('#b3')],
     sDots: [$('#s1'),$('#s2')],
     oDots: [$('#o1'),$('#o2')],
@@ -188,31 +373,129 @@
     choices: $('#choices'),
     callout: $('#callout'),
     log: $('#log'),
-    endBox: $('#endBox'),
     roleSwitch: $('#roleSwitch'),
+    pitcherChar: $('#pitcherChar'), batterChar: $('#batterChar'),
+    ball: $('#ball'),
+    flashGreen: $('#flashGreen'), flashRed: $('#flashRed'),
+    halfOverlay: $('#halfOverlay'),
+    endOverlay: $('#endOverlay'), endTitle: $('#endTitle'), endScore: $('#endScore'), endClose: $('#endClose'),
+    confetti: $('#confetti'),
   };
 
   let role = 'batter';
   let transport = null;
   let lastThrown = null;
   let locked = false;
+  let pickedLast = -1;
+  let prevState = null;
 
-  function pitchClassFor(type) {
-    return type === '직구' ? 'fastball' : type === '슬라이더' ? 'slider' : 'curve';
-  }
+  function pitchClassFor(type) { return type === '직구' ? 'fastball' : type === '슬라이더' ? 'slider' : 'curve'; }
 
   function showCallout(text, cls = 'info', hold = 1400) {
     els.callout.textContent = text;
     els.callout.className = 'callout show ' + cls;
     clearTimeout(showCallout._t);
-    showCallout._t = setTimeout(() => {
-      els.callout.classList.remove('show');
-    }, hold);
+    showCallout._t = setTimeout(() => { els.callout.classList.remove('show'); }, hold);
   }
 
+  // --- Animations ---
+  async function playBallFlight(type) {
+    const cls = 'flying-' + pitchClassFor(type);
+    els.ball.className = 'ball';
+    void els.ball.offsetWidth;
+    els.ball.className = 'ball ' + cls;
+    await sleep(900);
+    els.ball.className = 'ball';
+  }
+  function windupPitcher() { restart(els.pitcherChar, 'windup'); }
+  function batterSwing(correct) {
+    els.batterChar.classList.remove('swung','whiff');
+    void els.batterChar.offsetWidth;
+    els.batterChar.classList.add(correct ? 'swung' : 'whiff');
+  }
+  function flashResult(correct) {
+    const el = correct ? els.flashGreen : els.flashRed;
+    restart(el, 'on');
+    if (!correct) {
+      restart(document.body, 'shake-screen');
+      setTimeout(() => document.body.classList.remove('shake-screen'), 400);
+    }
+  }
+  function animateScoreRoll(id, newVal) {
+    const el = document.getElementById(id);
+    restart(el, 'rolling');
+    setTimeout(() => { el.textContent = newVal; }, 200);
+    setTimeout(() => el.classList.remove('rolling'), 520);
+  }
+  function pulseDiamond() { restart(els.diamond, 'pulse'); }
+  function glowHome()     { restart(els.homePlate, 'glow'); }
+  function pulseCountDot(el) { if (!el) return; restart(el, 'pulse'); }
+  async function showHalfOverlay() {
+    restart(els.halfOverlay, 'show');
+    await sleep(1400);
+    els.halfOverlay.classList.remove('show');
+  }
+  function tickInning() {
+    const el = els.inningLabel.querySelector('b');
+    if (!el) return;
+    restart(el, 'tick');
+  }
+  function windupCard(pitchType) {
+    const btn = document.querySelector(`.pcard[data-pitch="${pitchType}"]`);
+    if (!btn) return;
+    restart(btn, 'playing');
+    setTimeout(() => btn.classList.remove('playing'), 600);
+  }
+
+  // --- Confetti ---
+  let confettiRaf = null;
+  function burstConfetti(count = 80) {
+    const cv = els.confetti;
+    cv.width = innerWidth; cv.height = innerHeight;
+    const ctx = cv.getContext('2d');
+    const colors = ['#58cc02','#2b8cff','#ffc800','#e53e3e','#9b51e0','#00c4a7'];
+    const parts = [];
+    for (let i=0; i<count; i++) {
+      parts.push({
+        x: innerWidth/2 + (Math.random()-0.5)*200,
+        y: innerHeight*0.55,
+        vx: (Math.random()-0.5)*10,
+        vy: Math.random()*-16 - 4,
+        g: 0.35 + Math.random()*0.2,
+        rot: Math.random()*360,
+        vrot: (Math.random()-0.5)*20,
+        size: 6 + Math.random()*8,
+        color: colors[i % colors.length],
+        life: 1,
+      });
+    }
+    if (confettiRaf) cancelAnimationFrame(confettiRaf);
+    let t0 = performance.now();
+    function frame(t) {
+      const dt = Math.min(40, t - t0) / 16.7; t0 = t;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      let alive = 0;
+      for (const p of parts) {
+        if (p.life <= 0) continue;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; p.rot += p.vrot * dt;
+        p.life -= 0.008 * dt;
+        if (p.life <= 0) continue;
+        alive++;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI/180);
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.4);
+        ctx.restore();
+      }
+      if (alive > 0) confettiRaf = requestAnimationFrame(frame);
+      else { ctx.clearRect(0,0,cv.width,cv.height); confettiRaf = null; }
+    }
+    confettiRaf = requestAnimationFrame(frame);
+  }
+
+  // --- State render ---
   function renderState(s) {
-    els.awayScore.textContent = s.awayScore;
-    els.homeScore.textContent = s.homeScore;
     els.inningLabel.innerHTML = `<b>${s.inning}회${s.half === 'top' ? '초' : '말'}</b>`;
     els.base1.classList.toggle('on', !!s.bases[0]);
     els.base2.classList.toggle('on', !!s.bases[1]);
@@ -224,11 +507,30 @@
     if (s.phase === 'END') {
       els.turnBadge.textContent = 'GAME END';
       els.turnBadge.className = 'turn';
-      return;
+    } else {
+      const mine = s.whoseTurn === role;
+      els.turnBadge.textContent = `TURN: ${s.whoseTurn === 'pitcher' ? '투수' : '타자'} ${mine ? '(내 차례)' : '(상대)'}`;
+      els.turnBadge.className = 'turn ' + (s.whoseTurn === 'pitcher' ? 'pitch' : 'bat');
     }
-    const mine = s.whoseTurn === role;
-    els.turnBadge.textContent = `TURN: ${s.whoseTurn === 'pitcher' ? '투수' : '타자'} ${mine ? '(내 차례)' : '(상대)'}`;
-    els.turnBadge.className = 'turn ' + (s.whoseTurn === 'pitcher' ? 'pitch' : 'bat');
+
+    // Diff-driven animations
+    if (prevState) {
+      for (let i = 0; i < 3; i++) {
+        if (s.balls > prevState.balls && i === s.balls - 1) pulseCountDot(els.bDots[i]);
+        if (s.strikes > prevState.strikes && i === s.strikes - 1) pulseCountDot(els.sDots[i]);
+        if (s.outs > prevState.outs && i === s.outs - 1) pulseCountDot(els.oDots[i]);
+      }
+      if (s.awayScore !== prevState.awayScore) animateScoreRoll('awayScore', s.awayScore);
+      else els.awayScore.textContent = s.awayScore;
+      if (s.homeScore !== prevState.homeScore) animateScoreRoll('homeScore', s.homeScore);
+      else els.homeScore.textContent = s.homeScore;
+      if (s.half !== prevState.half) showHalfOverlay();
+      if (s.inning !== prevState.inning) tickInning();
+    } else {
+      els.awayScore.textContent = s.awayScore;
+      els.homeScore.textContent = s.homeScore;
+    }
+    prevState = s;
   }
 
   function renderPitcherPanel(myTurn) {
@@ -242,6 +544,7 @@
     els.ptype.textContent = `⚾ ${q.type}`;
     els.promptText.textContent = q.prompt;
     els.prompt.className = 'prompt ' + pitchClassFor(q.type);
+    els.choices.className = 'choices';
     els.choices.innerHTML = '';
     q.options.forEach((opt, i) => {
       const b = document.createElement('button');
@@ -251,13 +554,15 @@
       els.choices.appendChild(b);
     });
     locked = false;
+    pickedLast = -1;
   }
-  function disableChoices(correctIndex = -1, pickedIndex = -1) {
-    [...els.choices.children].forEach((b, i) => {
-      b.disabled = true;
-      if (i === correctIndex) b.classList.add('correct');
-      if (i === pickedIndex && i !== correctIndex) b.classList.add('wrong');
-    });
+  function hideBatterPanel() {
+    els.prompt.classList.add('hidden');
+    els.choices.classList.add('hidden');
+  }
+  function revealBatterPanel() {
+    els.prompt.classList.remove('hidden');
+    els.choices.classList.remove('hidden');
   }
 
   function swing(idx, btn) {
@@ -266,12 +571,12 @@
     pickedLast = idx;
     transport.send(EV.BAT_ANSWER, { pickedIndex: idx });
   }
-
   function selectPitch(type) {
+    windupCard(type);
     transport.send(EV.PITCH_SELECT, { type });
   }
 
-  // --- Event log rendering ---
+  // --- Event log ---
   function renderLogRow(dir, env) {
     const row = document.createElement('div');
     row.className = 'row';
@@ -283,6 +588,7 @@
   }
   function escape(s) { return s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
 
+  // --- Sequenced event handlers ---
   function wireTransport(t) {
     const origSend = t.send;
     t.send = (type, payload) => {
@@ -294,40 +600,60 @@
       renderState(s);
       if (s.phase === 'IDLE') renderPitcherPanel(s.whoseTurn === 'pitcher' && role === 'pitcher');
     });
-    t.on(EV.PITCH_THROWN, (q, env) => {
+    t.on(EV.PITCH_THROWN, async (q, env) => {
       renderLogRow('S→C', env);
       lastThrown = q;
-      if (role === 'batter') renderBatterPanel(q);
-      else {
-        // Pitcher side sees "공 던짐" info, not the prompt as a quiz.
-        showCallout(`공을 던졌어요: ${q.type}`, 'info');
+      hideBatterPanel();
+      windupPitcher();
+      await sleep(300);
+      await playBallFlight(q.type);
+      if (role === 'batter') {
+        renderBatterPanel(q);
+        revealBatterPanel();
+      } else {
+        showCallout(`공을 던졌어요: ${q.type}`, 'info', 900);
       }
     });
     t.on(EV.TURN_START, (_, env) => renderLogRow('S→C', env));
-    t.on(EV.PLAY_RESULT, (r, env) => {
+    t.on(EV.PLAY_RESULT, async (r, env) => {
       renderLogRow('S→C', env);
-      const cls = r.correct ? 'hit' : 'out';
-      const msg = `${r.type} · ${r.result}${r.runs > 0 ? ` · +${r.runs}점` : ''}`;
-      showCallout(msg, cls);
       if (role === 'batter' && pickedLast >= 0) {
         const btn = els.choices.children[pickedLast];
         if (btn) btn.classList.add(r.correct ? 'correct' : 'wrong');
         [...els.choices.children].forEach(b => { b.disabled = true; });
       }
+      batterSwing(r.correct);
+      flashResult(r.correct);
+      const msg = `${r.type} · ${r.result}${r.runs > 0 ? ` · +${r.runs}점` : ''}`;
+      showCallout(msg, r.correct ? 'hit' : 'out');
+      if (r.runs > 0) {
+        pulseDiamond();
+        glowHome();
+        burstConfetti(40 + r.runs * 24);
+      }
     });
-    t.on(EV.GAME_END, (r, env) => {
+    t.on(EV.GAME_END, async (r, env) => {
       renderLogRow('S→C', env);
-      const winnerLabel = r.winner === 'tie' ? '무승부' : (r.winner === 'home' ? '홈팀 승' : '원정팀 승');
-      els.endBox.innerHTML = `<div class="end">🏆 ${winnerLabel} — ${r.away} : ${r.home}</div>`;
+      await sleep(600);
+      burstConfetti(220);
+      const winnerLabel = r.winner === 'tie'
+        ? '⚾ 무승부!'
+        : (r.winner === 'home' ? '🎉 홈팀 승리!' : '🎉 원정팀 승리!');
+      els.endTitle.textContent = winnerLabel;
+      els.endScore.textContent = `AWAY ${r.away} : ${r.home} HOME`;
+      els.endOverlay.classList.add('show');
     });
   }
 
-  let pickedLast = -1;
   function startGame() {
     if (transport) transport.close();
     els.log.innerHTML = '';
-    els.endBox.innerHTML = '';
-    showCallout('게임 시작!', 'info', 1200);
+    els.endOverlay.classList.remove('show');
+    prevState = null;
+    pickedLast = -1;
+    locked = false;
+    hideBatterPanel();
+    showCallout('게임 시작!', 'info', 1000);
     transport = createMockTransport({ humanRole: role, tier: 1 });
     wireTransport(transport);
     transport.send(EV.ROOM_JOIN, { roomId: 'mock-1', role, nick: 'you' });
@@ -345,10 +671,13 @@
     });
   });
   document.getElementById('clearLogBtn').addEventListener('click', () => { els.log.innerHTML = ''; });
-
   document.querySelectorAll('.pcard').forEach(b => {
     b.addEventListener('click', () => selectPitch(b.dataset.pitch));
   });
+  els.endClose.addEventListener('click', () => { els.endOverlay.classList.remove('show'); startGame(); });
+
+  // Ensure batter panel visible for default batter role
+  els.batterPanel.hidden = false;
 
   // kick off
   startGame();
