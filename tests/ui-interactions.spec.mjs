@@ -25,7 +25,18 @@ const check = async (name, fn) => {
 const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
 
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 420, height: 900 } });
+const context = await browser.newContext({ viewport: { width: 420, height: 900 } });
+// Pre-seed creature to skip r1 onboarding dialog — this test targets pre-r1 static UI.
+await context.addInitScript(() => {
+  localStorage.setItem('wg.v1.creature', JSON.stringify({
+    id: 'c-ui-test', name: '테스트', speciesKey: 'sprout', personality: 'brave',
+    stage: 1, hunger: 100, bond: 0, mood: 'happy',
+    bornAt: '2026-04-19T10:00:00.000Z',
+    lastInteractionAt: '2026-04-19T10:00:00.000Z',
+    lastTickedAt: '2026-04-19T10:00:00.000Z',
+  }));
+});
+const page = await context.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });

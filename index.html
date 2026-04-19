@@ -1573,6 +1573,178 @@
     overflow: hidden; clip: rect(0,0,0,0);
     white-space: nowrap; border: 0;
   }
+
+  /* ==================================================================
+     Alive r1 — FAB / modal / onboarding / vitals
+     ================================================================== */
+  .fab-add {
+    position: fixed;
+    right: max(16px, calc(50% - 210px + 16px));
+    bottom: 72px;
+    width: 56px; height: 56px;
+    background: var(--pri);
+    color: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    box-shadow: 3px 3px 0 var(--ink);
+    font: 800 28px/1 var(--disp);
+    display: grid; place-items: center;
+    z-index: 20;
+    transition: transform .12s var(--e-out);
+  }
+  .fab-add:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+  dialog.modal-wg {
+    width: min(92%, 360px);
+    padding: 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 4px 4px 0 var(--ink);
+    position: relative;
+  }
+  dialog.modal-wg::backdrop { background: rgba(20, 22, 30, .55); }
+  dialog.modal-wg::before {
+    content: "";
+    position: absolute; inset: 2px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .modal-head {
+    padding: 14px 16px 10px;
+    border-bottom: 2px solid var(--ink);
+    background: var(--ink);
+    color: #fff;
+    font: 800 14px/1 var(--disp);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .modal-body { padding: 14px 16px; display: grid; gap: 10px; }
+  .modal-foot {
+    padding: 10px 16px 14px;
+    display: flex; gap: 8px; justify-content: flex-end;
+    border-top: 1px dashed var(--line-deep);
+  }
+  .field {
+    display: grid; gap: 4px;
+    font: 700 12px/1.2 var(--disp);
+    letter-spacing: .04em;
+    color: var(--ink-2);
+  }
+  .field input,
+  .field select {
+    width: 100%;
+    padding: 8px 10px;
+    font: 500 14px/1.2 var(--body);
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    outline: none;
+  }
+  .field input:focus,
+  .field select:focus { box-shadow: 2px 2px 0 var(--pri); border-color: var(--pri); }
+  .field-err { font: 600 11px/1.2 var(--body); color: var(--hot); min-height: 14px; }
+
+  .btn-wg {
+    padding: 9px 14px;
+    font: 800 13px/1 var(--disp);
+    letter-spacing: .04em;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .btn-wg[data-variant="primary"] { background: var(--pri); color: #fff; }
+  .btn-wg:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+
+  .egg-grid, .personality-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .personality-grid { grid-template-columns: repeat(2, 1fr); }
+  .egg-pick, .per-pick {
+    padding: 10px 8px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 12px/1.2 var(--disp);
+    color: var(--ink);
+    display: grid; gap: 6px; place-items: center;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .egg-pick[aria-pressed="true"],
+  .per-pick[aria-pressed="true"] {
+    background: var(--pri-soft);
+    box-shadow: 1px 1px 0 var(--ink);
+    transform: translate(1px, 1px);
+  }
+  .egg-pick .egg {
+    width: 40px; height: 46px;
+    border: 2px solid var(--ink);
+    border-radius: 50% 50% 44% 44% / 55% 55% 40% 40%;
+    background: var(--c, var(--pri-soft));
+    position: relative;
+  }
+  .egg-pick .egg::after {
+    content: "";
+    position: absolute; inset: 4px 8px auto 8px; height: 6px;
+    border-bottom: 2px dashed rgba(20, 22, 30, .35);
+  }
+
+  .vitals-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 6px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 11px/1 var(--disp);
+    color: var(--ink);
+    letter-spacing: .04em;
+  }
+  .vitals-badge .bar {
+    width: 28px; height: 5px;
+    background: var(--surface-3);
+    border: 1px solid var(--ink);
+    border-radius: var(--r-1);
+    overflow: hidden;
+  }
+  .vitals-badge .bar i {
+    display: block; height: 100%;
+    width: var(--v, 100%);
+    background: var(--hp-full);
+  }
+  .vitals-badge[data-low="true"] .bar i { background: var(--hp-low); }
+  .vitals-badge[data-crit="true"] .bar i { background: var(--hp-crit); }
+
+  .toast-wg {
+    position: fixed;
+    left: 50%; bottom: 96px;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+    background: var(--ink);
+    color: #fff;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    box-shadow: 3px 3px 0 rgba(20, 22, 30, .25);
+    font: 700 13px/1 var(--disp);
+    letter-spacing: .02em;
+    z-index: 30;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s var(--e-out), transform .2s var(--e-out);
+  }
+  .toast-wg[data-show="true"] { opacity: 1; transform: translate(-50%, -4px); }
+
+  .empty-words {
+    padding: 14px 16px;
+    text-align: center;
+    font: 600 13px/1.4 var(--body);
+    color: var(--ink-3);
+  }
 </style>
 </head>
 
@@ -2036,6 +2208,9 @@
           <button type="button" class="filter" aria-pressed="false" onclick="toggleFilter(this)">외움<span class="n">250</span></button>
         </div>
 
+        <!-- 학생이 직접 추가한 단어 (동적) -->
+        <div class="word-list" id="word-list-dyn" aria-label="내가 추가한 단어"></div>
+
         <div class="word-list">
           <button class="word-row">
             <span class="stage-icon" data-stage="2" style="color: var(--t-adj)">
@@ -2236,7 +2411,7 @@
             </span>
           </button>
         </div>
-        <div style="height: 24px"></div>
+        <div style="height: 96px"></div>
       </div>
     </section>
 
@@ -2522,7 +2697,102 @@
     </button>
   </nav>
 
+  <!-- 단어 추가 FAB — mywords 서브팬 활성 시만 노출 -->
+  <button type="button" class="fab-add" id="btn-add-word" aria-label="단어 추가" hidden>
+    <span aria-hidden="true">+</span>
+  </button>
+
+  <!-- Toast for r1 actions -->
+  <div class="toast-wg" id="toast-wg" role="status" aria-live="polite"></div>
+
 </div>
+
+<!-- ============================================================
+     Alive r1 — onboarding + add-word dialogs
+     ============================================================ -->
+<dialog class="modal-wg" id="dlg-onboard" aria-labelledby="dlg-onboard-title">
+  <form method="dialog" id="form-onboard">
+    <div class="modal-head" id="dlg-onboard-title">새 친구 만나기</div>
+    <div class="modal-body">
+      <!-- step 1 -->
+      <div data-step="1">
+        <div class="field"><span>어떤 알을 부화시킬까요?</span></div>
+        <div class="egg-grid" role="radiogroup" aria-label="알 선택">
+          <button type="button" class="egg-pick" data-species="sprout" aria-pressed="false">
+            <span class="egg" style="--c: #dff2e6"></span>초록 새싹
+          </button>
+          <button type="button" class="egg-pick" data-species="ember" aria-pressed="false">
+            <span class="egg" style="--c: #fbe5e7"></span>불씨
+          </button>
+          <button type="button" class="egg-pick" data-species="droplet" aria-pressed="false">
+            <span class="egg" style="--c: #e4eefb"></span>물방울
+          </button>
+        </div>
+        <div class="field-err" id="err-species"></div>
+      </div>
+      <!-- step 2 (hidden initially) -->
+      <div data-step="2" hidden>
+        <label class="field">
+          <span>이름을 지어주세요 (1~10자)</span>
+          <input type="text" id="inp-name" maxlength="10" autocomplete="off" />
+        </label>
+        <div class="field-err" id="err-name"></div>
+      </div>
+      <!-- step 3 -->
+      <div data-step="3" hidden>
+        <div class="field"><span>성격은?</span></div>
+        <div class="personality-grid" role="radiogroup" aria-label="성격 선택">
+          <button type="button" class="per-pick" data-personality="brave"   aria-pressed="false">용감한</button>
+          <button type="button" class="per-pick" data-personality="gentle"  aria-pressed="false">상냥한</button>
+          <button type="button" class="per-pick" data-personality="curious" aria-pressed="false">호기심 많은</button>
+          <button type="button" class="per-pick" data-personality="lazy"    aria-pressed="false">느긋한</button>
+        </div>
+        <div class="field-err" id="err-personality"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-wg" id="btn-onboard-back" hidden>이전</button>
+      <button type="button" class="btn-wg" data-variant="primary" id="btn-onboard-next">다음</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal-wg" id="dlg-add-word" aria-labelledby="dlg-add-word-title">
+  <form method="dialog" id="form-add-word">
+    <div class="modal-head" id="dlg-add-word-title">단어 추가</div>
+    <div class="modal-body">
+      <label class="field">
+        <span>영어 단어</span>
+        <input type="text" id="aw-word" autocomplete="off" required />
+      </label>
+      <label class="field">
+        <span>뜻</span>
+        <input type="text" id="aw-meaning" autocomplete="off" required />
+      </label>
+      <label class="field">
+        <span>품사</span>
+        <select id="aw-pos" required>
+          <option value="">선택</option>
+          <option value="noun">명사</option>
+          <option value="verb">동사</option>
+          <option value="adj">형용사</option>
+          <option value="adv">부사</option>
+          <option value="prep">전치사</option>
+          <option value="conj">접속사</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>예문 (선택)</span>
+        <input type="text" id="aw-example" autocomplete="off" />
+      </label>
+      <div class="field-err" id="err-add-word"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-wg" id="btn-add-cancel">취소</button>
+      <button type="submit" class="btn-wg" data-variant="primary" id="btn-add-submit">추가</button>
+    </div>
+  </form>
+</dialog>
 
 <script>
   const body = document.body;
@@ -2560,6 +2830,278 @@
       f.setAttribute('aria-pressed', f === el ? 'true' : 'false');
     });
   }
+</script>
+
+<script type="module">
+  import { createStore, seed, migrate, KEYS } from './js/state.js';
+  import { addWord } from './js/vocab.js';
+  import {
+    createCreature, tick, interact, moodOf,
+    STARTER_SPECIES, PERSONALITIES,
+  } from './js/creature.js';
+
+  const CREATURE_KEY = 'wg.v1.creature';
+  const store = createStore(localStorage);
+  seed(store);
+  migrate(store);
+
+  function toast(msg) {
+    const t = document.getElementById('toast-wg');
+    if (!t) return;
+    t.textContent = msg;
+    t.dataset.show = 'true';
+    clearTimeout(toast._h);
+    toast._h = setTimeout(() => { t.dataset.show = 'false'; }, 1800);
+  }
+
+  function readCreature() {
+    try { return JSON.parse(localStorage.getItem(CREATURE_KEY)); } catch { return null; }
+  }
+  function writeCreature(c) {
+    localStorage.setItem(CREATURE_KEY, JSON.stringify(c));
+    document.body.dataset.creature = c ? 'ready' : '';
+    renderVitals();
+  }
+
+  function renderVitals() {
+    const c = readCreature();
+    if (!c) return;
+    const ticked = tick(c, new Date().toISOString());
+    if (ticked.hunger !== c.hunger) writeCreature(ticked);
+    // Inject vitals badges into HUD once
+    let host = document.getElementById('hud-vitals');
+    if (!host) {
+      const hud = document.querySelector('.hud');
+      if (!hud) return;
+      host = document.createElement('span');
+      host.id = 'hud-vitals';
+      host.style.cssText = 'display:inline-flex;gap:6px;margin-left:6px';
+      hud.appendChild(host);
+    }
+    const cur = readCreature() ?? ticked;
+    const bondPct = Math.round(cur.bond);
+    const hungerPct = Math.round(cur.hunger);
+    const hungerLow = cur.hunger <= 20;
+    const hungerCrit = cur.hunger <= 10;
+    host.innerHTML = `
+      <span class="vitals-badge" title="교감 ${bondPct}">
+        <span>♥</span><span class="bar"><i style="--v:${bondPct}%"></i></span>
+      </span>
+      <span class="vitals-badge" data-low="${hungerLow}" data-crit="${hungerCrit}" title="배부름 ${hungerPct}">
+        <span>🍚</span><span class="bar"><i style="--v:${hungerPct}%"></i></span>
+      </span>
+    `;
+  }
+
+  // ============================================================
+  // Onboarding flow
+  // ============================================================
+  function openOnboard() {
+    const dlg = document.getElementById('dlg-onboard');
+    if (!dlg || dlg.open) return;
+    dlg.dataset.step = '1';
+    dlg.dataset.species = '';
+    dlg.dataset.personality = '';
+    dlg.querySelector('#inp-name').value = '';
+    dlg.querySelectorAll('[data-step]').forEach(s => {
+      s.hidden = s.dataset.step !== '1';
+    });
+    dlg.querySelectorAll('.egg-pick, .per-pick').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    dlg.querySelectorAll('.field-err').forEach(e => e.textContent = '');
+    document.getElementById('btn-onboard-back').hidden = true;
+    document.getElementById('btn-onboard-next').textContent = '다음';
+    dlg.showModal();
+  }
+
+  function onboardGoto(dlg, step) {
+    dlg.dataset.step = String(step);
+    dlg.querySelectorAll('[data-step]').forEach(s => {
+      s.hidden = s.dataset.step !== String(step);
+    });
+    document.getElementById('btn-onboard-back').hidden = step === 1;
+    document.getElementById('btn-onboard-next').textContent = step === 3 ? '완료' : '다음';
+  }
+
+  document.addEventListener('click', (e) => {
+    const egg = e.target.closest('.egg-pick');
+    if (egg) {
+      const dlg = document.getElementById('dlg-onboard');
+      dlg.querySelectorAll('.egg-pick').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      egg.setAttribute('aria-pressed', 'true');
+      dlg.dataset.species = egg.dataset.species;
+      document.getElementById('err-species').textContent = '';
+    }
+    const per = e.target.closest('.per-pick');
+    if (per) {
+      const dlg = document.getElementById('dlg-onboard');
+      dlg.querySelectorAll('.per-pick').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      per.setAttribute('aria-pressed', 'true');
+      dlg.dataset.personality = per.dataset.personality;
+      document.getElementById('err-personality').textContent = '';
+    }
+  });
+
+  document.getElementById('btn-onboard-back')?.addEventListener('click', () => {
+    const dlg = document.getElementById('dlg-onboard');
+    const step = Number(dlg.dataset.step);
+    if (step > 1) onboardGoto(dlg, step - 1);
+  });
+
+  document.getElementById('btn-onboard-next')?.addEventListener('click', () => {
+    const dlg = document.getElementById('dlg-onboard');
+    const step = Number(dlg.dataset.step);
+    if (step === 1) {
+      if (!dlg.dataset.species) {
+        document.getElementById('err-species').textContent = '알을 선택하세요';
+        return;
+      }
+      onboardGoto(dlg, 2);
+      return;
+    }
+    if (step === 2) {
+      const name = dlg.querySelector('#inp-name').value.trim();
+      if (!name) { document.getElementById('err-name').textContent = '이름을 입력하세요'; return; }
+      if (name.length > 10) { document.getElementById('err-name').textContent = '10자 이하로'; return; }
+      dlg.dataset.name = name;
+      onboardGoto(dlg, 3);
+      return;
+    }
+    if (step === 3) {
+      if (!dlg.dataset.personality) {
+        document.getElementById('err-personality').textContent = '성격을 선택하세요';
+        return;
+      }
+      const now = new Date().toISOString();
+      const c = createCreature({
+        speciesKey: dlg.dataset.species,
+        name: dlg.dataset.name,
+        personality: dlg.dataset.personality,
+        now,
+      });
+      writeCreature(c);
+      dlg.close();
+      toast(`${c.name}을(를) 만났어요!`);
+    }
+  });
+
+  // ============================================================
+  // Add-word flow
+  // ============================================================
+  function renderWordList() {
+    const host = document.getElementById('word-list-dyn');
+    if (!host) return;
+    const words = store.get(KEYS.words) ?? [];
+    const userAdded = words.filter(w => !/^w0\d{2}$/.test(w.id)); // seed ids are w001-w012
+    if (userAdded.length === 0) {
+      host.innerHTML = '<div class="empty-words">아직 추가한 단어가 없어요. 아래 + 버튼을 눌러 첫 단어를 추가해보세요.</div>';
+      return;
+    }
+    host.innerHTML = userAdded.map(w => `
+      <button class="word-row" type="button" data-wid="${w.id}">
+        <span class="stage-icon" data-stage="${w.box}">
+          <svg><use href="#stage-${w.box}"/></svg>
+          <span class="num">${w.box}</span>
+        </span>
+        <span class="wr-main">
+          <span class="wr-en">${escapeHtml(w.word)}</span>
+          <span class="wr-ko"><span class="chip" data-t="${w.pos}">${w.pos.toUpperCase()}</span>${escapeHtml(w.meaning)}</span>
+        </span>
+        <span class="wr-right">
+          <span class="wr-hp"><i style="--hp: ${w.box * 20}%"></i></span>
+          <span class="wr-tag">BOX ${w.box}</span>
+        </span>
+      </button>
+    `).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function updateFabVisibility() {
+    const fab = document.getElementById('btn-add-word');
+    if (!fab) return;
+    const mywordsActive = document.querySelector('.screen[data-s="learn"] .subpane[data-sub="mywords"]')?.classList.contains('active');
+    const onLearn = document.body.dataset.screen === 'learn';
+    fab.hidden = !(onLearn && mywordsActive);
+  }
+  // Observe subpane class changes to toggle FAB
+  const learnSection = document.querySelector('.screen[data-s="learn"]');
+  if (learnSection) {
+    const mo = new MutationObserver(updateFabVisibility);
+    learnSection.querySelectorAll('.subpane').forEach(p => mo.observe(p, { attributes: true, attributeFilter: ['class'] }));
+  }
+  // Observe body data-screen
+  new MutationObserver(updateFabVisibility).observe(document.body, { attributes: true, attributeFilter: ['data-screen'] });
+  updateFabVisibility();
+
+  document.getElementById('btn-add-word')?.addEventListener('click', () => {
+    const dlg = document.getElementById('dlg-add-word');
+    dlg.querySelector('#form-add-word').reset();
+    document.getElementById('err-add-word').textContent = '';
+    dlg.showModal();
+    setTimeout(() => dlg.querySelector('#aw-word').focus(), 50);
+  });
+
+  document.getElementById('btn-add-cancel')?.addEventListener('click', () => {
+    document.getElementById('dlg-add-word').close();
+  });
+
+  document.getElementById('form-add-word')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const dlg = document.getElementById('dlg-add-word');
+    const input = {
+      word:    dlg.querySelector('#aw-word').value,
+      meaning: dlg.querySelector('#aw-meaning').value,
+      pos:     dlg.querySelector('#aw-pos').value,
+      example: dlg.querySelector('#aw-example').value,
+    };
+    const words = store.get(KEYS.words) ?? [];
+    const result = addWord(words, input);
+    if (!result.ok) {
+      const msgs = { 'word required': '영어 단어를 입력하세요', 'meaning required': '뜻을 입력하세요', 'invalid pos': '품사를 선택하세요', 'word must be English letters': '영문자만 가능합니다', duplicate: '이미 추가된 단어입니다' };
+      document.getElementById('err-add-word').textContent = msgs[result.error] ?? result.error;
+      return;
+    }
+    store.set(KEYS.words, result.words);
+    // bond +2 on addWord
+    const c = readCreature();
+    if (c) writeCreature(interact(c, 'addWord', new Date().toISOString()));
+    renderWordList();
+    dlg.close();
+    toast(`"${input.word}" 추가됨 · 교감 +2`);
+  });
+
+  // ============================================================
+  // Dex click — temporary feedback until r2
+  // ============================================================
+  document.querySelectorAll('.screen[data-s="dex"] .badge, .screen[data-s="dex"] [class*="dex"]').forEach(el => {
+    el.addEventListener('click', () => toast('도감 상세는 곧 추가됩니다'));
+  });
+
+  // ============================================================
+  // Bootstrap
+  // ============================================================
+  (function bootstrap() {
+    renderWordList();
+    const c = readCreature();
+    if (!c) {
+      openOnboard();
+    } else {
+      document.body.dataset.creature = 'ready';
+      renderVitals();
+    }
+    // dailyVisit interaction once per day
+    const today = new Date().toISOString().slice(0, 10);
+    const lastVisit = localStorage.getItem('wg.v1.lastVisitDate');
+    if (c && lastVisit !== today) {
+      writeCreature(interact(c, 'dailyVisit', new Date().toISOString()));
+      localStorage.setItem('wg.v1.lastVisitDate', today);
+    }
+  })();
+
+  // Expose minimal API for E2E tests
+  window.__wg = { readCreature, writeCreature, renderWordList, store, KEYS };
 </script>
 
 </body>
