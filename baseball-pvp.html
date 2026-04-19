@@ -314,9 +314,9 @@
     <div class="card" id="pitcherPanel" hidden>
       <div style="font-weight:700; margin-bottom:8px;">구종을 선택하세요</div>
       <div class="hand">
-        <button class="pcard fastball" data-pitch="직구">🔥 직구<small>정답=1루타 / 오답=볼</small></button>
-        <button class="pcard slider" data-pitch="슬라이더">🌀 슬라이더<small>정답=1루타 / 3S=삼진</small></button>
-        <button class="pcard curve" data-pitch="커브">🎯 커브<small>정답=2루타 / 오답=즉시 삼진</small></button>
+        <button class="pcard fastball" data-pitch="직구">🔥 직구<small>어휘 · 정답=1루타 / 오답=볼</small></button>
+        <button class="pcard slider" data-pitch="슬라이더">🌀 슬라이더<small>문법 · 정답=1루타 / 3S=삼진</small></button>
+        <button class="pcard curve" data-pitch="커브">🎯 커브<small>빈칸 · 정답=2루타 / 오답=즉시 삼진</small></button>
       </div>
     </div>
 
@@ -353,6 +353,7 @@
 <script type="module">
   import { EV } from './js/pvp-proto.js';
   import { createMockTransport } from './js/pvp-transport-mock.js';
+  import { PITCH_CATEGORY } from './js/pitch-types.js';
 
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
@@ -541,7 +542,8 @@
   function renderBatterPanel(q) {
     els.batterPanel.hidden = !(role === 'batter');
     if (role !== 'batter') return;
-    els.ptype.textContent = `⚾ ${q.type}`;
+    const cat = PITCH_CATEGORY[q.type] ?? '';
+    els.ptype.textContent = `⚾ ${q.type}${cat ? ' · ' + cat : ''}`;
     els.promptText.textContent = q.prompt;
     els.prompt.className = 'prompt ' + pitchClassFor(q.type);
     els.choices.className = 'choices';
@@ -611,7 +613,8 @@
         renderBatterPanel(q);
         revealBatterPanel();
       } else {
-        showCallout(`공을 던졌어요: ${q.type}`, 'info', 900);
+        const cat = PITCH_CATEGORY[q.type] ?? '';
+        showCallout(`공을 던졌어요: ${q.type}${cat ? ' ('+cat+')' : ''}`, 'info', 900);
       }
     });
     t.on(EV.TURN_START, (_, env) => renderLogRow('S→C', env));

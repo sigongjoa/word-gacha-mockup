@@ -21,12 +21,16 @@ describe('generateFastball', () => {
   });
 });
 
-describe('generateSlider', () => {
-  test('answer is a synonym of prompt from pool', () => {
+describe('generateSlider — 문법 cloze', () => {
+  test('prompt is a sentence with ___', () => {
     const q = generateSlider(1);
     assert.equal(q.type, '슬라이더');
-    const pool = POOLS.SLIDER_POOL[1];
-    const entry = pool.find(e => e[0] === q.prompt);
+    assert.equal(q.category, '문법');
+    assert.ok(q.prompt.includes('___'));
+  });
+  test('answer matches pool entry', () => {
+    const q = generateSlider(1);
+    const entry = POOLS.SLIDER_POOL[1].find(e => e[0] === q.prompt);
     assert.ok(entry, 'prompt should be from pool');
     assert.equal(entry[1], q.answer);
   });
@@ -36,16 +40,30 @@ describe('generateSlider', () => {
   });
 });
 
-describe('generateCurve', () => {
-  test('prompt contains blank marker ___', () => {
+describe('generateCurve — 빈칸/독해 cloze', () => {
+  test('prompt is a sentence with ___', () => {
     const q = generateCurve(1);
     assert.equal(q.type, '커브');
+    assert.equal(q.category, '빈칸');
     assert.ok(q.prompt.includes('___'));
   });
   test('answer is in options', () => {
     const q = generateCurve(2);
     assert.ok(q.options.includes(q.answer));
     assert.equal(q.options.length, 4);
+  });
+  test('tier 3 uses advanced vocabulary', () => {
+    const q = generateCurve(3);
+    // Advanced tier answers should be long/academic words
+    assert.ok(q.answer.length >= 7, 'tier 3 answer should be sophisticated');
+  });
+});
+
+describe('categories', () => {
+  test('each pitch type exposes category field', () => {
+    assert.equal(generateFastball(1).category, '어휘');
+    assert.equal(generateSlider(1).category, '문법');
+    assert.equal(generateCurve(1).category, '빈칸');
   });
 });
 
