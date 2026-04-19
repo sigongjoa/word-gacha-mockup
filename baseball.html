@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b3d2e">
+<title>Word Baseball — 영어단어 야구</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --grass: #2f7a4d;
+    --grass-2: #276a43;
+    --dirt: #b07a4a;
+    --dirt-2: #8a5a33;
+    --ink: #14171f;
+    --ball: #ffffff;
+    --line: #ffffff;
+    --homerun: #ffd84a;
+    --hit: #8dffb5;
+    --out: #ff7a6b;
+    --panel: #0f2a1c;
+    --panel-2: #1a3d2a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #0a1f14;
+    color: #fff;
+    font-family: 'Pretendard Variable', system-ui, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* ===== Scoreboard ===== */
+  .scoreboard {
+    width: 100%;
+    max-width: 520px;
+    background: var(--panel);
+    border: 3px solid #0a1f14;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 4px 0 #000;
+  }
+  .sb-slot { text-align: center; }
+  .sb-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #7fd99f;
+    text-transform: uppercase;
+  }
+  .sb-value {
+    font-size: 22px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .outs {
+    display: inline-flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .out-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #1a3d2a;
+    border: 1.5px solid #3a6a4a;
+  }
+  .out-dot.on { background: var(--out); border-color: #fff; }
+
+  /* ===== Field ===== */
+  .field {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1 / 1.05;
+    position: relative;
+    background:
+      radial-gradient(ellipse at 50% 100%, var(--grass-2) 0%, var(--grass) 55%, #1b5636 100%);
+    border: 3px solid #0a1f14;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 0 #000;
+  }
+  .diamond {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: 70%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--dirt);
+    border: 3px solid var(--line);
+  }
+  .mound {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: 18%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: var(--dirt-2);
+    border-radius: 50%;
+    border: 2px solid var(--dirt);
+  }
+  .base {
+    position: absolute;
+    width: 18px; height: 18px;
+    background: #fff;
+    border: 2px solid #0a1f14;
+    transform: rotate(45deg);
+  }
+  .base.home  { left: 50%; bottom: 10%;  transform: translate(-50%,0)    rotate(45deg); }
+  .base.first { right: 14%; top: 55%;    transform: translate(0,-50%)    rotate(45deg); }
+  .base.second{ left: 50%; top: 18%;     transform: translate(-50%,0)    rotate(45deg); }
+  .base.third { left: 14%; top: 55%;     transform: translate(0,-50%)    rotate(45deg); }
+  .base.on { background: var(--homerun); box-shadow: 0 0 10px var(--homerun); }
+
+  /* ===== Ball ===== */
+  .ball-wrap {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .ball {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    background: var(--ball);
+    border: 3px solid #0a1f14;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #0a1f14;
+    font-size: 16px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    will-change: transform, opacity;
+  }
+  .ball::before, .ball::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 2px solid #c23b3b;
+    border-radius: 50%;
+    border-left: none; border-right: none;
+    transform: rotate(25deg);
+    pointer-events: none;
+  }
+  .ball::after { transform: rotate(-25deg); }
+  .ball.throwing {
+    animation: throw-in 2.8s linear forwards;
+  }
+  @keyframes throw-in {
+    0%   { top: 20%; transform: translate(-50%, -50%) scale(0.25); opacity: 1; }
+    100% { top: 80%; transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+  }
+  .ball.hit-homerun {
+    animation: hit-homerun 1.2s ease-out forwards;
+  }
+  @keyframes hit-homerun {
+    0%   { transform: translate(-50%,-50%) scale(1.25); }
+    40%  { transform: translate(-50%,-260%) scale(1) rotate(180deg); }
+    100% { transform: translate(-50%,-600%) scale(0.2) rotate(720deg); opacity: 0; }
+  }
+  .ball.hit {
+    animation: hit-bounce 0.8s ease-out forwards;
+  }
+  @keyframes hit-bounce {
+    0%   { transform: translate(-50%,-50%) scale(1.2); }
+    100% { transform: translate(120%, -220%) scale(0.6) rotate(360deg); opacity: 0; }
+  }
+  .ball.missed {
+    animation: ball-missed 0.6s ease-in forwards;
+  }
+  @keyframes ball-missed {
+    0%   { transform: translate(-50%,-50%) scale(1.25); }
+    100% { transform: translate(-50%, 120%) scale(1) rotate(180deg); opacity: 0.3; }
+  }
+
+  /* ===== Callout ===== */
+  .callout {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%) scale(0.6);
+    padding: 10px 24px;
+    font-size: 44px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+    opacity: 0;
+    pointer-events: none;
+    letter-spacing: 2px;
+  }
+  .callout.show {
+    animation: callout-pop 1.2s ease-out forwards;
+  }
+  @keyframes callout-pop {
+    0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
+    20%  { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+    60%  { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-80%) scale(0.9); }
+  }
+  .callout.homerun { color: var(--homerun); font-size: 56px; }
+  .callout.hit     { color: var(--hit); }
+  .callout.out     { color: var(--out); }
+
+  /* ===== Question / Choices ===== */
+  .hud {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .question {
+    background: var(--panel-2);
+    border: 3px solid #0a1f14;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 4px 0 #000;
+    min-height: 58px;
+  }
+  .question small {
+    display: block;
+    font-size: 11px;
+    color: #7fd99f;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .timer-bar {
+    width: 100%;
+    height: 6px;
+    background: #0a1f14;
+    border: 2px solid #0a1f14;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .timer-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd84a, #ff7a6b);
+    width: 100%;
+    transform-origin: left;
+    transition: none;
+  }
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .choice {
+    background: #fff;
+    color: #0a1f14;
+    border: 3px solid #0a1f14;
+    border-radius: 10px;
+    padding: 14px 10px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #0a1f14;
+    transition: transform 0.05s, box-shadow 0.05s;
+    text-align: center;
+    font-family: inherit;
+  }
+  .choice:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #0a1f14;
+  }
+  .choice:disabled { cursor: default; opacity: 0.7; }
+  .choice.correct { background: var(--hit); }
+  .choice.wrong   { background: var(--out); color: #fff; }
+
+  /* ===== Start / End overlay ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 10;
+    padding: 20px;
+    text-align: center;
+  }
+  .overlay.hide { display: none; }
+  .overlay h1 {
+    font-size: 36px;
+    color: var(--homerun);
+    text-shadow: 3px 3px 0 #000;
+    letter-spacing: 2px;
+  }
+  .overlay p { font-size: 16px; color: #fff; max-width: 380px; line-height: 1.6; }
+  .overlay .big-score {
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--hit);
+    text-shadow: 3px 3px 0 #000;
+  }
+  .overlay button {
+    background: var(--homerun);
+    color: #0a1f14;
+    border: 3px solid #0a1f14;
+    padding: 14px 28px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 5px 0 #000;
+    font-family: inherit;
+    letter-spacing: 1px;
+  }
+  .overlay button:active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
+
+  .legend {
+    font-size: 12px;
+    color: #7fd99f;
+    line-height: 1.7;
+  }
+  .legend b { color: var(--homerun); }
+</style>
+</head>
+<body>
+
+<div class="scoreboard">
+  <div class="sb-slot">
+    <div class="sb-label">SCORE</div>
+    <div class="sb-value" id="score">0</div>
+  </div>
+  <div class="sb-slot">
+    <div class="sb-label">INNING</div>
+    <div class="sb-value" id="inning">1</div>
+  </div>
+  <div class="sb-slot">
+    <div class="sb-label">OUT</div>
+    <div class="outs" id="outs">
+      <span class="out-dot"></span>
+      <span class="out-dot"></span>
+      <span class="out-dot"></span>
+    </div>
+  </div>
+</div>
+
+<div class="field">
+  <div class="diamond"></div>
+  <div class="mound"></div>
+  <div class="base home"></div>
+  <div class="base first" id="b1"></div>
+  <div class="base second" id="b2"></div>
+  <div class="base third" id="b3"></div>
+  <div class="ball-wrap">
+    <div class="ball" id="ball"></div>
+  </div>
+  <div class="callout" id="callout"></div>
+</div>
+
+<div class="hud">
+  <div class="question">
+    <small>공에 쓰인 단어의 뜻은?</small>
+    <span id="qword">—</span>
+    <div class="timer-bar"><div class="timer-bar-fill" id="tbar"></div></div>
+  </div>
+  <div class="choices" id="choices"></div>
+</div>
+
+<div class="overlay" id="start">
+  <h1>⚾ WORD BASEBALL</h1>
+  <div class="legend">
+    공이 날아오는 동안 <b>뜻</b>을 맞히면 안타!<br>
+    <b>1.2초</b> 안에 맞추면 <b>홈런</b> 🏟️<br>
+    <b>2.0초</b> 안 = 3루타 · <b>3.0초</b> = 2루타 · <b>5.0초</b> = 안타<br>
+    놓치거나 틀리면 <b>아웃</b>. 3아웃이면 이닝 종료.<br>
+    총 <b>3이닝</b>.
+  </div>
+  <button id="btnStart">PLAY BALL!</button>
+</div>
+
+<div class="overlay hide" id="end">
+  <h1>GAME OVER</h1>
+  <div class="big-score" id="finalScore">0</div>
+  <p id="finalMsg"></p>
+  <button id="btnRestart">다시 플레이</button>
+</div>
+
+<script type="module">
+  // ===== Word bank =====
+  const WORDS = [
+    ['apple', '사과'], ['book', '책'], ['run', '달리다'], ['water', '물'],
+    ['happy', '행복한'], ['friend', '친구'], ['school', '학교'], ['teacher', '선생님'],
+    ['eat', '먹다'], ['sleep', '자다'], ['sun', '해'], ['moon', '달'],
+    ['fast', '빠른'], ['slow', '느린'], ['big', '큰'], ['small', '작은'],
+    ['hot', '더운'], ['cold', '추운'], ['light', '빛'], ['dark', '어두운'],
+    ['open', '열다'], ['close', '닫다'], ['buy', '사다'], ['sell', '팔다'],
+    ['walk', '걷다'], ['jump', '점프하다'], ['dream', '꿈'], ['hope', '희망'],
+    ['strong', '강한'], ['weak', '약한'], ['smart', '똑똑한'], ['brave', '용감한'],
+    ['kind', '친절한'], ['angry', '화난'], ['laugh', '웃다'], ['cry', '울다'],
+    ['find', '찾다'], ['lose', '잃다'], ['win', '이기다'], ['begin', '시작하다'],
+  ];
+
+  // ===== Scoring =====
+  const SCORE_HOMERUN = 4;
+  const SCORE_TRIPLE = 3;
+  const SCORE_DOUBLE = 2;
+  const SCORE_SINGLE = 1;
+
+  const THROW_MS = 2800;  // ball-flight (must match .ball.throwing keyframe)
+  const MAX_INNING = 3;
+
+  // ===== State =====
+  const state = {
+    score: 0,
+    inning: 1,
+    outs: 0,
+    bases: [false, false, false], // 1st, 2nd, 3rd
+    current: null,  // {eng, ko, startAt}
+    locked: false,
+    pitchTimeout: null,
+    rafId: null,
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const ball = $('ball');
+  const qword = $('qword');
+  const choices = $('choices');
+  const callout = $('callout');
+  const tbar = $('tbar');
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function renderScore() {
+    $('score').textContent = state.score;
+    $('inning').textContent = state.inning;
+    const dots = $('outs').children;
+    for (let i = 0; i < 3; i++) {
+      dots[i].classList.toggle('on', i < state.outs);
+    }
+    $('b1').classList.toggle('on', state.bases[0]);
+    $('b2').classList.toggle('on', state.bases[1]);
+    $('b3').classList.toggle('on', state.bases[2]);
+  }
+
+  function showCallout(text, cls) {
+    callout.className = 'callout ' + cls;
+    callout.textContent = text;
+    // force reflow to restart animation
+    void callout.offsetWidth;
+    callout.classList.add('show');
+    setTimeout(() => callout.classList.remove('show'), 1200);
+  }
+
+  function advanceRunners(bases) {
+    // bases = how many bases to advance the batter (1..4)
+    // Runners already on base advance same amount.
+    let runs = 0;
+    const newBases = [false, false, false];
+    // existing runners
+    for (let i = 0; i < 3; i++) {
+      if (!state.bases[i]) continue;
+      const newPos = i + bases; // 1st=0 → goes to 0+bases
+      if (newPos >= 3) runs++;
+      else newBases[newPos] = true;
+    }
+    // batter
+    if (bases >= 4) runs++;
+    else newBases[bases - 1] = true;
+    state.bases = newBases;
+    return runs;
+  }
+
+  function pickQuestion() {
+    const pool = shuffle(WORDS);
+    const [eng, ko] = pool[0];
+    const wrongs = pool.slice(1).filter(w => w[1] !== ko).slice(0, 3).map(w => w[1]);
+    const options = shuffle([ko, ...wrongs]);
+    return { eng, ko, options };
+  }
+
+  function throwPitch() {
+    if (state.outs >= 3) { endInning(); return; }
+    const q = pickQuestion();
+    state.current = { ...q, startAt: 0, answered: false };
+    state.locked = false;
+
+    qword.textContent = q.eng;
+    ball.textContent = q.eng;
+    renderChoices(q.options);
+
+    // restart ball animation
+    ball.classList.remove('throwing', 'hit', 'hit-homerun', 'missed');
+    void ball.offsetWidth;
+    ball.classList.add('throwing');
+
+    // timer bar
+    tbar.style.transition = 'none';
+    tbar.style.transform = 'scaleX(1)';
+    void tbar.offsetWidth;
+    tbar.style.transition = `transform ${THROW_MS}ms linear`;
+    tbar.style.transform = 'scaleX(0)';
+
+    state.current.startAt = performance.now();
+    state.pitchTimeout = setTimeout(() => {
+      if (!state.current || state.current.answered) return;
+      // missed
+      state.current.answered = true;
+      state.locked = true;
+      ball.classList.remove('throwing');
+      ball.classList.add('missed');
+      disableChoices(true);
+      showCallout('아웃!', 'out');
+      state.outs++;
+      renderScore();
+      setTimeout(nextPitch, 1100);
+    }, THROW_MS);
+  }
+
+  function disableChoices(mark) {
+    [...choices.children].forEach(b => { b.disabled = true; });
+    if (mark) {
+      [...choices.children].forEach(b => {
+        if (b.textContent === state.current.ko) b.classList.add('correct');
+      });
+    }
+  }
+
+  function renderChoices(options) {
+    choices.innerHTML = '';
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.textContent = opt;
+      b.addEventListener('click', () => handleAnswer(opt, b));
+      choices.appendChild(b);
+    });
+  }
+
+  function handleAnswer(picked, btn) {
+    if (state.locked || !state.current || state.current.answered) return;
+    state.current.answered = true;
+    state.locked = true;
+    clearTimeout(state.pitchTimeout);
+    const elapsed = performance.now() - state.current.startAt;
+
+    const correct = picked === state.current.ko;
+    if (!correct) {
+      btn.classList.add('wrong');
+      [...choices.children].forEach(b => {
+        if (b.textContent === state.current.ko) b.classList.add('correct');
+        b.disabled = true;
+      });
+      ball.classList.remove('throwing');
+      ball.classList.add('missed');
+      showCallout('아웃!', 'out');
+      state.outs++;
+      renderScore();
+      setTimeout(nextPitch, 1100);
+      return;
+    }
+
+    btn.classList.add('correct');
+    disableChoices(false);
+    [...choices.children].forEach(b => b.disabled = true);
+
+    // Time-based scoring
+    let bases, label, cls;
+    if (elapsed < 1200)      { bases = 4; label = '홈런! ⚾'; cls = 'homerun'; }
+    else if (elapsed < 2000) { bases = 3; label = '3루타!';  cls = 'hit'; }
+    else if (elapsed < 3000) { bases = 2; label = '2루타!';  cls = 'hit'; }
+    else                     { bases = 1; label = '안타!';   cls = 'hit'; }
+
+    ball.classList.remove('throwing');
+    ball.classList.add(bases >= 4 ? 'hit-homerun' : 'hit');
+
+    const runs = advanceRunners(bases);
+    state.score += runs;
+    showCallout(label + (runs > 0 ? ` +${runs}` : ''), cls);
+    renderScore();
+
+    setTimeout(nextPitch, bases >= 4 ? 1400 : 1100);
+  }
+
+  function nextPitch() {
+    if (state.outs >= 3) { endInning(); return; }
+    throwPitch();
+  }
+
+  function endInning() {
+    if (state.inning >= MAX_INNING) return endGame();
+    state.inning++;
+    state.outs = 0;
+    state.bases = [false, false, false];
+    renderScore();
+    showCallout(`${state.inning}회 시작!`, 'hit');
+    setTimeout(throwPitch, 1400);
+  }
+
+  function endGame() {
+    clearTimeout(state.pitchTimeout);
+    $('finalScore').textContent = state.score;
+    const msg = state.score >= 10 ? '🏆 MVP! 엄청난 타격!' :
+                state.score >= 5  ? '👏 좋은 경기였어!' :
+                state.score >= 1  ? '💪 다음엔 더 칠 수 있어!' :
+                                    '🥲 삼진 아웃... 다시 도전!';
+    $('finalMsg').textContent = msg;
+    $('end').classList.remove('hide');
+  }
+
+  function startGame() {
+    state.score = 0;
+    state.inning = 1;
+    state.outs = 0;
+    state.bases = [false, false, false];
+    renderScore();
+    $('start').classList.add('hide');
+    $('end').classList.add('hide');
+    throwPitch();
+  }
+
+  $('btnStart').addEventListener('click', startGame);
+  $('btnRestart').addEventListener('click', startGame);
+  renderScore();
+</script>
+</body>
+</html>
