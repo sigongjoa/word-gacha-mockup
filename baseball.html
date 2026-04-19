@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b3d2e">
 <title>Word Baseball — 영어단어 야구 v3</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -40,27 +40,31 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
-    height: 100%;
     background: #041209;
     color: var(--text);
     font-family: 'Pretendard Variable', system-ui, sans-serif;
     font-weight: 600;
-    overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
   }
+  html { height: 100%; }
   body {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
-    padding: 8px;
     gap: 6px;
     max-width: 560px;
     margin: 0 auto;
     min-height: 100dvh;
     position: relative;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    overflow-x: hidden;
   }
 
   /* ============================================================
@@ -212,7 +216,9 @@
      ============================================================ */
   .field {
     width: 100%;
-    aspect-ratio: 1 / 0.85;
+    aspect-ratio: 1.3 / 1;
+    max-height: 40vh;
+    min-height: 200px;
     position: relative;
     background:
       radial-gradient(ellipse at 50% 95%, var(--grass) 0%, var(--grass-2) 60%, var(--grass-3) 100%);
@@ -220,6 +226,7 @@
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 4px 0 var(--border);
+    flex-shrink: 0;
   }
   /* 경기장 라인 */
   .field::before {
@@ -301,10 +308,15 @@
     font-size: 14px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(0,0,0,0.2);
     will-change: transform, opacity;
-    padding: 0 6px;
+    padding: 0 4px;
     text-align: center;
     line-height: 1;
+    overflow: hidden;
+    word-break: break-all;
+    hyphens: auto;
   }
+  .ball.long { font-size: 10px; letter-spacing: -0.5px; }
+  .ball.xlong { font-size: 8px; letter-spacing: -0.8px; }
   .ball::before, .ball::after {
     content: '';
     position: absolute;
@@ -482,6 +494,9 @@
     color: var(--text);
     letter-spacing: 0.5px;
     line-height: 1.1;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
   }
   .timer-bar {
     width: 100%;
@@ -556,13 +571,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 14px;
     z-index: 50;
-    padding: 20px;
+    padding:
+      max(20px, env(safe-area-inset-top))
+      max(16px, env(safe-area-inset-right))
+      max(20px, env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
     text-align: center;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+  .overlay::before,
+  .overlay::after { content:''; flex: 1 0 auto; }
+  .overlay.hide::before,
+  .overlay.hide::after { display: none; }
   .overlay.hide { display: none; }
   .overlay h1 {
     font-size: 34px;
@@ -741,7 +765,30 @@
     .q-word { font-size: 24px; }
     .choice { font-size: 14px; min-height: 48px; padding: 12px 8px; }
     .overlay h1 { font-size: 28px; }
-    .field { aspect-ratio: 1 / 0.9; }
+  }
+
+  /* 작은 세로 화면 (iPhone SE 등) — 필드 더 축소 */
+  @media (max-height: 700px) {
+    .field { max-height: 32vh; min-height: 180px; }
+    .q-word { font-size: 22px; }
+    .question { padding: 10px 14px; }
+    .scoreboard { padding: 8px 12px; }
+    .team-score { font-size: 26px; }
+    .half-banner { padding: 6px 12px; }
+  }
+
+  /* 가로 모드 — 필드 압축, HUD 확보 */
+  @media (orientation: landscape) and (max-height: 500px) {
+    body { max-width: 720px; gap: 4px; }
+    .scoreboard { padding: 6px 12px; }
+    .team-score { font-size: 22px; }
+    .team-label { font-size: 9px; }
+    .inn-big { font-size: 18px; }
+    .statusbar, .half-banner { padding: 5px 10px; font-size: 11px; }
+    .field { aspect-ratio: 2 / 1; max-height: 28vh; min-height: 140px; }
+    .q-word { font-size: 22px; }
+    .question { padding: 8px 14px; }
+    .choice { min-height: 44px; padding: 10px 8px; font-size: 14px; }
   }
 </style>
 </head>
@@ -1119,6 +1166,9 @@
 
     qword.textContent = q.eng;
     ball.textContent = q.eng;
+    ball.classList.remove('long','xlong');
+    if (q.eng.length >= 12)      ball.classList.add('xlong');
+    else if (q.eng.length >= 8)  ball.classList.add('long');
     renderChoices(q.options);
 
     ball.classList.remove('throwing','hit','hit-homerun','missed','struck');
