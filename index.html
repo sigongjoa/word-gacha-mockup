@@ -2205,6 +2205,34 @@
          둥근 몸통 + 큰 눈 + 작은 뿔.
     -->
     <symbol id="mascot" viewBox="0 0 100 100">
+      <!-- 섀도우 트리 내부에 스타일 직접 선언 — <use> 인스턴스마다 확실히 적용 -->
+      <style>
+        .m-body {
+          transform-box: fill-box;
+          transform-origin: 50% 90%;
+          animation: m-breathe 2.2s ease-in-out infinite, m-idle-bob 2.2s ease-in-out infinite;
+        }
+        .m-eyes {
+          transform-box: fill-box;
+          transform-origin: 50% 50%;
+          animation: m-blink 3.5s linear infinite;
+        }
+        @keyframes m-breathe {
+          0%,100% { transform: scaleY(1) scaleX(1); }
+          50%     { transform: scaleY(0.9) scaleX(1.08); }
+        }
+        @keyframes m-idle-bob {
+          0%,100% { translate: 0 0; }
+          50%     { translate: 0 -4px; }
+        }
+        @keyframes m-blink {
+          0%, 86%, 92%, 94%, 100% { transform: scaleY(1); }
+          88%, 93%                { transform: scaleY(0.05); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .m-body, .m-eyes { animation: none; }
+        }
+      </style>
       <!-- 그림자 -->
       <ellipse cx="50" cy="91" rx="26" ry="3.5" fill="rgba(20,23,31,.15)"/>
       <!-- 발 -->
