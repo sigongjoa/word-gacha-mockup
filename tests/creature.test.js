@@ -1,7 +1,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createCreature, tick, interact, moodOf, canEvolve, evolve,
+  createCreature, tick, interact, moodOf, moodRefined, evolutionProgress,
+  canEvolve, evolve,
   STARTER_SPECIES, PERSONALITIES, HUNGER_MAX, BOND_MAX,
 } from '../js/creature.js';
 
@@ -161,6 +162,61 @@ describe('evolution', () => {
     const c = { stage: 5, bond: 100 };
     const next = evolve(c);
     assert.equal(next.stage, 5);
+  });
+});
+
+describe('moodRefined — 7-step', () => {
+  test('hungry overrides all', () => {
+    assert.equal(moodRefined({ hunger: 15, bond: 95, lastInteractionAt: NOW }, NOW), 'hungry');
+  });
+  test('sad when idle >= 48h', () => {
+    assert.equal(moodRefined({ hunger: 80, bond: 50, lastInteractionAt: NOW }, plus(NOW, 49)), 'sad');
+  });
+  test('bored when idle between 12h and 48h', () => {
+    assert.equal(moodRefined({ hunger: 80, bond: 50, lastInteractionAt: NOW }, plus(NOW, 15)), 'bored');
+  });
+  test('thriving when bond>=90 and hunger>=70', () => {
+    assert.equal(moodRefined({ hunger: 80, bond: 95, lastInteractionAt: NOW }, NOW), 'thriving');
+  });
+  test('happy when bond>=80 and hunger>60 but below thriving', () => {
+    assert.equal(moodRefined({ hunger: 65, bond: 82, lastInteractionAt: NOW }, NOW), 'happy');
+  });
+  test('content when bond>=60 and hunger>40', () => {
+    assert.equal(moodRefined({ hunger: 50, bond: 65, lastInteractionAt: NOW }, NOW), 'content');
+  });
+  test('neutral by default', () => {
+    assert.equal(moodRefined({ hunger: 50, bond: 30, lastInteractionAt: NOW }, NOW), 'neutral');
+  });
+});
+
+describe('evolutionProgress', () => {
+  test('returns null at final stage', () => {
+    assert.equal(evolutionProgress({ stage: 5, bond: 100 }, [], 0), null);
+  });
+  test('stage 1→2: bond 20, box5 3, no streak', () => {
+    const p = evolutionProgress({ stage: 1, bond: 10 }, [{box:5},{box:5}], 0);
+    assert.equal(p.stageFrom, 1);
+    assert.equal(p.stageTo, 2);
+    assert.equal(p.bond.v, 10); assert.equal(p.bond.max, 20);
+    assert.equal(p.box5.v, 2);  assert.equal(p.box5.max, 3);
+    assert.equal(p.streak, null);
+    assert.equal(p.ready, false);
+  });
+  test('ready=true when all thresholds met', () => {
+    const words = Array.from({ length: 5 }, () => ({ box: 5 }));
+    const p = evolutionProgress({ stage: 1, bond: 25 }, words, 0);
+    assert.equal(p.ready, true);
+  });
+  test('stage 4→5 includes streak component', () => {
+    const words = Array.from({ length: 25 }, () => ({ box: 5 }));
+    const p = evolutionProgress({ stage: 4, bond: 100 }, words, 10);
+    assert.ok(p.streak);
+    assert.equal(p.streak.max, 14);
+    assert.equal(p.ready, false); // streak 10 < 14
+  });
+  test('clamps v to max when exceeded', () => {
+    const p = evolutionProgress({ stage: 1, bond: 200 }, [], 0);
+    assert.equal(p.bond.v, 20); // clamped
   });
 });
 

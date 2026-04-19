@@ -42,17 +42,16 @@ describe('performAction: feed', () => {
     assert.equal(r.creature.hunger, 70);
     assert.equal(r.creature.bond, 11);
   });
-  test('not hungry (hunger>=80) → error', () => {
+  test('not hungry (hunger>=FEED_FULL) → error', () => {
     const c = creat({ hunger: 85 });
     const r = performAction(c, 'feed', NOW);
     assert.equal(r.error, 'not hungry');
   });
   test('hunger caps at 100', () => {
-    const c = creat({ hunger: 85, bond: 10 });
-    // 85 is >=80 so should error; but if we do 79:
-    const c2 = creat({ hunger: 79, bond: 10 });
+    // At FEED_FULL=70, anything >=70 errors; use 69 so feed succeeds and clamps.
+    const c2 = creat({ hunger: 69, bond: 10 });
     const r = performAction(c2, 'feed', NOW);
-    assert.equal(r.creature.hunger, 100);
+    assert.equal(r.creature.hunger, 99);
   });
 });
 

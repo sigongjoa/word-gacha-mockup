@@ -1722,6 +1722,118 @@
   .vitals-badge[data-low="true"] .bar i { background: var(--hp-low); }
   .vitals-badge[data-crit="true"] .bar i { background: var(--hp-crit); }
 
+  /* Evolution progress panel (home) */
+  .evo-panel {
+    position: relative;
+    margin: 10px 12px 0;
+    padding: 10px 12px 12px;
+    background: var(--surface);
+    border: 2.5px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    font: 700 12px/1.3 var(--disp);
+    color: var(--ink);
+  }
+  .evo-panel.ready { background: #fff7e0; }
+  .evo-panel .evo-title {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 8px;
+    font: 800 13px/1 var(--disp);
+  }
+  .evo-panel .evo-title b { font: 800 14px/1 var(--disp); }
+  .evo-panel .evo-title .ready-badge {
+    margin-left: auto;
+    padding: 2px 6px;
+    background: var(--gold, #ffc800);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 10px/1 var(--disp);
+    color: var(--ink);
+  }
+  .evo-panel .evo-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 52px;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+  }
+  .evo-panel .evo-row[data-done="true"] { opacity: .6; }
+  .evo-panel .evo-row .lbl { font: 700 11px/1 var(--disp); }
+  .evo-panel .evo-row .num { font: 800 11px/1 var(--disp); text-align: right; }
+  .evo-panel .evo-row .track {
+    height: 8px;
+    background: var(--surface-3, #f1ead9);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .evo-panel .evo-row .track i {
+    display: block; height: 100%;
+    width: var(--v, 0%);
+    background: var(--hp-full, #58cc02);
+    transition: width .4s var(--e-out, ease-out);
+  }
+  .evo-panel .evo-row[data-done="true"] .track i { background: var(--gold, #ffc800); }
+
+  /* Delta float on vitals changes (+2 교감 등) */
+  .delta-float {
+    position: absolute;
+    font: 800 13px/1 var(--disp);
+    pointer-events: none;
+    animation: delta-up .9s var(--e-out, ease-out) forwards;
+    z-index: 20;
+  }
+  .delta-float[data-kind="bond"]   { color: #e03a52; }
+  .delta-float[data-kind="hunger"] { color: #1fa34e; }
+  @keyframes delta-up {
+    0%   { transform: translateY(0)     scale(.9); opacity: 0; }
+    20%  { transform: translateY(-4px)  scale(1.1); opacity: 1; }
+    100% { transform: translateY(-28px) scale(1);   opacity: 0; }
+  }
+
+  /* Reunion overlay */
+  .reunion {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(20, 23, 31, .55);
+    z-index: 80;
+    padding: 20px;
+  }
+  .reunion[hidden] { display: none; }
+  .reunion .card {
+    max-width: 320px; width: 100%;
+    padding: 22px 20px 18px;
+    background: var(--surface);
+    border: 3px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 5px 5px 0 var(--ink);
+    text-align: center;
+  }
+  .reunion .card .title {
+    font: 900 16px/1.3 var(--disp);
+    margin-bottom: 6px;
+  }
+  .reunion .card .line {
+    font: 600 13px/1.5 var(--body);
+    color: var(--ink-2, #3c404a);
+    margin-bottom: 14px;
+  }
+  .reunion .card .mini {
+    display: flex; justify-content: center; margin-bottom: 12px;
+  }
+  .reunion .card .mini svg { width: 88px; height: 88px; }
+  .reunion .btn-close {
+    padding: 10px 22px;
+    background: var(--hp-full, #58cc02);
+    border: 2.5px solid var(--ink);
+    border-radius: var(--r-1);
+    box-shadow: 3px 3px 0 var(--ink);
+    font: 800 13px/1 var(--disp);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .reunion .btn-close:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+
   .toast-wg {
     position: fixed;
     left: 50%; bottom: 96px;
@@ -2562,6 +2674,28 @@
         <span class="arrow"></span>
       </div>
 
+      <div class="evo-panel" id="evo-panel" hidden aria-live="polite">
+        <div class="evo-title">
+          <span>진화까지</span> <b id="evo-stage-label">LV 1 → LV 2</b>
+          <span class="ready-badge" id="evo-ready-badge" hidden>준비 완료!</span>
+        </div>
+        <div class="evo-row" id="evo-row-bond">
+          <span class="lbl">교감</span>
+          <span class="track"><i style="--v:0%"></i></span>
+          <span class="num">0/0</span>
+        </div>
+        <div class="evo-row" id="evo-row-box5">
+          <span class="lbl">외운 단어</span>
+          <span class="track"><i style="--v:0%"></i></span>
+          <span class="num">0/0</span>
+        </div>
+        <div class="evo-row" id="evo-row-streak" hidden>
+          <span class="lbl">연속일</span>
+          <span class="track"><i style="--v:0%"></i></span>
+          <span class="num">0/0</span>
+        </div>
+      </div>
+
       <div class="quests">
         <div class="quests-head">
           <h2>오늘의 퀘스트</h2>
@@ -3264,6 +3398,18 @@
   <!-- Toast for r1 actions -->
   <div class="toast-wg" id="toast-wg" role="status" aria-live="polite"></div>
 
+  <!-- Reunion overlay — shown on return after idle >= 12h -->
+  <div class="reunion" id="reunion" hidden role="dialog" aria-labelledby="reunion-title" aria-describedby="reunion-line">
+    <div class="card">
+      <div class="mini">
+        <svg viewBox="0 0 100 100"><ellipse cx="50" cy="91" rx="26" ry="3.5" fill="rgba(20,23,31,.15)"/><circle cx="50" cy="55" r="28" fill="#1f4fe6" stroke="#14171f" stroke-width="2.5"/><ellipse cx="40" cy="48" rx="3" ry="4" fill="#14171f"/><ellipse cx="60" cy="48" rx="3" ry="4" fill="#14171f"/><path d="M42 62q8 6 16 0" stroke="#14171f" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      <div class="title" id="reunion-title">보고 싶었어!</div>
+      <div class="line" id="reunion-line">오랜만이야~</div>
+      <button type="button" class="btn-close" id="btn-reunion-close">반가워!</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- ============================================================
@@ -3442,7 +3588,7 @@
   import { createStore, seed, migrate, KEYS } from './js/state.js';
   import { addWord } from './js/vocab.js';
   import {
-    createCreature, tick, interact, moodOf,
+    createCreature, tick, interact, moodOf, moodRefined, evolutionProgress,
     STARTER_SPECIES, PERSONALITIES,
   } from './js/creature.js';
   import {
@@ -3467,9 +3613,67 @@
     try { return JSON.parse(localStorage.getItem(CREATURE_KEY)); } catch { return null; }
   }
   function writeCreature(c) {
+    const prev = readCreature();
     localStorage.setItem(CREATURE_KEY, JSON.stringify(c));
     document.body.dataset.creature = c ? 'ready' : '';
     renderVitals();
+    renderEvoPanel();
+    if (prev && c) {
+      const db = (c.bond ?? 0)   - (prev.bond ?? 0);
+      const dh = (c.hunger ?? 0) - (prev.hunger ?? 0);
+      if (Math.abs(db) >= 0.5) spawnDelta('bond', db);
+      if (Math.abs(dh) >= 1)   spawnDelta('hunger', dh);
+    }
+  }
+
+  function spawnDelta(kind, value) {
+    const host = document.getElementById('hud-vitals');
+    if (!host) return;
+    const el = document.createElement('span');
+    el.className = 'delta-float';
+    el.dataset.kind = kind;
+    const sign = value > 0 ? '+' : '';
+    const label = kind === 'bond' ? '♥' : '🍚';
+    el.textContent = `${label}${sign}${value % 1 === 0 ? value : value.toFixed(1)}`;
+    const rect = host.getBoundingClientRect();
+    el.style.left = `${rect.left + (kind === 'bond' ? 10 : 60)}px`;
+    el.style.top  = `${rect.top - 4}px`;
+    el.style.position = 'fixed';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+
+  function renderEvoPanel() {
+    const panel = document.getElementById('evo-panel');
+    if (!panel) return;
+    const c = readCreature();
+    if (!c) { panel.hidden = true; return; }
+    const words = store.get(KEYS.words) ?? [];
+    const prof  = store.get(KEYS.profile) ?? {};
+    const streak = prof.streak ?? 0;
+    const p = evolutionProgress(c, words, streak);
+    if (!p) { panel.hidden = true; return; }
+    panel.hidden = false;
+    panel.classList.toggle('ready', !!p.ready);
+    document.getElementById('evo-stage-label').textContent = `LV ${p.stageFrom} → LV ${p.stageTo}`;
+    document.getElementById('evo-ready-badge').hidden = !p.ready;
+    const setRow = (id, v, max) => {
+      const row = document.getElementById(id);
+      if (!row) return;
+      const pct = max === 0 ? 100 : Math.min(100, Math.round(v / max * 100));
+      row.querySelector('.track i').style.setProperty('--v', pct + '%');
+      row.querySelector('.num').textContent = `${v}/${max}`;
+      row.dataset.done = v >= max ? 'true' : 'false';
+    };
+    setRow('evo-row-bond',  Math.round(p.bond.v), p.bond.max);
+    setRow('evo-row-box5',  p.box5.v, p.box5.max);
+    const streakRow = document.getElementById('evo-row-streak');
+    if (p.streak) {
+      streakRow.hidden = false;
+      setRow('evo-row-streak', p.streak.v, p.streak.max);
+    } else {
+      streakRow.hidden = true;
+    }
   }
 
   function renderVitals() {
@@ -3804,9 +4008,13 @@
     const c = readCreature();
     if (!c) return;
     const now = new Date().toISOString();
-    // mood stance on mascot
+    const refined = moodRefined(c, now);
+    // mood stance on mascot — coarse (kept for existing CSS) + refined (new detail)
     const mascot = document.getElementById('btn-mascot-tap');
-    if (mascot) mascot.dataset.mood = c.mood ?? 'neutral';
+    if (mascot) {
+      mascot.dataset.mood = c.mood ?? 'neutral';
+      mascot.dataset.moodRefined = refined;
+    }
     // vitals badges
     const host = document.getElementById('pr-vitals');
     if (host) {
@@ -3817,10 +4025,19 @@
         <span class="vitals-badge" data-low="${c.hunger<=20}" data-crit="${c.hunger<=10}"><span>🍚</span><span class="bar"><i style="--v:${hungerPct}%"></i></span></span>
       `;
     }
-    // speech
+    // speech — prefer personality-flavored idle line where available.
     if (playModule) {
       const bub = document.getElementById('mascot-speech');
-      if (bub) bub.textContent = playModule.speechFor(c.mood, Math.floor(Date.now() / 10000));
+      if (bub) {
+        const seed = Math.floor(Date.now() / 10000);
+        const idleEvent = refined === 'hungry' ? 'feed'
+                        : refined === 'sad'    ? 'reunion'
+                        : refined === 'bored'  ? 'pet'
+                        : null;
+        bub.textContent = idleEvent
+          ? playModule.lineFor(c.personality, idleEvent, refined, seed)
+          : playModule.speechFor(refined, seed);
+      }
     }
     // button cooldowns
     refreshPlayButtonStates(now);
@@ -3835,7 +4052,7 @@
       const last = readCooldown(kind);
       const ok = playModule.canDo(kind, last, now);
       let extraDisabled = false;
-      if (kind === 'feed' && c && (c.hunger ?? 0) >= 80) extraDisabled = true;
+      if (kind === 'feed' && c && (c.hunger ?? 0) >= (playModule.FEED_FULL ?? 70)) extraDisabled = true;
       btn.disabled = !ok || extraDisabled;
       const cd = btn.querySelector('.pb-cd');
       if (cd) {
@@ -3868,9 +4085,11 @@
     }
     writeCreature(r.creature);
     writeCooldown(kind, now);
-    if (r.speech) {
-      const bub = document.getElementById('mascot-speech');
-      if (bub) bub.textContent = r.speech;
+    const bub = document.getElementById('mascot-speech');
+    if (bub) {
+      const eventKey = kind === 'tap' ? 'pet' : kind; // tap ~= pet
+      const refined2 = moodRefined(r.creature, now);
+      bub.textContent = playModule.lineFor(r.creature.personality, eventKey, refined2, Date.now()) || r.speech || '';
     }
     // animation + particles
     const mascot = document.getElementById('btn-mascot-tap');
@@ -3981,6 +4200,8 @@
     } else {
       document.body.dataset.creature = 'ready';
       renderVitals();
+      renderEvoPanel();
+      maybeShowReunion(c);
     }
     // dailyVisit interaction once per day
     const today = new Date().toISOString().slice(0, 10);
@@ -3990,6 +4211,37 @@
       localStorage.setItem('wg.v1.lastVisitDate', today);
     }
   })();
+
+  // Reunion overlay — shown if idle >= 12h since last interaction.
+  function maybeShowReunion(c) {
+    if (!c?.lastInteractionAt) return;
+    const idleH = (Date.now() - new Date(c.lastInteractionAt).getTime()) / 3600000;
+    if (idleH < 12) return;
+    const el = document.getElementById('reunion');
+    if (!el) return;
+    const hours = Math.floor(idleH);
+    const days  = Math.floor(idleH / 24);
+    const when = days >= 1 ? `${days}일 만이야` : `${hours}시간 만이야`;
+    const title = el.querySelector('.title');
+    const line  = el.querySelector('.line');
+    // Try personality-flavored reunion line async (play.js loads dynamically).
+    import('./js/play.js').then(m => {
+      const speech = m.lineFor(c.personality, 'reunion', moodRefined(c, new Date().toISOString()), Date.now());
+      if (title) title.textContent = speech || '보고 싶었어!';
+    }).catch(() => {});
+    if (line) line.textContent = `${c.name ?? '친구'}야, ${when}`;
+    el.hidden = false;
+  }
+  document.getElementById('btn-reunion-close')?.addEventListener('click', () => {
+    const el = document.getElementById('reunion');
+    if (el) el.hidden = true;
+    const c = readCreature();
+    if (c) writeCreature(interact(c, 'dailyVisit', new Date().toISOString()));
+  });
+  // Re-render evo panel when navigating back to home.
+  new MutationObserver(() => {
+    if (document.body.dataset.screen === 'home') renderEvoPanel();
+  }).observe(document.body, { attributes: true, attributeFilter: ['data-screen'] });
 
   // Expose minimal API for E2E tests
   window.__wg = { readCreature, writeCreature, renderWordList, store, KEYS, refreshPlayroom, openCardDetail };

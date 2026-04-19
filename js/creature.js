@@ -67,6 +67,42 @@ export function moodOf(creature, now) {
   return 'neutral';
 }
 
+// Richer 7-step mood for UI. Falls back to moodOf set + adds 'thriving' / 'content' / 'bored'.
+// Priority: hungry(crit) > hungry > sad > bored > thriving > happy > content > neutral.
+export function moodRefined(creature, now) {
+  const hunger = creature.hunger ?? HUNGER_MAX;
+  const bond   = creature.bond ?? 0;
+  const idle   = hoursBetween(creature.lastInteractionAt, now);
+  if (hunger <= 20) return 'hungry';
+  if (idle >= 48)   return 'sad';
+  if (idle >= 12)   return 'bored';
+  if (bond >= 90 && hunger >= 70) return 'thriving';
+  if (bond >= 80 && hunger > 60)  return 'happy';
+  if (bond >= 60 && hunger > 40)  return 'content';
+  return 'neutral';
+}
+
+// Evolution progress toward the next stage. Returns { stageFrom, stageTo, bondPct, box5Pct, streakPct, ready }
+// or null if already at max stage.
+export function evolutionProgress(creature, words = [], streak = 0) {
+  const req = EVOLUTION_REQS.find(r => r.from === (creature.stage ?? 1));
+  if (!req) return null;
+  const bondV   = Math.min(creature.bond ?? 0, req.bond);
+  const box5V   = Math.min(words.filter(w => w.box === 5).length, req.box5);
+  const streakV = req.streak != null ? Math.min(streak ?? 0, req.streak) : null;
+  const ready =
+    bondV >= req.bond &&
+    box5V >= req.box5 &&
+    (req.streak == null || (streak ?? 0) >= req.streak);
+  return {
+    stageFrom: req.from, stageTo: req.to,
+    bond:   { v: bondV,   max: req.bond },
+    box5:   { v: box5V,   max: req.box5 },
+    streak: req.streak != null ? { v: streakV, max: req.streak } : null,
+    ready,
+  };
+}
+
 export function tick(creature, now) {
   const checkpoint = creature.lastTickedAt ?? creature.lastInteractionAt;
   const idleH = Math.max(0, hoursBetween(checkpoint, now));
