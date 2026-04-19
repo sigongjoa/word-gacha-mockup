@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>단어야구 보드게임 — PvP 목업</title>
+<style>
+  :root {
+    --lime:#58cc02; --lime-d:#46a302;
+    --red:#e53e3e; --blue:#2b8cff; --gold:#ffc800;
+    --ink:#1f2933; --sub:#6b7280; --bg:#f7f8fb; --card:#fff; --line:#e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans KR', system-ui, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: 1fr 320px; gap:16px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } .sidebar { order: 2; } }
+  h1 { margin:0 0 12px; font-size: 18px; }
+  .pill { display:inline-block; padding:2px 10px; background:var(--gold); color:#000; border-radius:999px; font-weight:700; font-size:12px; margin-left:6px; }
+
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+
+  /* Scoreboard */
+  .score { display:grid; grid-template-columns:auto auto auto 1fr auto; gap:10px; align-items:center; font-family: 'SF Mono', Menlo, monospace; }
+  .score .teamname { font-weight:800; font-size:14px; }
+  .score .num { font-size:24px; font-weight:800; min-width: 28px; text-align:center; }
+  .score .vs { color:var(--sub); font-size:12px; }
+  .meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:13px; color:var(--sub); }
+  .meta b { color:var(--ink); }
+
+  /* Bases (diamond) */
+  .diamond { position:relative; width:160px; height:140px; margin:8px auto; }
+  .base { position:absolute; width:18px; height:18px; background:#fff; border:2px solid var(--ink); transform:rotate(45deg); }
+  .base.on { background:var(--gold); }
+  .b1 { right:14px; top:56px; }
+  .b2 { left:50%; top:8px; transform:translateX(-50%) rotate(45deg); }
+  .b3 { left:14px; top:56px; }
+  .home { position:absolute; left:50%; bottom:4px; transform:translateX(-50%) rotate(45deg); width:14px; height:14px; background:var(--ink); }
+
+  /* Count */
+  .count { display:flex; gap:14px; align-items:center; justify-content:center; }
+  .count .dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--ink); background:#fff; }
+  .count .dot.on-s { background:var(--lime); border-color:var(--lime-d); }
+  .count .dot.on-b { background:var(--blue); border-color:var(--blue); }
+  .count .dot.on-o { background:var(--red); border-color:var(--red); }
+  .count .label { font-size:12px; color:var(--sub); margin-right:4px; }
+
+  /* Turn badge */
+  .turn { display:inline-block; padding:6px 14px; border-radius:999px; font-weight:700; font-size:14px; }
+  .turn.pitch { background:#fff6d6; color:#7a5a00; border:1px solid var(--gold); }
+  .turn.bat   { background:#e6f4e6; color:#0d6a0d; border:1px solid var(--lime); }
+
+  /* Pitch cards (투수 손패) */
+  .hand { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .pcard { background:#fff; border:2px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; transition:transform .12s, border-color .12s; font-weight:800; }
+  .pcard:hover { transform: translateY(-3px); border-color:var(--ink); }
+  .pcard.fastball { background:#fffaf0; }
+  .pcard.slider   { background:#fff6d6; }
+  .pcard.curve    { background:#ffe8e8; }
+  .pcard small { display:block; font-size:11px; color:var(--sub); font-weight:500; margin-top:4px; }
+  .pcard[disabled] { opacity:.4; cursor:not-allowed; pointer-events:none; }
+
+  /* Prompt + choices */
+  .prompt { font-size:28px; font-weight:800; text-align:center; padding:18px 8px; border-radius:12px; margin-bottom:10px; min-height:70px; display:flex; align-items:center; justify-content:center; word-break:keep-all; }
+  .prompt.fastball { background:#fff3d9; }
+  .prompt.slider   { background:#fff6b8; }
+  .prompt.curve    { background:#ffd6d6; }
+  .prompt .ptype { display:block; font-size:12px; color:var(--sub); font-weight:600; margin-bottom:6px; }
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .choice { padding:14px 10px; font-size:15px; font-weight:700; background:#fff; border:2px solid var(--line); border-radius:12px; cursor:pointer; transition:transform .1s, border-color .1s; }
+  .choice:hover { border-color:var(--ink); }
+  .choice.correct { background:#dff3dd; border-color:var(--lime); }
+  .choice.wrong   { background:#fde2e2; border-color:var(--red); }
+  .choice[disabled] { cursor:not-allowed; }
+
+  .callout { text-align:center; padding:10px; font-weight:800; font-size:16px; border-radius:10px; margin:10px 0; opacity:0; transition:opacity .2s; min-height:42px; }
+  .callout.show { opacity:1; }
+  .callout.hit  { background:#dff3dd; color:#0d6a0d; }
+  .callout.out  { background:#fde2e2; color:#9b1c1c; }
+  .callout.info { background:#eef2ff; color:#374151; }
+
+  /* Sidebar — event log */
+  .sidebar { position: sticky; top: 12px; align-self: start; }
+  .log { max-height: 420px; overflow:auto; font-family: 'SF Mono', Menlo, monospace; font-size:12px; }
+  .log .row { padding:6px 8px; border-bottom:1px dashed var(--line); }
+  .log .row:last-child { border-bottom: none; }
+  .log .dir { display:inline-block; width:40px; color:var(--sub); }
+  .log .t   { color:var(--sub); }
+  .log .type { color:var(--blue); font-weight:700; }
+  .log details { margin-top:4px; }
+  .log details pre { margin:4px 0 0; color:#374151; background:#f3f4f6; padding:6px; border-radius:6px; font-size:11px; overflow:auto; }
+
+  .controls { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { padding:8px 14px; border-radius:10px; border:2px solid var(--line); background:#fff; cursor:pointer; font-weight:700; font-size:13px; }
+  .btn.primary { background:var(--lime); color:#fff; border-color:var(--lime-d); }
+  .btn:hover { border-color:var(--ink); }
+
+  .role-switch { display:flex; gap:6px; }
+  .role-switch .btn.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  .end { text-align:center; padding:20px; background:#fff7e0; border-radius:12px; font-weight:800; font-size:18px; color:#7a5a00; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main>
+    <h1>⚾ 단어야구 보드게임 <span class="pill">PvP 목업</span></h1>
+
+    <div class="card">
+      <div class="controls" style="justify-content:space-between;">
+        <div class="role-switch" id="roleSwitch">
+          <button class="btn on" data-role="batter">타자로 플레이</button>
+          <button class="btn" data-role="pitcher">투수로 플레이</button>
+        </div>
+        <button class="btn primary" id="newGameBtn">새 게임</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="score">
+        <div class="teamname">AWAY</div><div class="num" id="awayScore">0</div>
+        <div class="vs">VS</div>
+        <div class="teamname" style="text-align:right;">HOME</div><div class="num" id="homeScore">0</div>
+      </div>
+      <div class="diamond" aria-label="베이스 상황">
+        <div class="base b2" id="base2"></div>
+        <div class="base b3" id="base3"></div>
+        <div class="base b1" id="base1"></div>
+        <div class="home"></div>
+      </div>
+      <div class="count">
+        <span class="label">B</span>
+        <span class="dot" id="b1"></span><span class="dot" id="b2"></span><span class="dot" id="b3"></span>
+        <span class="label">S</span>
+        <span class="dot" id="s1"></span><span class="dot" id="s2"></span>
+        <span class="label">O</span>
+        <span class="dot" id="o1"></span><span class="dot" id="o2"></span>
+      </div>
+      <div class="meta">
+        <span id="inningLabel"><b>1회초</b></span>
+        <span id="turnBadge" class="turn pitch">TURN: 투수</span>
+      </div>
+    </div>
+
+    <div class="card" id="pitcherPanel" hidden>
+      <div style="font-weight:700; margin-bottom:8px;">구종을 선택하세요</div>
+      <div class="hand">
+        <button class="pcard fastball" data-pitch="직구">🔥 직구<small>정답=1루타 / 오답=볼</small></button>
+        <button class="pcard slider" data-pitch="슬라이더">🌀 슬라이더<small>정답=1루타 / 3S=삼진</small></button>
+        <button class="pcard curve" data-pitch="커브">🎯 커브<small>정답=2루타 / 오답=즉시 삼진</small></button>
+      </div>
+    </div>
+
+    <div class="card" id="batterPanel" hidden>
+      <div class="prompt" id="prompt"><span class="ptype" id="ptype"></span><span id="promptText">대기 중…</span></div>
+      <div class="choices" id="choices"></div>
+    </div>
+
+    <div class="callout" id="callout"></div>
+    <div id="endBox"></div>
+  </main>
+
+  <aside class="sidebar">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <strong>📡 프로토콜 로그</strong>
+        <button class="btn" id="clearLogBtn" style="padding:4px 8px; font-size:11px;">지우기</button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </aside>
+</div>
+
+<script type="module">
+  import { EV } from './js/pvp-proto.js';
+  import { createMockTransport } from './js/pvp-transport-mock.js';
+
+  const $ = s => document.querySelector(s);
+  const els = {
+    awayScore: $('#awayScore'), homeScore: $('#homeScore'),
+    inningLabel: $('#inningLabel'), turnBadge: $('#turnBadge'),
+    base1: $('#base1'), base2: $('#base2'), base3: $('#base3'),
+    bDots: [$('#b1'),$('#b2'),$('#b3')],
+    sDots: [$('#s1'),$('#s2')],
+    oDots: [$('#o1'),$('#o2')],
+    pitcherPanel: $('#pitcherPanel'),
+    batterPanel: $('#batterPanel'),
+    prompt: $('#prompt'), ptype: $('#ptype'), promptText: $('#promptText'),
+    choices: $('#choices'),
+    callout: $('#callout'),
+    log: $('#log'),
+    endBox: $('#endBox'),
+    roleSwitch: $('#roleSwitch'),
+  };
+
+  let role = 'batter';
+  let transport = null;
+  let lastThrown = null;
+  let locked = false;
+
+  function pitchClassFor(type) {
+    return type === '직구' ? 'fastball' : type === '슬라이더' ? 'slider' : 'curve';
+  }
+
+  function showCallout(text, cls = 'info', hold = 1400) {
+    els.callout.textContent = text;
+    els.callout.className = 'callout show ' + cls;
+    clearTimeout(showCallout._t);
+    showCallout._t = setTimeout(() => {
+      els.callout.classList.remove('show');
+    }, hold);
+  }
+
+  function renderState(s) {
+    els.awayScore.textContent = s.awayScore;
+    els.homeScore.textContent = s.homeScore;
+    els.inningLabel.innerHTML = `<b>${s.inning}회${s.half === 'top' ? '초' : '말'}</b>`;
+    els.base1.classList.toggle('on', !!s.bases[0]);
+    els.base2.classList.toggle('on', !!s.bases[1]);
+    els.base3.classList.toggle('on', !!s.bases[2]);
+    els.bDots.forEach((d,i) => d.classList.toggle('on-b', i < s.balls));
+    els.sDots.forEach((d,i) => d.classList.toggle('on-s', i < s.strikes));
+    els.oDots.forEach((d,i) => d.classList.toggle('on-o', i < s.outs));
+
+    if (s.phase === 'END') {
+      els.turnBadge.textContent = 'GAME END';
+      els.turnBadge.className = 'turn';
+      return;
+    }
+    const mine = s.whoseTurn === role;
+    els.turnBadge.textContent = `TURN: ${s.whoseTurn === 'pitcher' ? '투수' : '타자'} ${mine ? '(내 차례)' : '(상대)'}`;
+    els.turnBadge.className = 'turn ' + (s.whoseTurn === 'pitcher' ? 'pitch' : 'bat');
+  }
+
+  function renderPitcherPanel(myTurn) {
+    els.pitcherPanel.hidden = !(role === 'pitcher');
+    if (role !== 'pitcher') return;
+    els.pitcherPanel.querySelectorAll('.pcard').forEach(b => { b.disabled = !myTurn; });
+  }
+  function renderBatterPanel(q) {
+    els.batterPanel.hidden = !(role === 'batter');
+    if (role !== 'batter') return;
+    els.ptype.textContent = `⚾ ${q.type}`;
+    els.promptText.textContent = q.prompt;
+    els.prompt.className = 'prompt ' + pitchClassFor(q.type);
+    els.choices.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.textContent = `${i+1}. ${opt}`;
+      b.addEventListener('click', () => swing(i, b));
+      els.choices.appendChild(b);
+    });
+    locked = false;
+  }
+  function disableChoices(correctIndex = -1, pickedIndex = -1) {
+    [...els.choices.children].forEach((b, i) => {
+      b.disabled = true;
+      if (i === correctIndex) b.classList.add('correct');
+      if (i === pickedIndex && i !== correctIndex) b.classList.add('wrong');
+    });
+  }
+
+  function swing(idx, btn) {
+    if (locked) return;
+    locked = true;
+    pickedLast = idx;
+    transport.send(EV.BAT_ANSWER, { pickedIndex: idx });
+  }
+
+  function selectPitch(type) {
+    transport.send(EV.PITCH_SELECT, { type });
+  }
+
+  // --- Event log rendering ---
+  function renderLogRow(dir, env) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    const payloadPreview = JSON.stringify(env.payload, null, 2);
+    row.innerHTML =
+      `<div><span class="dir">${dir}</span><span class="type">${env.type}</span> <span class="t">#${env.seq}</span></div>` +
+      `<details><summary>payload</summary><pre>${escape(payloadPreview)}</pre></details>`;
+    els.log.insertBefore(row, els.log.firstChild);
+  }
+  function escape(s) { return s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
+
+  function wireTransport(t) {
+    const origSend = t.send;
+    t.send = (type, payload) => {
+      renderLogRow('C→S', { seq: t._debug().seq, type, payload: payload ?? {} });
+      return origSend(type, payload);
+    };
+    t.on(EV.ROOM_STATE, (s, env) => {
+      renderLogRow('S→C', env);
+      renderState(s);
+      if (s.phase === 'IDLE') renderPitcherPanel(s.whoseTurn === 'pitcher' && role === 'pitcher');
+    });
+    t.on(EV.PITCH_THROWN, (q, env) => {
+      renderLogRow('S→C', env);
+      lastThrown = q;
+      if (role === 'batter') renderBatterPanel(q);
+      else {
+        // Pitcher side sees "공 던짐" info, not the prompt as a quiz.
+        showCallout(`공을 던졌어요: ${q.type}`, 'info');
+      }
+    });
+    t.on(EV.TURN_START, (_, env) => renderLogRow('S→C', env));
+    t.on(EV.PLAY_RESULT, (r, env) => {
+      renderLogRow('S→C', env);
+      const cls = r.correct ? 'hit' : 'out';
+      const msg = `${r.type} · ${r.result}${r.runs > 0 ? ` · +${r.runs}점` : ''}`;
+      showCallout(msg, cls);
+      if (role === 'batter' && pickedLast >= 0) {
+        const btn = els.choices.children[pickedLast];
+        if (btn) btn.classList.add(r.correct ? 'correct' : 'wrong');
+        [...els.choices.children].forEach(b => { b.disabled = true; });
+      }
+    });
+    t.on(EV.GAME_END, (r, env) => {
+      renderLogRow('S→C', env);
+      const winnerLabel = r.winner === 'tie' ? '무승부' : (r.winner === 'home' ? '홈팀 승' : '원정팀 승');
+      els.endBox.innerHTML = `<div class="end">🏆 ${winnerLabel} — ${r.away} : ${r.home}</div>`;
+    });
+  }
+
+  let pickedLast = -1;
+  function startGame() {
+    if (transport) transport.close();
+    els.log.innerHTML = '';
+    els.endBox.innerHTML = '';
+    showCallout('게임 시작!', 'info', 1200);
+    transport = createMockTransport({ humanRole: role, tier: 1 });
+    wireTransport(transport);
+    transport.send(EV.ROOM_JOIN, { roomId: 'mock-1', role, nick: 'you' });
+  }
+
+  document.getElementById('newGameBtn').addEventListener('click', startGame);
+  els.roleSwitch.querySelectorAll('.btn').forEach(b => {
+    b.addEventListener('click', () => {
+      els.roleSwitch.querySelectorAll('.btn').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      role = b.dataset.role;
+      els.batterPanel.hidden = role !== 'batter';
+      els.pitcherPanel.hidden = role !== 'pitcher';
+      startGame();
+    });
+  });
+  document.getElementById('clearLogBtn').addEventListener('click', () => { els.log.innerHTML = ''; });
+
+  document.querySelectorAll('.pcard').forEach(b => {
+    b.addEventListener('click', () => selectPitch(b.dataset.pitch));
+  });
+
+  // kick off
+  startGame();
+</script>
+</body>
+</html>
