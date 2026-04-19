@@ -1965,8 +1965,8 @@
   .mascot-tap svg {
     width: 120px; height: 120px;
     color: var(--ink);
-    animation: mascot-breathe 2.6s var(--e-out) infinite;
     transform-origin: 50% 90%;
+    overflow: visible;
   }
   .mascot-tap .pr-shadow {
     position: absolute;
@@ -1976,21 +1976,171 @@
     border-radius: 50%;
     filter: blur(1px);
   }
-  .mascot-tap:active svg { transform: scale(1.08); transition: transform .12s var(--e-out); }
-  .mascot-tap[data-bounce="true"] svg { animation: mascot-bounce .5s var(--e-out); }
-  @keyframes mascot-breathe {
+  .mascot-tap:active svg { transform: scale(1.04); transition: transform .12s var(--e-out); }
+
+  /* Body — always breathing */
+  .mascot-tap .m-body {
+    animation: m-breathe 2.6s var(--e-out) infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 90%;
+  }
+  @keyframes m-breathe {
     0%,100% { transform: scaleY(1) scaleX(1); }
     50%     { transform: scaleY(0.97) scaleX(1.02); }
   }
-  @keyframes mascot-bounce {
+
+  /* Eyes — blinking (random delay via inline style) */
+  .mascot-tap .m-eyes {
+    animation: m-blink 5s linear infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+  @keyframes m-blink {
+    0%, 92%, 96%, 100% { transform: scaleY(1); }
+    94%                 { transform: scaleY(0.1); }
+  }
+
+  /* Mouth — default visibility */
+  .mascot-tap .m-mouth-neutral { display: block; }
+  .mascot-tap .m-mouth-happy,
+  .mascot-tap .m-mouth-sad,
+  .mascot-tap .m-mouth-eat { display: none; }
+  .mascot-tap[data-mood="happy"] .m-mouth-neutral,
+  .mascot-tap[data-mood="happy"] .m-mouth-sad,
+  .mascot-tap[data-mood="happy"] .m-mouth-eat { display: none; }
+  .mascot-tap[data-mood="happy"] .m-mouth-happy { display: block; }
+  .mascot-tap[data-mood="sad"] .m-mouth-neutral,
+  .mascot-tap[data-mood="sad"] .m-mouth-happy,
+  .mascot-tap[data-mood="sad"] .m-mouth-eat { display: none; }
+  .mascot-tap[data-mood="sad"] .m-mouth-sad { display: block; }
+  .mascot-tap[data-mood="hungry"] .m-cheek { opacity: .3; }
+
+  /* Sad mood — posture */
+  .mascot-tap[data-mood="sad"] .m-body {
+    animation: m-breathe 4s var(--e-out) infinite, m-droop 6s ease-in-out infinite;
+  }
+  @keyframes m-droop {
+    0%,100% { filter: none; }
+    50%     { filter: grayscale(0.3) brightness(0.95); }
+  }
+
+  /* One-shot action animations via data-anim */
+  .mascot-tap[data-anim="bounce"] svg { animation: m-bounce .5s var(--e-out); }
+  .mascot-tap[data-anim="eating"] .m-body { animation: m-eat .9s var(--e-out) 2; }
+  .mascot-tap[data-anim="eating"] .m-mouth-neutral,
+  .mascot-tap[data-anim="eating"] .m-mouth-happy,
+  .mascot-tap[data-anim="eating"] .m-mouth-sad { display: none; }
+  .mascot-tap[data-anim="eating"] .m-mouth-eat { display: block; animation: m-eat-mouth .3s linear 6; }
+  .mascot-tap[data-anim="petting"] .m-body { animation: m-breathe 2.6s var(--e-out) infinite, m-sway 1.2s ease-in-out 3; }
+  .mascot-tap[data-anim="sleeping"] .m-body {
+    animation: m-breathe 4s var(--e-out) infinite;
+    transform: rotate(-6deg);
+  }
+  .mascot-tap[data-anim="sleeping"] .m-eyes {
+    animation: none;
+    transform: scaleY(0.1);
+  }
+  .mascot-tap[data-anim="tilt"] svg { animation: m-tilt .5s var(--e-out); }
+  .mascot-tap[data-anim="evolving"] svg {
+    animation: m-evolve 1.6s var(--e-out);
+  }
+
+  @keyframes m-bounce {
     0%   { transform: translateY(0) scale(1); }
     30%  { transform: translateY(-12px) scale(1.06); }
     60%  { transform: translateY(0) scale(0.96); }
     100% { transform: translateY(0) scale(1); }
   }
+  @keyframes m-eat {
+    0%,100% { transform: translateY(0) scale(1); }
+    50%     { transform: translateY(2px) scale(1.04, 0.98); }
+  }
+  @keyframes m-eat-mouth {
+    0%,100% { transform: scaleY(1); }
+    50%     { transform: scaleY(0.3); }
+  }
+  @keyframes m-sway {
+    0%,100% { transform: rotate(0); }
+    25%     { transform: rotate(-4deg); }
+    75%     { transform: rotate(4deg); }
+  }
+  @keyframes m-tilt {
+    0%,100% { transform: rotate(0); }
+    50%     { transform: rotate(15deg); }
+  }
+  @keyframes m-evolve {
+    0%   { transform: scale(1); filter: brightness(1); }
+    30%  { transform: scale(1.1); filter: brightness(2) blur(1px); }
+    60%  { transform: scale(0.9); filter: brightness(2.5) blur(2px); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .mascot-tap svg { animation: none; }
-    .mascot-tap[data-bounce="true"] svg { animation: none; }
+    .mascot-tap .m-body,
+    .mascot-tap .m-eyes,
+    .mascot-tap[data-anim] .m-body,
+    .mascot-tap[data-anim] svg { animation: none; }
+  }
+
+  /* ==================================================================
+     Particle layer — hearts / zzz / stars / balls
+     ================================================================== */
+  .particle-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 5;
+  }
+  .particle {
+    position: absolute;
+    font: 700 18px/1 var(--disp);
+    left: 50%;
+    bottom: 40%;
+    animation: particle-rise 1.4s var(--e-out) forwards;
+    pointer-events: none;
+    user-select: none;
+  }
+  .particle[data-kind="heart"] { color: var(--hot); }
+  .particle[data-kind="zzz"]   { color: var(--ink-3); font-size: 20px; }
+  .particle[data-kind="star"]  { color: var(--gold); }
+  .particle[data-kind="evolve"] {
+    font-size: 24px;
+    animation: particle-burst 1.6s var(--e-out) forwards;
+  }
+  @keyframes particle-rise {
+    0%   { transform: translate(var(--dx, 0), 0) scale(0.6); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(calc(var(--dx, 0) * 3), -90px) scale(1.1); opacity: 0; }
+  }
+  @keyframes particle-burst {
+    0%   { transform: translate(0, 0) scale(0); opacity: 0; }
+    30%  { transform: translate(var(--dx, 0), var(--dy, 0)) scale(1.2); opacity: 1; }
+    100% { transform: translate(calc(var(--dx, 0) * 1.5), calc(var(--dy, 0) * 1.5)) scale(0.4); opacity: 0; }
+  }
+
+  /* Ball mini-game — rolling ball */
+  .play-ball-anim {
+    position: absolute;
+    left: 20%;
+    bottom: 30%;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #d4d8df 60%, #9ba3b4 100%);
+    border: 2px solid var(--ink);
+    animation: ball-throw 1.2s var(--e-out);
+    z-index: 6;
+  }
+  @keyframes ball-throw {
+    0%   { transform: translate(0, 0);         opacity: 0; }
+    15%  { transform: translate(20px, -60px);  opacity: 1; }
+    50%  { transform: translate(80px, -110px); }
+    85%  { transform: translate(140px, -60px); }
+    100% { transform: translate(160px, 0);     opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .particle, .play-ball-anim { animation: none; display: none; }
   }
 
   .play-actions {
@@ -2056,30 +2206,37 @@
       <!-- 발 -->
       <ellipse cx="40" cy="85" rx="7" ry="4" fill="#1438a8"/>
       <ellipse cx="60" cy="85" rx="7" ry="4" fill="#1438a8"/>
-      <!-- 몸통 -->
-      <path d="M50 22c-16 0-25 10-25 24v14c0 12 10 21 25 21s25-9 25-21V46c0-14-9-24-25-24z"
-            fill="#1f4fe6" stroke="#14171f" stroke-width="2.5"/>
-      <!-- 배 -->
-      <ellipse cx="50" cy="60" rx="14" ry="12" fill="#f6efe3"/>
       <!-- 뿔/안테나 -->
-      <path d="M50 22v-8M50 14l-3-4M50 14l3-4"
+      <path class="m-antenna" d="M50 22v-8M50 14l-3-4M50 14l3-4"
             stroke="#14171f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <circle cx="50" cy="12" r="3" fill="#d4232c" stroke="#14171f" stroke-width="2"/>
-      <!-- 볼터치 -->
-      <ellipse cx="33" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
-      <ellipse cx="67" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
-      <!-- 눈 -->
-      <g>
-        <ellipse class="mascot-eye" cx="40" cy="44" rx="3" ry="4.5" fill="#14171f"/>
-        <ellipse class="mascot-eye" cx="60" cy="44" rx="3" ry="4.5" fill="#14171f"/>
-        <circle cx="41.4" cy="42.6" r="1.1" fill="#fff"/>
-        <circle cx="61.4" cy="42.6" r="1.1" fill="#fff"/>
+      <circle class="m-antenna-ball" cx="50" cy="12" r="3" fill="#d4232c" stroke="#14171f" stroke-width="2"/>
+      <!-- 몸통 (애니메이션 타겟) -->
+      <g class="m-body" style="transform-origin: 50px 75px;">
+        <path d="M50 22c-16 0-25 10-25 24v14c0 12 10 21 25 21s25-9 25-21V46c0-14-9-24-25-24z"
+              fill="#1f4fe6" stroke="#14171f" stroke-width="2.5"/>
+        <!-- 배 -->
+        <ellipse cx="50" cy="60" rx="14" ry="12" fill="#f6efe3"/>
+        <!-- 볼터치 -->
+        <ellipse class="m-cheek" cx="33" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+        <ellipse class="m-cheek" cx="67" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+        <!-- 눈 그룹 (깜빡 타겟) -->
+        <g class="m-eyes" style="transform-origin: 50px 44px;">
+          <ellipse class="mascot-eye" cx="40" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+          <ellipse class="mascot-eye" cx="60" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+          <circle cx="41.4" cy="42.6" r="1.1" fill="#fff"/>
+          <circle cx="61.4" cy="42.6" r="1.1" fill="#fff"/>
+        </g>
+        <!-- 입 그룹 — mood별 path 전환 -->
+        <g class="m-mouth">
+          <path class="m-mouth-neutral" d="M46 54q4 3 8 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path class="m-mouth-happy"   d="M44 52q6 6 12 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path class="m-mouth-sad"     d="M44 56q6 -4 12 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <ellipse class="m-mouth-eat"  cx="50" cy="55" rx="4" ry="3" fill="#14171f"/>
+        </g>
+        <!-- 팔 -->
+        <ellipse class="m-arm m-arm-l" cx="26" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
+        <ellipse class="m-arm m-arm-r" cx="74" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
       </g>
-      <!-- 입 -->
-      <path d="M46 54q4 3 8 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <!-- 팔 -->
-      <ellipse cx="26" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
-      <ellipse cx="74" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
     </symbol>
 
     <!-- ===== 가구 =====
@@ -2996,6 +3153,7 @@
           <span class="pr-shadow"></span>
           <svg><use href="#mascot"/></svg>
         </button>
+        <div class="particle-layer" id="particle-layer" aria-hidden="true"></div>
       </div>
 
       <div class="play-actions" role="group" aria-label="캐릭터와 놀기">
@@ -3228,6 +3386,9 @@
     createCreature, tick, interact, moodOf,
     STARTER_SPECIES, PERSONALITIES,
   } from './js/creature.js';
+  import {
+    playAnim, spawnParticles, animForAction, particleForAction,
+  } from './js/animate.js';
 
   const CREATURE_KEY = 'wg.v1.creature';
   const store = createStore(localStorage);
@@ -3584,6 +3745,9 @@
     const c = readCreature();
     if (!c) return;
     const now = new Date().toISOString();
+    // mood stance on mascot
+    const mascot = document.getElementById('btn-mascot-tap');
+    if (mascot) mascot.dataset.mood = c.mood ?? 'neutral';
     // vitals badges
     const host = document.getElementById('pr-vitals');
     if (host) {
@@ -3636,6 +3800,9 @@
     }
     const r = playModule.performAction(c, kind, now);
     if (r.error) {
+      const mascotEl = document.getElementById('btn-mascot-tap');
+      const anim = animForAction(kind, r);
+      if (mascotEl && anim) playAnim(mascotEl, anim);
       if (r.error === 'not hungry') toast(r.speech ?? '배 안 고파요');
       else toast('지금은 못 해요');
       return;
@@ -3646,11 +3813,14 @@
       const bub = document.getElementById('mascot-speech');
       if (bub) bub.textContent = r.speech;
     }
-    // bounce animation
+    // animation + particles
     const mascot = document.getElementById('btn-mascot-tap');
-    if (mascot) {
-      mascot.dataset.bounce = 'true';
-      setTimeout(() => { mascot.dataset.bounce = 'false'; }, 520);
+    const layer = document.getElementById('particle-layer');
+    const anim = animForAction(kind, r);
+    if (mascot && anim) playAnim(mascot, anim);
+    const particle = particleForAction(kind);
+    if (layer && particle) {
+      spawnParticles(layer, particle.kind, { count: particle.count, spread: particle.spread });
     }
     refreshPlayroom();
     const parts = [];
@@ -3715,6 +3885,16 @@
       writeCooldown('ball', now);
     }
     dlg.close();
+    // animation + particles based on ball outcome
+    const mascot = document.getElementById('btn-mascot-tap');
+    const layer = document.getElementById('particle-layer');
+    const ballKind = correct ? 'ball:correct' : 'ball:wrong';
+    const anim = animForAction(ballKind, r);
+    if (mascot && anim) playAnim(mascot, anim);
+    const particle = particleForAction(ballKind);
+    if (layer && particle) {
+      spawnParticles(layer, particle.kind, { count: particle.count, spread: particle.spread });
+    }
     refreshPlayroom();
     toast(correct ? `정답! "${ans}" · 교감 +2` : `정답은 "${ans}" · 교감 +0.5`);
   });

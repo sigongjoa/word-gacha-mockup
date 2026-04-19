@@ -6,10 +6,10 @@
   "private": true,
   "scripts": {
     "test": "npm run test:unit && npm run test:integration && npm run test:browser && npm run test:ui",
-    "test:unit": "node --test tests/state.test.js tests/quiz.test.js tests/vocab.test.js tests/dex.test.js tests/streak.test.js tests/me.test.js tests/creature.test.js tests/play.test.js",
+    "test:unit": "node --test tests/state.test.js tests/quiz.test.js tests/vocab.test.js tests/dex.test.js tests/streak.test.js tests/me.test.js tests/creature.test.js tests/play.test.js tests/animate.test.js",
     "test:integration": "node --test tests/integration.test.js",
     "test:browser": "node tests/browser-smoke.spec.mjs && node tests/index-load.spec.mjs",
-    "test:ui": "node tests/ui-interactions.spec.mjs && node tests/r1-alive.spec.mjs && node tests/r2-dex-playroom.spec.mjs"
+    "test:ui": "node tests/ui-interactions.spec.mjs && node tests/r1-alive.spec.mjs && node tests/r2-dex-playroom.spec.mjs && node tests/r3-animations.spec.mjs"
   },
   "repository": {
     "type": "git",
