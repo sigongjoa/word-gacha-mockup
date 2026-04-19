@@ -1978,33 +1978,37 @@
   }
   .mascot-tap:active svg { transform: scale(1.04); transition: transform .12s var(--e-out); }
 
-  /* Body — always breathing */
-  .mascot-tap .m-body {
-    animation: m-breathe 2.6s var(--e-out) infinite;
+  /* Body — always breathing + idle bob (모든 마스코트 적용, 뚜렷하게) */
+  .m-body {
+    animation: m-breathe 2.2s ease-in-out infinite, m-idle-bob 2.2s ease-in-out infinite;
     transform-box: fill-box;
     transform-origin: 50% 90%;
   }
   @keyframes m-breathe {
     0%,100% { transform: scaleY(1) scaleX(1); }
-    50%     { transform: scaleY(0.97) scaleX(1.02); }
+    50%     { transform: scaleY(0.9) scaleX(1.08); }
+  }
+  @keyframes m-idle-bob {
+    0%,100% { translate: 0 0; }
+    50%     { translate: 0 -4px; }
   }
 
-  /* Eyes — blinking (random delay via inline style) */
-  .mascot-tap .m-eyes {
-    animation: m-blink 5s linear infinite;
+  /* Eyes — blinking (모든 마스코트 적용, 더 자주) */
+  .m-eyes {
+    animation: m-blink 3.5s linear infinite;
     transform-box: fill-box;
     transform-origin: 50% 50%;
   }
   @keyframes m-blink {
-    0%, 92%, 96%, 100% { transform: scaleY(1); }
-    94%                 { transform: scaleY(0.1); }
+    0%, 86%, 92%, 94%, 100% { transform: scaleY(1); }
+    88%, 93%                { transform: scaleY(0.05); }
   }
 
-  /* Mouth — default visibility */
-  .mascot-tap .m-mouth-neutral { display: block; }
-  .mascot-tap .m-mouth-happy,
-  .mascot-tap .m-mouth-sad,
-  .mascot-tap .m-mouth-eat { display: none; }
+  /* Mouth — default visibility (모든 마스코트 적용) */
+  .m-mouth-neutral { display: block; }
+  .m-mouth-happy,
+  .m-mouth-sad,
+  .m-mouth-eat { display: none; }
   .mascot-tap[data-mood="happy"] .m-mouth-neutral,
   .mascot-tap[data-mood="happy"] .m-mouth-sad,
   .mascot-tap[data-mood="happy"] .m-mouth-eat { display: none; }
@@ -2076,8 +2080,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .mascot-tap .m-body,
-    .mascot-tap .m-eyes,
+    .m-body,
+    .m-eyes,
     .mascot-tap[data-anim] .m-body,
     .mascot-tap[data-anim] svg { animation: none; }
   }
