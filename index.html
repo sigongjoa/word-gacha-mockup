@@ -213,6 +213,7 @@
   body[data-screen="practice"] .screen[data-s="practice"] { display: block; }
   body[data-screen="dex"]      .screen[data-s="dex"]      { display: block; }
   body[data-screen="me"]       .screen[data-s="me"]       { display: block; }
+  body[data-screen="playroom"] .screen[data-s="playroom"] { display: block; }
 
   @keyframes screen-in {
     from { opacity: 0; transform: translateY(6px); }
@@ -1745,6 +1746,296 @@
     font: 600 13px/1.4 var(--body);
     color: var(--ink-3);
   }
+
+  /* ==================================================================
+     Home entry tile — 놀아주기 (playroom entry)
+     ================================================================== */
+  .item.playroom-entry {
+    right: 16px;
+    bottom: 92px;
+    background: var(--pri-soft);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 10px 12px 8px;
+    display: grid; gap: 4px; place-items: center;
+    position: absolute;
+    color: var(--ink);
+  }
+  .item.playroom-entry .pr-icon { font-size: 24px; line-height: 1; }
+  .item.playroom-entry .lbl {
+    font: 800 11px/1 var(--disp);
+    letter-spacing: .04em;
+    background: var(--ink);
+    color: #fff;
+    padding: 3px 7px;
+    border-radius: var(--r-1);
+  }
+  .item.playroom-entry:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+  /* ==================================================================
+     Dex type view (LV2) — 품사별 카드 그리드
+     ================================================================== */
+  .dex-type-view {
+    margin: 12px 16px 0;
+    animation: rise .32s var(--e-expo) both;
+  }
+  .btn-back-pr {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 12px/1 var(--disp);
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .dex-type-title {
+    font: 900 20px/1.1 var(--disp);
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .dex-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .dex-card {
+    aspect-ratio: 3/4;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 2px 2px 0 var(--ink);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 8px 6px 6px;
+    position: relative;
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .dex-card .dc-face {
+    display: grid; place-items: center;
+    font: 800 14px/1.1 var(--disp);
+    text-align: center;
+    padding: 0 4px;
+    word-break: break-word;
+  }
+  .dex-card .dc-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px dashed var(--line-deep);
+    padding-top: 4px;
+    font: 700 10px/1 var(--disp);
+    letter-spacing: .04em;
+    color: var(--ink-3);
+  }
+  .dex-card .dc-foot .box {
+    padding: 2px 5px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r-1);
+  }
+  .dex-card[data-state="locked"] {
+    background: var(--surface-2);
+    border-style: dashed;
+  }
+  .dex-card[data-state="locked"] .dc-face { color: var(--ink-4); filter: blur(2px); }
+  .dex-card[data-state="locked"]::after {
+    content: "🔒";
+    position: absolute; top: 6px; right: 6px;
+    font-size: 14px;
+  }
+  .dex-card[data-state="seen"] .dc-face { opacity: .6; }
+  .dex-card[data-state="unlocked"] {
+    background: var(--gold-soft);
+    box-shadow: 2px 2px 0 var(--gold);
+    border-color: var(--gold);
+  }
+  .dex-card[data-state="unlocked"]::after {
+    content: "★";
+    position: absolute; top: 4px; right: 6px;
+    color: var(--gold);
+    font-size: 16px;
+  }
+  .dex-card:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+
+  /* Card detail — modal internals */
+  .cd-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--line-deep);
+  }
+  .cd-word { font: 900 22px/1.1 var(--disp); color: var(--ink); }
+  .cd-meaning {
+    margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+    font: 500 13px/1.3 var(--body);
+    color: var(--ink-2);
+  }
+  .cd-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--line-deep);
+  }
+  .cd-stats div {
+    display: grid; gap: 2px;
+    text-align: center;
+    font: 700 11px/1 var(--disp);
+    color: var(--ink-3);
+  }
+  .cd-stats b {
+    font: 900 18px/1 var(--disp);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .cd-memory {
+    padding: 10px 0;
+    font: 500 12px/1.4 var(--body);
+    color: var(--ink-2);
+    border-bottom: 1px dashed var(--line-deep);
+  }
+  .cd-example {
+    padding: 10px 0 0;
+    font: 500 12px/1.4 var(--body);
+    color: var(--ink-3);
+    font-style: italic;
+  }
+  .cd-example:empty { display: none; }
+
+  /* ==================================================================
+     Playroom — screen
+     ================================================================== */
+  .screen[data-s="playroom"] .page-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 8px;
+  }
+  .screen[data-s="playroom"] .page-head h1 {
+    margin: 0;
+    font: 900 20px/1 var(--disp);
+    color: var(--ink);
+  }
+  .playroom-stage {
+    position: relative;
+    margin: 8px 16px 0;
+    padding: 18px 14px 22px;
+    background: linear-gradient(180deg, var(--wall) 0%, var(--floor) 100%);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    display: grid; place-items: center; gap: 10px;
+    min-height: 280px;
+  }
+  .pr-vitals {
+    position: absolute; top: 8px; left: 8px;
+    display: flex; gap: 6px;
+  }
+  .pr-vitals .vitals-badge { background: rgba(255,255,255,.9); }
+  .speech-bubble {
+    position: relative;
+    align-self: start;
+    max-width: 80%;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 2px 2px 0 var(--ink);
+    font: 700 13px/1.3 var(--disp);
+    color: var(--ink);
+  }
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -9px; left: 24px;
+    width: 10px; height: 10px;
+    background: var(--surface);
+    border-right: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    transform: rotate(45deg);
+  }
+  .mascot-tap {
+    width: 140px; height: 140px;
+    display: grid; place-items: center;
+    position: relative;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .mascot-tap svg {
+    width: 120px; height: 120px;
+    color: var(--ink);
+    animation: mascot-breathe 2.6s var(--e-out) infinite;
+    transform-origin: 50% 90%;
+  }
+  .mascot-tap .pr-shadow {
+    position: absolute;
+    bottom: -6px;
+    width: 70%; height: 10px;
+    background: rgba(20, 22, 30, .2);
+    border-radius: 50%;
+    filter: blur(1px);
+  }
+  .mascot-tap:active svg { transform: scale(1.08); transition: transform .12s var(--e-out); }
+  .mascot-tap[data-bounce="true"] svg { animation: mascot-bounce .5s var(--e-out); }
+  @keyframes mascot-breathe {
+    0%,100% { transform: scaleY(1) scaleX(1); }
+    50%     { transform: scaleY(0.97) scaleX(1.02); }
+  }
+  @keyframes mascot-bounce {
+    0%   { transform: translateY(0) scale(1); }
+    30%  { transform: translateY(-12px) scale(1.06); }
+    60%  { transform: translateY(0) scale(0.96); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-tap svg { animation: none; }
+    .mascot-tap[data-bounce="true"] svg { animation: none; }
+  }
+
+  .play-actions {
+    margin: 14px 16px 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .play-btn {
+    position: relative;
+    padding: 14px 10px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-2);
+    box-shadow: 3px 3px 0 var(--ink);
+    font: 800 13px/1.1 var(--disp);
+    color: var(--ink);
+    display: grid; gap: 6px; place-items: center;
+  }
+  .play-btn .pb-ico { font-size: 26px; line-height: 1; }
+  .play-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .play-btn[disabled],
+  .play-btn[aria-disabled="true"] {
+    background: var(--surface-2);
+    color: var(--ink-3);
+    box-shadow: 2px 2px 0 var(--line-deep);
+    cursor: not-allowed;
+  }
+  .play-btn .pb-cd {
+    position: absolute; top: 4px; right: 6px;
+    font: 700 10px/1 var(--disp);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .play-btn .pb-cd:empty { display: none; }
+
+  .ball-meaning {
+    padding: 12px;
+    text-align: center;
+    background: var(--pri-soft);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-1);
+    font: 800 18px/1.2 var(--disp);
+    color: var(--ink);
+  }
 </style>
 </head>
 
@@ -2035,6 +2326,11 @@
           <button class="item trophy" onclick="goto('dex')" aria-label="도감">
             <svg><use href="#fur-trophy"/></svg>
             <span class="lbl">도감</span>
+          </button>
+
+          <button class="item playroom-entry" onclick="goto('playroom')" aria-label="놀아주기">
+            <span class="pr-icon" aria-hidden="true">🌱</span>
+            <span class="lbl">놀아주기</span>
           </button>
 
           <div class="mascot-wrap">
@@ -2532,8 +2828,8 @@
         <div class="bar"><i></i></div>
       </div>
 
-      <div class="dex-grid">
-        <button class="type-case" data-t="noun">
+      <div class="dex-grid" id="dex-grid-types">
+        <button class="type-case" data-t="noun" onclick="openDexType('noun')">
           <div class="tc-head">
             <span class="tc-lbl">NOUN</span>
             <span class="tc-num">128 / 380</span>
@@ -2542,7 +2838,7 @@
           <div class="tc-count">128<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:34%"></i></div>
         </button>
-        <button class="type-case" data-t="verb">
+        <button class="type-case" data-t="verb" onclick="openDexType('verb')">
           <div class="tc-head">
             <span class="tc-lbl">VERB</span>
             <span class="tc-num">94 / 310</span>
@@ -2551,7 +2847,7 @@
           <div class="tc-count">94<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:30%"></i></div>
         </button>
-        <button class="type-case" data-t="adj">
+        <button class="type-case" data-t="adj" onclick="openDexType('adj')">
           <div class="tc-head">
             <span class="tc-lbl">ADJ</span>
             <span class="tc-num">82 / 240</span>
@@ -2560,7 +2856,7 @@
           <div class="tc-count">82<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:34%"></i></div>
         </button>
-        <button class="type-case" data-t="adv">
+        <button class="type-case" data-t="adv" onclick="openDexType('adv')">
           <div class="tc-head">
             <span class="tc-lbl">ADV</span>
             <span class="tc-num">28 / 160</span>
@@ -2569,7 +2865,7 @@
           <div class="tc-count">28<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:17%"></i></div>
         </button>
-        <button class="type-case" data-t="prep">
+        <button class="type-case" data-t="prep" onclick="openDexType('prep')">
           <div class="tc-head">
             <span class="tc-lbl">PREP</span>
             <span class="tc-num">8 / 60</span>
@@ -2578,7 +2874,7 @@
           <div class="tc-count">8<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:13%"></i></div>
         </button>
-        <button class="type-case" data-t="conj">
+        <button class="type-case" data-t="conj" onclick="openDexType('conj')">
           <div class="tc-head">
             <span class="tc-lbl">CONJ</span>
             <span class="tc-num">2 / 50</span>
@@ -2587,6 +2883,13 @@
           <div class="tc-count">2<span class="t">수집</span></div>
           <div class="tc-bar"><i style="width:4%"></i></div>
         </button>
+      </div>
+
+      <!-- 품사별 카드 그리드 뷰 (dex LV2) -->
+      <div class="dex-type-view" id="dex-type-view" hidden>
+        <button class="btn-back-pr" id="btn-dex-back" aria-label="품사 선택으로">← 품사 선택</button>
+        <h2 id="dex-type-title" class="dex-type-title">명사</h2>
+        <div class="dex-cards-grid" id="dex-cards-grid" aria-label="단어 카드"></div>
       </div>
 
       <div style="height: 24px"></div>
@@ -2677,6 +2980,45 @@
       <div style="height: 24px"></div>
     </section>
 
+    <!-- ============================================================
+         PLAYROOM — 캐릭터와 노는 공간 (r2.2)
+         ============================================================ -->
+    <section class="screen" data-s="playroom" aria-labelledby="h-playroom">
+      <div class="page-head">
+        <button class="btn-back-pr" onclick="goto('home')" aria-label="내 방으로">← 내 방</button>
+        <h1 id="h-playroom">놀이방</h1>
+      </div>
+
+      <div class="playroom-stage" aria-live="polite">
+        <div class="pr-vitals" id="pr-vitals"></div>
+        <div class="speech-bubble" id="mascot-speech" role="status">안녕!</div>
+        <button class="mascot-tap" id="btn-mascot-tap" aria-label="쓰다듬기">
+          <span class="pr-shadow"></span>
+          <svg><use href="#mascot"/></svg>
+        </button>
+      </div>
+
+      <div class="play-actions" role="group" aria-label="캐릭터와 놀기">
+        <button class="play-btn" id="btn-play-feed"  data-kind="feed">
+          <span class="pb-ico">🍎</span><span>먹이</span>
+          <span class="pb-cd" data-cd=""></span>
+        </button>
+        <button class="play-btn" id="btn-play-pet"   data-kind="pet">
+          <span class="pb-ico">✋</span><span>쓰다듬기</span>
+          <span class="pb-cd" data-cd=""></span>
+        </button>
+        <button class="play-btn" id="btn-play-ball"  data-kind="ball">
+          <span class="pb-ico">🎾</span><span>공놀이</span>
+          <span class="pb-cd" data-cd=""></span>
+        </button>
+        <button class="play-btn" id="btn-play-sleep" data-kind="sleep">
+          <span class="pb-ico">💤</span><span>재우기</span>
+          <span class="pb-cd" data-cd=""></span>
+        </button>
+      </div>
+      <div style="height: 24px"></div>
+    </section>
+
   </main>
 
   <nav class="tabbar" aria-label="주 메뉴">
@@ -2753,6 +3095,53 @@
     <div class="modal-foot">
       <button type="button" class="btn-wg" id="btn-onboard-back" hidden>이전</button>
       <button type="button" class="btn-wg" data-variant="primary" id="btn-onboard-next">다음</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal-wg" id="dlg-card-detail" aria-labelledby="cd-title">
+  <form method="dialog">
+    <div class="modal-head" id="cd-title">단어 카드</div>
+    <div class="modal-body">
+      <div class="cd-hero">
+        <span class="stage-icon" id="cd-stage" data-stage="1">
+          <svg><use href="#stage-1"/></svg><span class="num">1</span>
+        </span>
+        <div class="cd-hero-text">
+          <div class="cd-word" id="cd-word">—</div>
+          <div class="cd-meaning"><span class="chip" id="cd-chip" data-t="noun">N</span><span id="cd-meaning">—</span></div>
+        </div>
+      </div>
+      <div class="cd-stats">
+        <div><span class="lbl">정답</span><b id="cd-correct">0</b></div>
+        <div><span class="lbl">오답</span><b id="cd-wrong">0</b></div>
+        <div><span class="lbl">정답률</span><b id="cd-acc">0</b>%</div>
+      </div>
+      <div class="cd-memory" id="cd-memory"></div>
+      <div class="cd-example" id="cd-example"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-wg" id="btn-cd-close">닫기</button>
+      <button type="button" class="btn-wg" data-variant="primary" id="btn-cd-review">복습하기</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal-wg" id="dlg-play-ball" aria-labelledby="ball-title">
+  <form method="dialog">
+    <div class="modal-head" id="ball-title">공놀이 · 철자 맞히기</div>
+    <div class="modal-body">
+      <div class="field"><span>이 뜻의 영단어를 입력하세요</span></div>
+      <div class="ball-meaning" id="ball-meaning">—</div>
+      <label class="field">
+        <span>영어 철자</span>
+        <input type="text" id="ball-input" autocomplete="off" autocapitalize="off" />
+      </label>
+      <div class="field-err" id="err-ball"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-wg" id="btn-ball-cancel">그만</button>
+      <button type="submit" class="btn-wg" data-variant="primary" id="btn-ball-submit">확인</button>
     </div>
   </form>
 </dialog>
@@ -3073,11 +3462,274 @@
   });
 
   // ============================================================
-  // Dex click — temporary feedback until r2
+  // Dex drilldown — LV1 타일 → LV2 그리드 → LV3 상세 모달
   // ============================================================
-  document.querySelectorAll('.screen[data-s="dex"] .badge, .screen[data-s="dex"] [class*="dex"]').forEach(el => {
-    el.addEventListener('click', () => toast('도감 상세는 곧 추가됩니다'));
+  const POS_LABEL = { noun: '명사', verb: '동사', adj: '형용사', adv: '부사', prep: '전치사', conj: '접속사' };
+  const SEED_ID = /^w0\d{2}$/;
+
+  function unlockState(word, seenIds) {
+    if ((word.box ?? 1) >= 5) return 'unlocked';
+    if (seenIds.has(word.id)) return 'seen';
+    return 'locked';
+  }
+
+  function daysBetween(aISO, bISO) {
+    if (!aISO || !bISO) return null;
+    const ms = new Date(bISO) - new Date(aISO);
+    return Math.floor(ms / 86_400_000);
+  }
+
+  window.openDexType = function openDexType(pos) {
+    const view = document.getElementById('dex-type-view');
+    const typesGrid = document.getElementById('dex-grid-types');
+    const title = document.getElementById('dex-type-title');
+    const grid = document.getElementById('dex-cards-grid');
+    if (!view || !grid) return;
+    view.hidden = false;
+    typesGrid.hidden = true;
+    title.textContent = POS_LABEL[pos] ?? pos;
+    const words = (store.get(KEYS.words) ?? []).filter(w => w.pos === pos);
+    const seenIds = new Set(store.get(KEYS.seen) ?? []);
+    if (words.length === 0) {
+      grid.innerHTML = '<div class="empty-words">이 품사에는 아직 단어가 없어요.</div>';
+      return;
+    }
+    grid.innerHTML = words.map(w => {
+      const state = unlockState(w, seenIds);
+      const face = state === 'locked' ? '???' : escapeHtml(w.word);
+      const meaning = state === 'locked' ? '' : escapeHtml(w.meaning);
+      return `
+        <button class="dex-card" type="button" data-state="${state}" data-wid="${w.id}" ${state==='locked'?'aria-label="잠김"':''}>
+          <span class="dc-face"><span>${face}</span><small style="display:block;font:500 10px/1.2 var(--body);color:var(--ink-3);margin-top:4px">${meaning}</small></span>
+          <span class="dc-foot"><span>${w.pos.toUpperCase()}</span><span class="box">BOX ${w.box}</span></span>
+        </button>
+      `;
+    }).join('');
+    grid.querySelectorAll('.dex-card').forEach(el => {
+      el.addEventListener('click', () => {
+        if (el.dataset.state === 'locked') {
+          toast('Box 5에 도달하면 해금!');
+          return;
+        }
+        openCardDetail(el.dataset.wid);
+      });
+    });
+  };
+
+  document.getElementById('btn-dex-back')?.addEventListener('click', () => {
+    document.getElementById('dex-type-view').hidden = true;
+    document.getElementById('dex-grid-types').hidden = false;
   });
+
+  function openCardDetail(wordId) {
+    const words = store.get(KEYS.words) ?? [];
+    const w = words.find(x => x.id === wordId);
+    if (!w) return;
+    const history = store.get(KEYS.quizHistory) ?? [];
+    const wh = history.filter(h => h.wordId === wordId);
+    const correct = wh.filter(h => h.correct).length;
+    const wrong = wh.length - correct;
+    const acc = wh.length === 0 ? 0 : Math.round(correct / wh.length * 100);
+
+    document.getElementById('cd-word').textContent = w.word;
+    document.getElementById('cd-meaning').textContent = w.meaning;
+    const chip = document.getElementById('cd-chip');
+    chip.dataset.t = w.pos;
+    chip.textContent = w.pos.toUpperCase();
+    const stageEl = document.getElementById('cd-stage');
+    stageEl.dataset.stage = String(w.box);
+    stageEl.innerHTML = `<svg><use href="#stage-${w.box}"/></svg><span class="num">${w.box}</span>`;
+    document.getElementById('cd-correct').textContent = String(correct);
+    document.getElementById('cd-wrong').textContent = String(wrong);
+    document.getElementById('cd-acc').textContent = String(acc);
+
+    const mem = document.getElementById('cd-memory');
+    const ago = daysBetween(w.addedAt, new Date().toISOString());
+    mem.textContent = w.addedAt
+      ? (ago === 0 ? '오늘 처음 만났어요!' : ago === 1 ? '어제 처음 만났어요' : `${ago}일 전 처음 만났어요`)
+      : '기억이 희미해요…';
+
+    const ex = document.getElementById('cd-example');
+    ex.textContent = w.example ? `"${w.example}"` : '';
+
+    const dlg = document.getElementById('dlg-card-detail');
+    dlg.showModal();
+  }
+
+  document.getElementById('btn-cd-close')?.addEventListener('click', () => {
+    document.getElementById('dlg-card-detail').close();
+  });
+  document.getElementById('btn-cd-review')?.addEventListener('click', () => {
+    document.getElementById('dlg-card-detail').close();
+    goto('learn', 'quiz');
+  });
+
+  // ============================================================
+  // Playroom wiring
+  // ============================================================
+  const COOLDOWN_KEY = (kind) => `wg.v1.cooldown.${kind}`;
+
+  function readCooldown(kind) { return localStorage.getItem(COOLDOWN_KEY(kind)); }
+  function writeCooldown(kind, iso) { localStorage.setItem(COOLDOWN_KEY(kind), iso); }
+
+  async function importPlay() {
+    return await import('./js/play.js');
+  }
+
+  let playModule = null;
+  importPlay().then(m => { playModule = m; refreshPlayroom(); });
+
+  function refreshPlayroom() {
+    if (document.body.dataset.screen !== 'playroom') return;
+    const c = readCreature();
+    if (!c) return;
+    const now = new Date().toISOString();
+    // vitals badges
+    const host = document.getElementById('pr-vitals');
+    if (host) {
+      const bondPct = Math.round(c.bond);
+      const hungerPct = Math.round(c.hunger);
+      host.innerHTML = `
+        <span class="vitals-badge"><span>♥</span><span class="bar"><i style="--v:${bondPct}%"></i></span></span>
+        <span class="vitals-badge" data-low="${c.hunger<=20}" data-crit="${c.hunger<=10}"><span>🍚</span><span class="bar"><i style="--v:${hungerPct}%"></i></span></span>
+      `;
+    }
+    // speech
+    if (playModule) {
+      const bub = document.getElementById('mascot-speech');
+      if (bub) bub.textContent = playModule.speechFor(c.mood, Math.floor(Date.now() / 10000));
+    }
+    // button cooldowns
+    refreshPlayButtonStates(now);
+  }
+
+  function refreshPlayButtonStates(nowISO) {
+    if (!playModule) return;
+    const now = nowISO ?? new Date().toISOString();
+    const c = readCreature();
+    document.querySelectorAll('.play-btn').forEach(btn => {
+      const kind = btn.dataset.kind;
+      const last = readCooldown(kind);
+      const ok = playModule.canDo(kind, last, now);
+      let extraDisabled = false;
+      if (kind === 'feed' && c && (c.hunger ?? 0) >= 80) extraDisabled = true;
+      btn.disabled = !ok || extraDisabled;
+      const cd = btn.querySelector('.pb-cd');
+      if (cd) {
+        const rem = playModule.remainingMs(kind, last, now);
+        if (rem > 0) cd.textContent = rem >= 60000 ? `${Math.ceil(rem/60000)}m` : `${Math.ceil(rem/1000)}s`;
+        else if (extraDisabled) cd.textContent = '배부름';
+        else cd.textContent = '';
+      }
+    });
+  }
+
+  function handlePlayAction(kind) {
+    if (!playModule) return;
+    const c = readCreature();
+    if (!c) return;
+    const now = new Date().toISOString();
+    const last = readCooldown(kind);
+    if (!playModule.canDo(kind, last, now)) {
+      toast('조금 쉬어야 해요');
+      return;
+    }
+    const r = playModule.performAction(c, kind, now);
+    if (r.error) {
+      if (r.error === 'not hungry') toast(r.speech ?? '배 안 고파요');
+      else toast('지금은 못 해요');
+      return;
+    }
+    writeCreature(r.creature);
+    writeCooldown(kind, now);
+    if (r.speech) {
+      const bub = document.getElementById('mascot-speech');
+      if (bub) bub.textContent = r.speech;
+    }
+    // bounce animation
+    const mascot = document.getElementById('btn-mascot-tap');
+    if (mascot) {
+      mascot.dataset.bounce = 'true';
+      setTimeout(() => { mascot.dataset.bounce = 'false'; }, 520);
+    }
+    refreshPlayroom();
+    const parts = [];
+    if (r.reward?.bond) parts.push(`교감 +${r.reward.bond}`);
+    if (r.reward?.hunger) parts.push(`배부름 +${r.reward.hunger}`);
+    if (r.reward?.exp) parts.push(`EXP +${r.reward.exp}`);
+    if (parts.length) toast(parts.join(' · '));
+  }
+
+  // mascot tap → bond +0.5 (uses tap cooldown via creature module's INTERACTION_EFFECTS)
+  document.getElementById('btn-mascot-tap')?.addEventListener('click', () => {
+    handlePlayAction('tap');
+  });
+
+  // play buttons
+  document.querySelectorAll('.play-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.kind;
+      if (kind === 'ball') openBallGame();
+      else handlePlayAction(kind);
+    });
+  });
+
+  // ball minigame
+  function openBallGame() {
+    const now = new Date().toISOString();
+    const last = readCooldown('ball');
+    if (playModule && !playModule.canDo('ball', last, now)) {
+      toast('공놀이는 잠시 후에');
+      return;
+    }
+    const words = (store.get(KEYS.words) ?? []).filter(w => (w.box ?? 1) >= 3);
+    if (words.length === 0) {
+      toast('아직 익숙한 단어가 없어요');
+      return;
+    }
+    const pick = words[Math.floor(Math.random() * words.length)];
+    const dlg = document.getElementById('dlg-play-ball');
+    dlg.dataset.answer = pick.word;
+    document.getElementById('ball-meaning').textContent = pick.meaning;
+    document.getElementById('ball-input').value = '';
+    document.getElementById('err-ball').textContent = '';
+    dlg.showModal();
+    setTimeout(() => document.getElementById('ball-input').focus(), 50);
+  }
+
+  document.getElementById('btn-ball-cancel')?.addEventListener('click', () => {
+    document.getElementById('dlg-play-ball').close();
+  });
+  document.getElementById('dlg-play-ball')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const dlg = document.getElementById('dlg-play-ball');
+    const ans = dlg.dataset.answer?.toLowerCase();
+    const got = document.getElementById('ball-input').value.trim().toLowerCase();
+    const correct = got === ans;
+    const c = readCreature();
+    const now = new Date().toISOString();
+    if (!playModule || !c) return;
+    const r = playModule.performAction(c, correct ? 'ball:correct' : 'ball', now);
+    if (r.creature) {
+      writeCreature(r.creature);
+      writeCooldown('ball', now);
+    }
+    dlg.close();
+    refreshPlayroom();
+    toast(correct ? `정답! "${ans}" · 교감 +2` : `정답은 "${ans}" · 교감 +0.5`);
+  });
+
+  // Update playroom when entering
+  new MutationObserver(() => {
+    if (document.body.dataset.screen === 'playroom') refreshPlayroom();
+  }).observe(document.body, { attributes: true, attributeFilter: ['data-screen'] });
+
+  // Tick cooldowns every second while in playroom
+  setInterval(() => {
+    if (document.body.dataset.screen === 'playroom' && playModule) {
+      refreshPlayButtonStates();
+    }
+  }, 1000);
 
   // ============================================================
   // Bootstrap
@@ -3101,7 +3753,7 @@
   })();
 
   // Expose minimal API for E2E tests
-  window.__wg = { readCreature, writeCreature, renderWordList, store, KEYS };
+  window.__wg = { readCreature, writeCreature, renderWordList, store, KEYS, refreshPlayroom, openCardDetail };
 </script>
 
 </body>
