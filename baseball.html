@@ -1388,9 +1388,16 @@
     } else {
       [eng, ko] = shuffle(tierPool)[0];
     }
-    const distractors = shuffle(tierPool.filter(w => w[1] !== ko)).slice(0, 3).map(w => w[1]);
-    const options = shuffle([ko, ...distractors]);
-    return { eng, ko, options };
+    // 공격: 한글 뜻 → 영단어 4지선다 (생산적 회상 = 타격감)
+    // 수비: 영단어 → 한글 뜻 4지선다 (반응전 = 포수/포지션 반응)
+    const ko2en = isOffense();
+    const prompt = ko2en ? ko : eng;
+    const answer = ko2en ? eng : ko;
+    const pickKey = ko2en ? 0 : 1; // 0=eng field, 1=ko field in tier entry
+    const distractors = shuffle(tierPool.filter(w => w[pickKey] !== answer))
+      .slice(0, 3).map(w => w[pickKey]);
+    const options = shuffle([answer, ...distractors]);
+    return { eng, ko, prompt, answer, options, direction: ko2en ? 'ko2en' : 'en2ko' };
   }
 
   function recordMiss(eng, ko) {
@@ -1447,7 +1454,7 @@
   function disableChoicesMarkCorrect() {
     [...choicesBox.children].forEach(b => {
       b.disabled = true;
-      if (b.textContent.replace(/^\d+/, '').trim() === state.current.ko) b.classList.add('correct');
+      if (b.textContent.replace(/^\d+/, '').trim() === state.current.answer) b.classList.add('correct');
     });
   }
 
@@ -1462,11 +1469,11 @@
     state.current = { ...q, startAt: 0, answered: false };
     state.locked = false;
 
-    qword.textContent = q.eng;
-    ball.textContent = q.eng;
+    qword.textContent = q.prompt;
+    ball.textContent = q.prompt;
     ball.classList.remove('long','xlong');
-    if (q.eng.length >= 12)      ball.classList.add('xlong');
-    else if (q.eng.length >= 8)  ball.classList.add('long');
+    if (q.prompt.length >= 12)     ball.classList.add('xlong');
+    else if (q.prompt.length >= 8) ball.classList.add('long');
     renderChoices(q.options);
 
     ball.classList.remove('throwing','hit','hit-homerun','missed','struck','off','def');
@@ -1532,7 +1539,7 @@
     state.locked = true;
     clearTimeout(state.pitchTimeout);
     const elapsed = performance.now() - state.current.startAt;
-    const correct = picked === state.current.ko;
+    const correct = picked === state.current.answer;
 
     if (isOffense()) handleOffense(picked, btn, correct, elapsed);
     else              handleDefense(picked, btn, correct, elapsed);
