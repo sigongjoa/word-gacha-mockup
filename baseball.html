@@ -2,202 +2,304 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0b3d2e">
-<title>Word Baseball — 영어단어 야구 v2</title>
+<title>Word Baseball — 영어단어 야구 v3</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet"
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root {
-    --grass: #2f7a4d;
-    --grass-2: #276a43;
-    --dirt: #b07a4a;
-    --dirt-2: #8a5a33;
-    --ink: #14171f;
-    --ball: #ffffff;
-    --line: #ffffff;
-    --homerun: #ffd84a;
-    --hit: #8dffb5;
-    --out: #ff7a6b;
-    --strike: #4abfff;
-    --panel: #0f2a1c;
-    --panel-2: #1a3d2a;
+    /* Field colors — MLB turf green */
+    --grass:    #2f7a4d;
+    --grass-2:  #1e5a37;
+    --grass-3:  #164028;
+    --dirt:     #c8864d;
+    --dirt-2:   #9a5f34;
+    --chalk:    #ffffff;
+
+    /* Panel colors — PokéRogue dark console + neon accent */
+    --panel:     #0a1f14;
+    --panel-2:   #122b1d;
+    --panel-3:   #1a3d2a;
+    --border:    #041209;
+    --ink:       #0a1f14;
+
+    /* Semantic — Duolingo style */
+    --lime:      #58cc02;     /* positive / XP */
+    --lime-2:    #46a302;
+    --red:       #ff4b4b;     /* error / out */
+    --red-2:     #d93838;
+    --blue:      #1cb0f6;     /* strike / info */
+    --blue-2:    #0d8dc7;
+    --gold:      #ffc800;     /* homerun */
+    --gold-2:    #e0a800;
+    --text:      #ffffff;
+    --text-sub:  #b8d4c4;
+    --text-mute: #6b8a78;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     height: 100%;
-    background: #0a1f14;
-    color: #fff;
+    background: #041209;
+    color: var(--text);
     font-family: 'Pretendard Variable', system-ui, sans-serif;
+    font-weight: 600;
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: manipulation;
   }
   body {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 10px;
-    gap: 8px;
+    padding: 8px;
+    gap: 6px;
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    position: relative;
   }
 
-  /* ===== Scoreboard ===== */
+  /* ============================================================
+     SCOREBOARD — MLB 박스스코어 압축 1행 레이아웃
+     ============================================================ */
   .scoreboard {
     width: 100%;
-    max-width: 520px;
     background: var(--panel);
-    border: 3px solid #0a1f14;
+    border: 3px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 4px 0 var(--border), inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .team-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .team-col.me   { color: var(--lime); }
+  .team-col.opp  { color: var(--red); }
+  .team-label { font-size: 10px; letter-spacing: 2px; font-weight: 800; opacity: 0.85; }
+  .team-score {
+    font-size: 32px; font-weight: 900; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 2px 2px 0 var(--border);
+  }
+  .inn-col {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 0 10px;
+  }
+  .inn-big {
+    font-size: 22px; font-weight: 900;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 var(--border);
+    display: flex; align-items: center; gap: 2px;
+  }
+  .inn-big .arrow { font-size: 16px; }
+  .inn-label { font-size: 9px; letter-spacing: 1.5px; color: var(--text-sub); }
+
+  /* ============================================================
+     STATUS BAR — 아웃 / B-S / 주자 한 줄
+     ============================================================ */
+  .statusbar {
+    width: 100%;
+    background: var(--panel-2);
+    border: 2px solid var(--border);
     border-radius: 10px;
     padding: 8px 12px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
     align-items: center;
-    box-shadow: 0 4px 0 #000;
+    font-size: 12px;
+    color: var(--text-sub);
   }
-  .sb-slot { text-align: center; min-width: 0; }
-  .sb-label {
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: #7fd99f;
-    text-transform: uppercase;
+  .sb-group { display: flex; align-items: center; gap: 6px; font-weight: 800; }
+  .sb-group .k {
+    font-size: 10px; letter-spacing: 1px;
+    color: var(--text-mute);
   }
-  .sb-value {
-    font-size: 22px;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-    color: #fff;
+  .pill {
+    display: flex; gap: 3px;
   }
-  .sb-slot.me   .sb-value { color: var(--hit); }
-  .sb-slot.opp  .sb-value { color: var(--out); }
-  .inn-arrow {
-    font-size: 14px;
-    margin-left: 3px;
-    color: var(--homerun);
-  }
-  .outs {
-    display: inline-flex;
-    gap: 3px;
-    justify-content: center;
-  }
-  .out-dot {
-    width: 8px; height: 8px;
+  .pill .dot {
+    width: 10px; height: 10px;
     border-radius: 50%;
-    background: #1a3d2a;
-    border: 1.2px solid #3a6a4a;
+    background: transparent;
+    border: 1.5px solid var(--text-mute);
+    transition: all 0.15s;
   }
-  .out-dot.on { background: var(--out); border-color: #fff; }
-  .bs-row {
-    font-size: 11px;
-    color: var(--strike);
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+  .pill.out .dot.on {
+    background: var(--red); border-color: var(--red);
+    box-shadow: 0 0 8px rgba(255,75,75,0.6);
   }
+  .pill.ball .dot.on {
+    background: var(--text); border-color: var(--text);
+  }
+  .pill.strike .dot.on {
+    background: var(--blue); border-color: var(--blue);
+    box-shadow: 0 0 8px rgba(28,176,246,0.6);
+  }
+  .bs-stack {
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .bs-stack .line {
+    display: flex; align-items: center; gap: 6px; font-size: 11px;
+  }
+  .pitches-left {
+    display: flex; gap: 2px; align-items: center;
+    font-size: 11px; color: var(--gold);
+    font-weight: 800;
+  }
+  .pitches-left .ico { font-size: 10px; }
 
-  /* ===== Half badge ===== */
-  .half-badge {
+  /* ============================================================
+     HALF BANNER — 역할/이닝/티어 리본
+     ============================================================ */
+  .half-banner {
     width: 100%;
-    max-width: 520px;
-    background: var(--panel-2);
-    border: 2px solid #0a1f14;
-    border-radius: 8px;
-    padding: 6px 12px;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
     align-items: center;
+    padding: 8px 14px;
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
     font-size: 13px;
-    box-shadow: 0 3px 0 #000;
+    overflow: hidden;
+    position: relative;
   }
-  .half-badge .role {
-    padding: 3px 10px;
+  .half-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(88,204,2,0.08), transparent);
+    pointer-events: none;
+  }
+  .role-pill {
+    padding: 5px 14px;
     border-radius: 999px;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     font-size: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 2px solid var(--border);
+    box-shadow: 0 2px 0 var(--border);
   }
-  .half-badge .role.off { background: var(--homerun); color: #0a1f14; }
-  .half-badge .role.def { background: var(--strike); color: #0a1f14; }
-  .half-badge .inn-text {
-    font-weight: 700;
-    color: #fff;
+  .role-pill.off { background: var(--gold); color: var(--ink); }
+  .role-pill.def { background: var(--blue); color: var(--ink); }
+  .half-center {
+    text-align: center;
+    display: flex; flex-direction: column; gap: 1px;
   }
-  .half-badge .tier {
-    font-size: 11px;
-    color: #7fd99f;
+  .half-center .inn-txt {
+    font-weight: 900; color: var(--text); font-size: 14px;
   }
+  .half-center .tier-txt {
+    font-size: 10px; color: var(--text-sub); letter-spacing: 0.5px;
+  }
+  .streak {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 13px; font-weight: 900; color: var(--gold);
+  }
+  .streak.dead { opacity: 0.3; }
 
-  /* ===== Field ===== */
+  /* ============================================================
+     FIELD — 야구 다이아몬드
+     ============================================================ */
   .field {
     width: 100%;
-    max-width: 520px;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 0.85;
     position: relative;
     background:
-      radial-gradient(ellipse at 50% 100%, var(--grass-2) 0%, var(--grass) 55%, #1b5636 100%);
-    border: 3px solid #0a1f14;
-    border-radius: 10px;
+      radial-gradient(ellipse at 50% 95%, var(--grass) 0%, var(--grass-2) 60%, var(--grass-3) 100%);
+    border: 3px solid var(--border);
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 4px 0 #000;
+    box-shadow: 0 4px 0 var(--border);
   }
+  /* 경기장 라인 */
+  .field::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
+      radial-gradient(circle at 50% 95%, rgba(255,255,255,0.08), transparent 60%);
+    pointer-events: none;
+  }
+
   .diamond {
     position: absolute;
-    left: 50%;
-    top: 55%;
-    width: 70%;
+    left: 50%; top: 55%;
+    width: 58%;
     aspect-ratio: 1;
     transform: translate(-50%, -50%) rotate(45deg);
     background: var(--dirt);
-    border: 3px solid var(--line);
+    border: 3px solid var(--chalk);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
   }
   .mound {
     position: absolute;
-    left: 50%;
-    top: 55%;
-    width: 18%;
+    left: 50%; top: 55%;
+    width: 15%;
     aspect-ratio: 1;
     transform: translate(-50%, -50%);
-    background: var(--dirt-2);
+    background: radial-gradient(circle at 40% 35%, var(--dirt), var(--dirt-2));
     border-radius: 50%;
-    border: 2px solid var(--dirt);
+    border: 2px solid var(--dirt-2);
   }
   .base {
     position: absolute;
-    width: 18px; height: 18px;
-    background: #fff;
-    border: 2px solid #0a1f14;
+    width: 20px; height: 20px;
+    background: var(--chalk);
+    border: 2px solid var(--ink);
     transform: rotate(45deg);
+    transition: all 0.2s;
   }
-  .base.home  { left: 50%; bottom: 10%;  transform: translate(-50%,0)    rotate(45deg); }
-  .base.first { right: 14%; top: 55%;    transform: translate(0,-50%)    rotate(45deg); }
-  .base.second{ left: 50%; top: 18%;     transform: translate(-50%,0)    rotate(45deg); }
-  .base.third { left: 14%; top: 55%;     transform: translate(0,-50%)    rotate(45deg); }
-  .base.on { background: var(--homerun); box-shadow: 0 0 10px var(--homerun); }
+  .base.home  { left: 50%; bottom: 8%;  transform: translate(-50%,0)    rotate(45deg); }
+  .base.first { right: 16%; top: 55%;   transform: translate(0,-50%)    rotate(45deg); }
+  .base.second{ left: 50%; top: 16%;    transform: translate(-50%,0)    rotate(45deg); }
+  .base.third { left: 16%; top: 55%;    transform: translate(0,-50%)    rotate(45deg); }
+  .base.on {
+    background: var(--gold);
+    box-shadow: 0 0 16px var(--gold), inset 0 0 0 2px var(--gold-2);
+    animation: runner-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes runner-pulse {
+    0%,100% { transform: translate(-50%,0) rotate(45deg) scale(1); }
+    50%     { transform: translate(-50%,0) rotate(45deg) scale(1.15); }
+  }
+  .base.first.on, .base.third.on {
+    animation: runner-pulse-side 1.2s ease-in-out infinite;
+  }
+  @keyframes runner-pulse-side {
+    0%,100% { transform: translate(0,-50%) rotate(45deg) scale(1); }
+    50%     { transform: translate(0,-50%) rotate(45deg) scale(1.15); }
+  }
 
-  .ball-wrap {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
+  /* ============================================================
+     BALL — 공이 던져지는 애니메이션
+     ============================================================ */
+  .ball-wrap { position: absolute; inset: 0; pointer-events: none; }
   .ball {
     position: absolute;
-    left: 50%;
-    top: 55%;
-    width: 56px;
-    height: 56px;
+    left: 50%; top: 55%;
+    width: 62px; height: 62px;
     transform: translate(-50%, -50%);
-    background: var(--ball);
-    border: 3px solid #0a1f14;
+    background: radial-gradient(circle at 35% 30%, #fff, #e8e8e8 60%, #c4c4c4);
+    border: 3px solid var(--ink);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 900;
-    color: #0a1f14;
+    color: var(--ink);
     font-size: 14px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(0,0,0,0.2);
     will-change: transform, opacity;
     padding: 0 6px;
     text-align: center;
@@ -206,223 +308,393 @@
   .ball::before, .ball::after {
     content: '';
     position: absolute;
-    inset: 6px;
-    border: 2px solid #c23b3b;
+    inset: 5px;
+    border: 2px solid var(--red-2);
     border-radius: 50%;
     border-left: none; border-right: none;
     transform: rotate(25deg);
     pointer-events: none;
   }
   .ball::after { transform: rotate(-25deg); }
-  .ball.throwing {
-    animation: throw-in 2.8s linear forwards;
-  }
+  .ball.throwing { animation: throw-in 2.8s linear forwards; }
   @keyframes throw-in {
     0%   { top: 20%; transform: translate(-50%, -50%) scale(0.25); opacity: 1; }
-    100% { top: 80%; transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+    100% { top: 80%; transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
   }
-  .ball.hit-homerun { animation: hit-homerun 1.2s ease-out forwards; }
+  .ball.hit-homerun { animation: hit-homerun 1.4s ease-out forwards; }
   @keyframes hit-homerun {
-    0%   { transform: translate(-50%,-50%) scale(1.25); }
-    40%  { transform: translate(-50%,-260%) scale(1) rotate(180deg); }
-    100% { transform: translate(-50%,-600%) scale(0.2) rotate(720deg); opacity: 0; }
+    0%   { transform: translate(-50%,-50%) scale(1.3); }
+    30%  { transform: translate(-50%,-260%) scale(1) rotate(180deg); }
+    100% { transform: translate(-50%,-800%) scale(0.15) rotate(1080deg); opacity: 0; }
   }
   .ball.hit { animation: hit-bounce 0.8s ease-out forwards; }
   @keyframes hit-bounce {
-    0%   { transform: translate(-50%,-50%) scale(1.2); }
-    100% { transform: translate(120%, -220%) scale(0.6) rotate(360deg); opacity: 0; }
+    0%   { transform: translate(-50%,-50%) scale(1.3); }
+    100% { transform: translate(120%, -280%) scale(0.5) rotate(360deg); opacity: 0; }
   }
   .ball.missed { animation: ball-missed 0.6s ease-in forwards; }
   @keyframes ball-missed {
-    0%   { transform: translate(-50%,-50%) scale(1.25); }
-    100% { transform: translate(-50%, 120%) scale(1) rotate(180deg); opacity: 0.3; }
+    0%   { transform: translate(-50%,-50%) scale(1.3); }
+    100% { transform: translate(-50%, 120%) scale(0.9) rotate(180deg); opacity: 0.2; }
   }
-  .ball.struck { animation: ball-struck 0.5s ease-out forwards; }
+  .ball.struck { animation: ball-struck 0.4s ease-out forwards; }
   @keyframes ball-struck {
-    0%   { transform: translate(-50%,-50%) scale(1.25); }
-    100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+    0%   { transform: translate(-50%,-50%) scale(1.3); }
+    50%  { transform: translate(-50%,-50%) scale(1.6); }
+    100% { transform: translate(-50%,-50%) scale(0.8); opacity: 0; }
   }
 
+  /* ============================================================
+     CALLOUT — 홈런/안타/아웃 오버레이
+     ============================================================ */
   .callout {
     position: absolute;
-    left: 50%;
-    top: 35%;
+    left: 50%; top: 40%;
     transform: translate(-50%, -50%) scale(0.6);
-    padding: 10px 24px;
+    padding: 10px 26px;
     font-size: 40px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+    text-shadow:
+      3px 3px 0 var(--border),
+      -2px -2px 0 var(--border),
+      2px -2px 0 var(--border),
+      -2px 2px 0 var(--border),
+      0 0 24px rgba(255,200,0,0.6);
     opacity: 0;
     pointer-events: none;
     letter-spacing: 2px;
     white-space: nowrap;
+    z-index: 5;
   }
-  .callout.show { animation: callout-pop 1.2s ease-out forwards; }
+  .callout.show { animation: callout-pop 1.3s ease-out forwards; }
   @keyframes callout-pop {
-    0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
-    20%  { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
-    60%  { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%,-80%) scale(0.9); }
+    0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3) rotate(-8deg); }
+    15%  { opacity: 1; transform: translate(-50%,-50%) scale(1.25) rotate(5deg); }
+    30%  { transform: translate(-50%,-50%) scale(1.0) rotate(-3deg); }
+    50%  { transform: translate(-50%,-50%) scale(1.05) rotate(0); }
+    100% { opacity: 0; transform: translate(-50%,-90%) scale(0.9) rotate(0); }
   }
-  .callout.homerun { color: var(--homerun); font-size: 52px; }
-  .callout.hit     { color: var(--hit); }
-  .callout.out     { color: var(--out); }
-  .callout.strike  { color: var(--strike); }
+  .callout.homerun { color: var(--gold); font-size: 56px; }
+  .callout.hit     { color: var(--lime); }
+  .callout.out     { color: var(--red); }
+  .callout.strike  { color: var(--blue); }
   .callout.ball    { color: #fff; }
-  .callout.run     { color: var(--out); }
+  .callout.run     { color: var(--red); }
 
-  /* ===== HUD ===== */
+  /* Homerun full-screen flash */
+  .flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255,200,0,0.7), transparent 65%);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 20;
+  }
+  .flash.go { animation: flash-go 0.9s ease-out; }
+  @keyframes flash-go {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* XP toast */
+  .xp-toast {
+    position: fixed;
+    left: 50%; top: 38%;
+    transform: translate(-50%, -50%) scale(0);
+    background: var(--lime);
+    color: var(--ink);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 1px;
+    border: 3px solid var(--border);
+    box-shadow: 0 6px 0 var(--border);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 15;
+    white-space: nowrap;
+  }
+  .xp-toast.go { animation: xp-go 1.4s ease-out; }
+  @keyframes xp-go {
+    0%   { opacity: 0; transform: translate(-50%, 50%) scale(0.4); }
+    20%  { opacity: 1; transform: translate(-50%, -10%) scale(1.1); }
+    40%  { transform: translate(-50%, -30%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -200%) scale(0.9); }
+  }
+
+  /* Confetti particles (homerun only) */
+  .confetti {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 19;
+    overflow: hidden;
+  }
+  .confetti .piece {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 14px;
+    background: var(--gold);
+    transform: translate(-50%, -50%);
+    animation: confetti-burst 1.4s ease-out forwards;
+  }
+  @keyframes confetti-burst {
+    0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0); }
+    100% { opacity: 0;
+      transform:
+        translate(calc(-50% + var(--cx, 0) * 1px), calc(-50% + var(--cy, 0) * 1px))
+        rotate(var(--cr, 540deg));
+    }
+  }
+
+  /* ============================================================
+     HUD — 문제 + 선택지
+     ============================================================ */
   .hud {
     width: 100%;
-    max-width: 520px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
   .question {
-    background: var(--panel-2);
-    border: 3px solid #0a1f14;
-    border-radius: 10px;
-    padding: 10px 14px;
+    background: var(--panel);
+    border: 3px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
     text-align: center;
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 4px 0 #000;
-    min-height: 52px;
+    box-shadow: 0 4px 0 var(--border);
+    position: relative;
   }
-  .question small {
+  .q-hint {
     display: block;
     font-size: 10px;
-    color: #7fd99f;
-    font-weight: 500;
-    letter-spacing: 1px;
-    margin-bottom: 2px;
+    color: var(--lime);
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .q-word {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    line-height: 1.1;
   }
   .timer-bar {
     width: 100%;
-    height: 5px;
-    background: #0a1f14;
-    border: 2px solid #0a1f14;
+    height: 6px;
+    background: var(--border);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 6px;
+    margin-top: 10px;
+    border: 1px solid var(--border);
   }
   .timer-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ffd84a, #ff7a6b);
+    background: linear-gradient(90deg, var(--lime) 0%, var(--gold) 40%, var(--red) 100%);
     width: 100%;
     transform-origin: left;
     transition: none;
   }
+
   .choices {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 8px;
   }
   .choice {
-    background: #fff;
-    color: #0a1f14;
-    border: 3px solid #0a1f14;
-    border-radius: 10px;
-    padding: 12px 8px;
+    background: var(--text);
+    color: var(--ink);
+    border: 3px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 10px;
+    min-height: 54px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 4px 0 #0a1f14;
+    box-shadow: 0 5px 0 var(--border);
     text-align: center;
     font-family: inherit;
+    transition: transform 0.05s, box-shadow 0.05s;
+    position: relative;
   }
-  .choice:active { transform: translateY(2px); box-shadow: 0 2px 0 #0a1f14; }
-  .choice:disabled { cursor: default; opacity: 0.7; }
-  .choice.correct { background: var(--hit); }
-  .choice.wrong   { background: var(--out); color: #fff; }
+  .choice:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--border); }
+  .choice:disabled { cursor: default; opacity: 0.75; }
+  .choice.correct {
+    background: var(--lime); color: var(--ink);
+    box-shadow: 0 5px 0 var(--lime-2);
+  }
+  .choice.wrong {
+    background: var(--red); color: #fff;
+    box-shadow: 0 5px 0 var(--red-2);
+    animation: shake 0.35s;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-4px); }
+    40%,80% { transform: translateX(4px); }
+  }
+  .choice .num {
+    position: absolute;
+    top: 4px; left: 6px;
+    font-size: 10px;
+    color: var(--text-mute);
+    font-weight: 800;
+    line-height: 1;
+  }
 
-  /* ===== Overlay (start/end/review) ===== */
+  /* ============================================================
+     OVERLAY — 시작/리뷰/종료
+     ============================================================ */
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.9);
+    background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(10,31,20,0.96));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    z-index: 10;
-    padding: 18px;
+    gap: 14px;
+    z-index: 50;
+    padding: 20px;
     text-align: center;
     overflow-y: auto;
   }
   .overlay.hide { display: none; }
   .overlay h1 {
-    font-size: 32px;
-    color: var(--homerun);
-    text-shadow: 3px 3px 0 #000;
+    font-size: 34px;
+    color: var(--gold);
+    text-shadow: 3px 3px 0 var(--border);
     letter-spacing: 2px;
+    line-height: 1.1;
   }
   .overlay h2 {
     font-size: 22px;
-    color: var(--hit);
-    text-shadow: 2px 2px 0 #000;
-  }
-  .overlay p { font-size: 14px; color: #fff; max-width: 420px; line-height: 1.6; }
-  .overlay .big-score {
-    font-size: 56px;
-    font-weight: 900;
-    color: var(--hit);
-    text-shadow: 3px 3px 0 #000;
-  }
-  .overlay button {
-    background: var(--homerun);
-    color: #0a1f14;
-    border: 3px solid #0a1f14;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 900;
-    cursor: pointer;
-    border-radius: 10px;
-    box-shadow: 0 5px 0 #000;
-    font-family: inherit;
+    color: var(--lime);
+    text-shadow: 2px 2px 0 var(--border);
     letter-spacing: 1px;
   }
-  .overlay button:active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
-  .legend { font-size: 12px; color: #7fd99f; line-height: 1.7; }
-  .legend b { color: var(--homerun); }
-
-  /* Review list */
-  .review-score {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 14px;
-    align-items: center;
-    background: var(--panel-2);
-    border: 2px solid #0a1f14;
-    border-radius: 10px;
-    padding: 10px 20px;
-    width: 100%;
-    max-width: 420px;
-  }
-  .review-score .big {
-    font-size: 36px;
+  .overlay p { font-size: 14px; color: var(--text); max-width: 400px; line-height: 1.6; }
+  .overlay .big-score {
+    font-size: 54px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
+    text-shadow: 3px 3px 0 var(--border);
   }
-  .review-score .side-me  .big { color: var(--hit); }
-  .review-score .side-opp .big { color: var(--out); }
-  .review-score .vs {
-    font-size: 14px;
-    color: #7fd99f;
+  .overlay .big-score .me { color: var(--lime); }
+  .overlay .big-score .opp { color: var(--red); }
+  .overlay .big-score .sep { color: var(--text-sub); margin: 0 8px; }
+  .overlay button {
+    background: var(--lime);
+    color: var(--ink);
+    border: 3px solid var(--border);
+    padding: 14px 32px;
+    font-size: 17px;
     font-weight: 900;
+    cursor: pointer;
+    border-radius: 14px;
+    box-shadow: 0 6px 0 var(--lime-2), 0 6px 0 var(--border);
+    font-family: inherit;
+    letter-spacing: 1px;
+    min-height: 52px;
+    margin-top: 8px;
   }
+  .overlay button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--border); }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .rules-card {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-sub);
+  }
+  .rules-card h3 {
+    font-size: 13px;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .rules-card.off h3 { color: var(--gold); }
+  .rules-card.def h3 { color: var(--blue); }
+  .rules-card b { color: var(--text); }
+
+  /* Review overlay */
+  .review-score-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    background: var(--panel);
+    border: 3px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 20px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 0 var(--border);
+  }
+  .review-score-row .big {
+    font-size: 40px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 2px 2px 0 var(--border);
+  }
+  .review-score-row .side-me  .big { color: var(--lime); }
+  .review-score-row .side-opp .big { color: var(--red); }
+  .review-score-row .team-label { font-size: 10px; }
+  .review-score-row .vs-badge {
+    font-size: 14px; color: var(--gold); font-weight: 900;
+    padding: 4px 10px;
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .review-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%; max-width: 420px;
+  }
+  .stat-card {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+  }
+  .stat-card .v {
+    font-size: 20px; font-weight: 900; color: var(--text);
+    font-variant-numeric: tabular-nums;
+    display: block;
+    line-height: 1.1;
+  }
+  .stat-card .l {
+    font-size: 10px; color: var(--text-sub); letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
   .review-list {
     width: 100%;
     max-width: 420px;
-    max-height: 36vh;
+    max-height: 30vh;
     overflow-y: auto;
     background: var(--panel-2);
-    border: 2px solid #0a1f14;
-    border-radius: 8px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
     padding: 6px;
     text-align: left;
     font-size: 12px;
@@ -430,81 +702,106 @@
   .review-list .row {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
-    gap: 8px;
-    padding: 5px 8px;
-    border-bottom: 1px dashed #3a6a4a;
+    gap: 10px;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     align-items: center;
   }
   .review-list .row:last-child { border-bottom: none; }
   .review-list .mark {
-    width: 16px; text-align: center;
-    font-weight: 900;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 12px;
   }
-  .review-list .mark.ok  { color: var(--hit); }
-  .review-list .mark.bad { color: var(--out); }
+  .review-list .mark.ok  { background: var(--lime); color: var(--ink); }
+  .review-list .mark.bad { background: var(--red); color: #fff; }
   .review-list .w-en {
-    font-weight: 800;
-    font-family: 'Pretendard Variable', system-ui;
+    font-weight: 800; color: var(--text);
   }
   .review-list .w-en small {
-    color: #7fd99f;
-    font-weight: 400;
-    margin-left: 4px;
+    color: var(--text-sub); font-weight: 500; margin-left: 6px;
   }
   .review-list .w-time {
-    color: #fff;
+    color: var(--gold);
     font-variant-numeric: tabular-nums;
-    font-size: 11px;
+    font-size: 11px; font-weight: 700;
   }
   .review-list .w-result {
-    color: var(--homerun);
-    font-size: 11px;
-    font-weight: 700;
+    color: var(--lime); font-size: 11px; font-weight: 800;
+    min-width: 40px; text-align: right;
   }
-  .review-stats {
-    display: flex;
-    gap: 16px;
-    color: #7fd99f;
-    font-size: 12px;
-    justify-content: center;
+  .review-list .row.bad .w-result { color: var(--red); }
+
+  /* ============================================================
+     Responsive tweaks
+     ============================================================ */
+  @media (max-width: 380px) {
+    .team-score { font-size: 26px; }
+    .q-word { font-size: 24px; }
+    .choice { font-size: 14px; min-height: 48px; padding: 12px 8px; }
+    .overlay h1 { font-size: 28px; }
+    .field { aspect-ratio: 1 / 0.9; }
   }
-  .review-stats b { color: #fff; font-variant-numeric: tabular-nums; font-size: 15px; }
 </style>
 </head>
 <body>
 
+<!-- SCOREBOARD -->
 <div class="scoreboard">
-  <div class="sb-slot me">
-    <div class="sb-label">ME</div>
-    <div class="sb-value" id="myScore">0</div>
+  <div class="team-col me">
+    <div class="team-label">ME</div>
+    <div class="team-score" id="myScore">0</div>
   </div>
-  <div class="sb-slot">
-    <div class="sb-label">INN</div>
-    <div class="sb-value"><span id="inning">1</span><span class="inn-arrow" id="innArrow">▲</span></div>
+  <div class="inn-col">
+    <div class="inn-big"><span id="inning">1</span><span class="arrow" id="innArrow">▲</span></div>
+    <div class="inn-label">INNING</div>
   </div>
-  <div class="sb-slot opp">
-    <div class="sb-label">OPP</div>
-    <div class="sb-value" id="oppScore">0</div>
+  <div class="team-col opp">
+    <div class="team-label">OPP</div>
+    <div class="team-score" id="oppScore">0</div>
   </div>
-  <div class="sb-slot">
-    <div class="sb-label" id="outsLabel">OUT</div>
-    <div>
-      <div class="outs" id="outs">
-        <span class="out-dot"></span>
-        <span class="out-dot"></span>
-        <span class="out-dot"></span>
-      </div>
-      <div class="bs-row" id="bsRow" style="display:none">B 0 · S 0</div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="sb-group">
+    <span class="k">OUT</span>
+    <div class="pill out" id="outs">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
   </div>
+  <div class="bs-stack" id="bsStack" style="display:none">
+    <div class="line"><span class="k">B</span>
+      <div class="pill ball" id="balls">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+    <div class="line"><span class="k">S</span>
+      <div class="pill strike" id="strikes">
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+  </div>
+  <div class="pitches-left">
+    <span class="ico">⚾</span>
+    <span id="pitchesLeft">7</span>
+  </div>
 </div>
 
-<div class="half-badge">
-  <span class="role off" id="roleBadge">⚾ 공격</span>
-  <span class="inn-text" id="halfText">1회 초</span>
-  <span class="tier" id="tierText">티어 1 · A1-A2</span>
+<!-- HALF BANNER -->
+<div class="half-banner">
+  <span class="role-pill off" id="roleBadge">⚾ 공격</span>
+  <div class="half-center">
+    <div class="inn-txt" id="halfText">1회 초</div>
+    <div class="tier-txt" id="tierText">티어 1 · A1-A2 기본</div>
+  </div>
+  <div class="streak" id="streakBox" title="연속 정답">
+    <span>🔥</span><span id="streakVal">0</span>
+  </div>
 </div>
 
+<!-- FIELD -->
 <div class="field">
   <div class="diamond"></div>
   <div class="mound"></div>
@@ -518,65 +815,86 @@
   <div class="callout" id="callout"></div>
 </div>
 
+<!-- HUD -->
 <div class="hud">
   <div class="question">
-    <small id="qhint">공에 쓰인 단어의 뜻은?</small>
-    <span id="qword">—</span>
+    <span class="q-hint" id="qhint">날아오는 공의 뜻을 맞혀 타격!</span>
+    <span class="q-word" id="qword">—</span>
     <div class="timer-bar"><div class="timer-bar-fill" id="tbar"></div></div>
   </div>
   <div class="choices" id="choices"></div>
 </div>
 
-<!-- Start overlay -->
+<!-- FX -->
+<div class="flash" id="flash"></div>
+<div class="xp-toast" id="xpToast"></div>
+<div class="confetti" id="confetti"></div>
+
+<!-- START OVERLAY -->
 <div class="overlay" id="start">
-  <h1>⚾ WORD BASEBALL v2</h1>
-  <div class="legend">
-    <b>공격 (공 날아올 때 초):</b><br>
-    1.2초 내 = 홈런 · 2.0초 = 3루타 · 3.0초 = 2루타 · 5.0초 = 안타<br><br>
-    <b>수비 (공 던질 때 말):</b><br>
-    정답 &lt;1.5초 = <b style="color:#4abfff">스트라이크</b><br>
-    정답 ≥1.5초 = 볼 · 오답 = 피안타(실점)<br>
-    3K = 삼진 · 4B = 볼넷<br><br>
-    <b>총 4이닝 · 공수교대</b> · 이닝마다 난이도 상승<br>
-    이닝 끝나면 단어 리뷰!
+  <h1>⚾ WORD BASEBALL</h1>
+  <p style="color:var(--gold);font-weight:900;letter-spacing:2px;font-size:14px">4 INNINGS · TIER 1-4 · 공수교대</p>
+  <div class="rules-grid">
+    <div class="rules-card off">
+      <h3>⚾ 공격 (초)</h3>
+      <b>1.2초</b> = 홈런<br>
+      <b>2.0초</b> = 3루타<br>
+      <b>3.0초</b> = 2루타<br>
+      <b>5.0초</b> = 안타<br>
+      오답·놓침 = 아웃
+    </div>
+    <div class="rules-card def">
+      <h3>🧢 수비 (말)</h3>
+      정답 <b>&lt;1.5초</b> = 스트라이크<br>
+      정답 <b>≥1.5초</b> = 볼<br>
+      오답 = 피안타·실점<br>
+      3K = 삼진<br>
+      4B = 볼넷
+    </div>
   </div>
-  <button id="btnStart">PLAY BALL!</button>
+  <p style="font-size:12px;color:var(--text-sub)">half당 최대 <b style="color:var(--gold)">7구</b> · 각 이닝 끝나면 단어 리뷰</p>
+  <button id="btnStart">PLAY BALL! ⚾</button>
 </div>
 
-<!-- Review overlay -->
+<!-- REVIEW OVERLAY -->
 <div class="overlay hide" id="review">
   <h2 id="reviewTitle">1회 초 종료</h2>
-  <div class="review-score">
+  <div class="review-score-row">
     <div class="side-me">
-      <div class="sb-label" style="color:#7fd99f">ME</div>
+      <div class="team-label" style="color:var(--text-sub)">ME</div>
       <div class="big" id="revMe">0</div>
     </div>
-    <div class="vs">vs</div>
+    <div class="vs-badge">VS</div>
     <div class="side-opp">
-      <div class="sb-label" style="color:#7fd99f">OPP</div>
+      <div class="team-label" style="color:var(--text-sub)">OPP</div>
       <div class="big" id="revOpp">0</div>
     </div>
   </div>
   <div class="review-stats">
-    <div>평균 반응 <b id="revAvg">0.0s</b></div>
-    <div>정답률 <b id="revAcc">0%</b></div>
+    <div class="stat-card"><span class="v" id="revAvg">—</span><span class="l">평균 반응</span></div>
+    <div class="stat-card"><span class="v" id="revAcc">—</span><span class="l">정답률</span></div>
+    <div class="stat-card"><span class="v" id="revCnt">0</span><span class="l">타석</span></div>
   </div>
   <div class="review-list" id="revList"></div>
   <button id="btnNext">다음 ▶</button>
 </div>
 
-<!-- End overlay -->
+<!-- END OVERLAY -->
 <div class="overlay hide" id="end">
   <h1 id="endTitle">GAME OVER</h1>
-  <div class="big-score"><span id="finalMe">0</span> : <span id="finalOpp">0</span></div>
+  <div class="big-score">
+    <span class="me" id="finalMe">0</span>
+    <span class="sep">:</span>
+    <span class="opp" id="finalOpp">0</span>
+  </div>
   <p id="finalMsg"></p>
-  <button id="btnRestart">다시 플레이</button>
+  <button id="btnRestart">다시 플레이 🔄</button>
 </div>
 
 <script type="module">
-  // ===== Word bank (4 tiers × 40 words) =====
+  // ===== Word bank (4 tiers × 40) =====
   const WORD_TIERS = {
-    1: [ // A1–A2 기본 단어
+    1: [
       ['apple','사과'],['book','책'],['run','달리다'],['water','물'],
       ['happy','행복한'],['friend','친구'],['school','학교'],['teacher','선생님'],
       ['eat','먹다'],['sleep','자다'],['sun','해'],['moon','달'],
@@ -588,7 +906,7 @@
       ['kind','친절한'],['angry','화난'],['laugh','웃다'],['cry','울다'],
       ['find','찾다'],['lose','잃다'],['win','이기다'],['begin','시작하다'],
     ],
-    2: [ // B1 중급
+    2: [
       ['decide','결정하다'],['clever','영리한'],['enormous','거대한'],['prepare','준비하다'],
       ['notice','알아차리다'],['improve','향상시키다'],['suggest','제안하다'],['borrow','빌리다'],
       ['return','돌아가다'],['promise','약속하다'],['choose','선택하다'],['explain','설명하다'],
@@ -600,7 +918,7 @@
       ['necessary','필요한'],['serious','진지한'],['popular','인기있는'],['special','특별한'],
       ['terrible','끔찍한'],['comfortable','편안한'],['modern','현대의'],['ancient','고대의'],
     ],
-    3: [ // B2 중고급
+    3: [
       ['compromise','타협'],['reluctant','꺼리는'],['deliberate','고의의'],['sincere','진심의'],
       ['concrete','구체적인'],['abstract','추상적인'],['fragile','깨지기 쉬운'],['obvious','명백한'],
       ['sufficient','충분한'],['moderate','적당한'],['genuine','진정한'],['crucial','결정적인'],
@@ -612,7 +930,7 @@
       ['hostile','적대적인'],['passionate','열정적인'],['rational','이성적인'],['emotional','감정적인'],
       ['aware','인식하는'],['indifferent','무관심한'],['apparent','명백한'],['intricate','복잡한'],
     ],
-    4: [ // C1 고급
+    4: [
       ['meticulous','꼼꼼한'],['ubiquitous','어디에나 있는'],['elucidate','명확히 하다'],['ambiguous','모호한'],
       ['profound','심오한'],['tenacious','끈기 있는'],['ephemeral','덧없는'],['arduous','힘든'],
       ['resilient','회복력 있는'],['paramount','가장 중요한'],['benevolent','자비로운'],['ostentatious','과시하는'],
@@ -631,28 +949,25 @@
   const MAX_INNING = 4;
   const MAX_PITCHES_PER_HALF = 7;
 
-  // ===== State =====
   const state = {
     inning: 1,
-    half: 'top',  // 'top' = 내 공격, 'bottom' = 내 수비
-    outs: 0,
-    balls: 0,
-    strikes: 0,
-    myScore: 0,
-    oppScore: 0,
-    bases: [false, false, false], // 1st, 2nd, 3rd
+    half: 'top',
+    outs: 0, balls: 0, strikes: 0,
+    myScore: 0, oppScore: 0,
+    bases: [false, false, false],
     current: null,
     locked: false,
     pitchTimeout: null,
-    halfLog: [],   // current half plays
+    halfLog: [],
     pitchesThisHalf: 0,
+    streak: 0,
   };
 
   const $ = id => document.getElementById(id);
   const ball = $('ball');
   const qword = $('qword');
   const qhint = $('qhint');
-  const choices = $('choices');
+  const choicesBox = $('choices');
   const callout = $('callout');
   const tbar = $('tbar');
 
@@ -667,40 +982,48 @@
 
   function isOffense() { return state.half === 'top'; }
 
+  function setDots(containerId, n, total) {
+    const dots = $(containerId).children;
+    for (let i = 0; i < total; i++) {
+      if (dots[i]) dots[i].classList.toggle('on', i < n);
+    }
+  }
+
   function renderScore() {
     $('myScore').textContent = state.myScore;
     $('oppScore').textContent = state.oppScore;
     $('inning').textContent = state.inning;
     $('innArrow').textContent = isOffense() ? '▲' : '▼';
 
-    const dots = $('outs').children;
-    for (let i = 0; i < 3; i++) dots[i].classList.toggle('on', i < state.outs);
+    setDots('outs', state.outs, 3);
 
-    // Show B-S row only on defense
     if (isOffense()) {
-      $('bsRow').style.display = 'none';
-      $('outsLabel').textContent = 'OUT';
+      $('bsStack').style.display = 'none';
     } else {
-      $('bsRow').style.display = 'block';
-      $('bsRow').textContent = `B ${state.balls} · S ${state.strikes}`;
-      $('outsLabel').textContent = 'OUT';
+      $('bsStack').style.display = 'flex';
+      setDots('balls', state.balls, 3);
+      setDots('strikes', state.strikes, 2);
     }
 
     $('b1').classList.toggle('on', state.bases[0]);
     $('b2').classList.toggle('on', state.bases[1]);
     $('b3').classList.toggle('on', state.bases[2]);
 
-    // Half badge
     const role = $('roleBadge');
     role.textContent = isOffense() ? '⚾ 공격' : '🧢 수비';
-    role.className = 'role ' + (isOffense() ? 'off' : 'def');
+    role.className = 'role-pill ' + (isOffense() ? 'off' : 'def');
     $('halfText').textContent = `${state.inning}회 ${isOffense() ? '초' : '말'}`;
     $('tierText').textContent = `티어 ${state.inning} · ${TIER_LABEL[state.inning]}`;
+    $('qhint').textContent = isOffense()
+      ? '⚾ 날아오는 공의 뜻을 맞혀 타격!'
+      : '🧢 빠르게 정답 골라 스트라이크!';
+
     const pitchLeft = Math.max(0, MAX_PITCHES_PER_HALF - state.pitchesThisHalf);
-    $('qhint').textContent = (isOffense()
-      ? '날아오는 공의 뜻을 맞혀 타격!'
-      : '빠르게 정답 골라 스트라이크!')
-      + ` · 남은 공 ${pitchLeft}/${MAX_PITCHES_PER_HALF}`;
+    $('pitchesLeft').textContent = pitchLeft;
+
+    const streakBox = $('streakBox');
+    $('streakVal').textContent = state.streak;
+    streakBox.classList.toggle('dead', state.streak === 0);
   }
 
   function showCallout(text, cls) {
@@ -708,7 +1031,41 @@
     callout.textContent = text;
     void callout.offsetWidth;
     callout.classList.add('show');
-    setTimeout(() => callout.classList.remove('show'), 1200);
+    setTimeout(() => callout.classList.remove('show'), 1300);
+  }
+
+  function showXP(text) {
+    const t = $('xpToast');
+    t.textContent = text;
+    t.classList.remove('go');
+    void t.offsetWidth;
+    t.classList.add('go');
+  }
+
+  function screenFlash() {
+    const f = $('flash');
+    f.classList.remove('go');
+    void f.offsetWidth;
+    f.classList.add('go');
+  }
+
+  function burstConfetti() {
+    const host = $('confetti');
+    host.innerHTML = '';
+    const colors = ['#ffc800','#58cc02','#1cb0f6','#ff4b4b','#fff'];
+    for (let i = 0; i < 26; i++) {
+      const p = document.createElement('div');
+      p.className = 'piece';
+      const angle = (i / 26) * Math.PI * 2 + Math.random() * 0.4;
+      const dist = 180 + Math.random() * 200;
+      p.style.setProperty('--cx', Math.cos(angle) * dist);
+      p.style.setProperty('--cy', Math.sin(angle) * dist);
+      p.style.setProperty('--cr', (Math.random() * 1200 - 600) + 'deg');
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 0.1) + 's';
+      host.appendChild(p);
+    }
+    setTimeout(() => host.innerHTML = '', 1500);
   }
 
   function advanceRunners(bases) {
@@ -735,20 +1092,20 @@
   }
 
   function renderChoices(options) {
-    choices.innerHTML = '';
-    options.forEach(opt => {
+    choicesBox.innerHTML = '';
+    options.forEach((opt, i) => {
       const b = document.createElement('button');
       b.className = 'choice';
-      b.textContent = opt;
+      b.innerHTML = `<span class="num">${i+1}</span>${opt}`;
       b.addEventListener('click', () => handleAnswer(opt, b));
-      choices.appendChild(b);
+      choicesBox.appendChild(b);
     });
   }
 
   function disableChoicesMarkCorrect() {
-    [...choices.children].forEach(b => {
+    [...choicesBox.children].forEach(b => {
       b.disabled = true;
-      if (b.textContent === state.current.ko) b.classList.add('correct');
+      if (b.textContent.replace(/^\d+/, '').trim() === state.current.ko) b.classList.add('correct');
     });
   }
 
@@ -764,7 +1121,7 @@
     ball.textContent = q.eng;
     renderChoices(q.options);
 
-    ball.classList.remove('throwing', 'hit', 'hit-homerun', 'missed', 'struck');
+    ball.classList.remove('throwing','hit','hit-homerun','missed','struck');
     void ball.offsetWidth;
     ball.classList.add('throwing');
 
@@ -784,38 +1141,33 @@
       ball.classList.add('missed');
       onTimeout();
     }, THROW_MS);
+
+    renderScore();
   }
 
   function logPlay(entry) {
-    state.halfLog.push({
-      inning: state.inning, half: state.half,
-      ...entry,
-    });
+    state.halfLog.push({ inning: state.inning, half: state.half, ...entry });
   }
 
   function onTimeout() {
-    // timeout = no swing / missed pitch
+    state.streak = 0;
     if (isOffense()) {
-      // 놓침 → 아웃
-      showCallout('놓쳤다! 아웃!', 'out');
+      showCallout('놓쳤다! 아웃', 'out');
       state.outs++;
       logPlay({ word: state.current.eng, ko: state.current.ko, picked: null, elapsed: null, result: '아웃', correct: false });
     } else {
-      // 수비 타임아웃 = 볼
       state.balls++;
       showCallout('볼', 'ball');
       logPlay({ word: state.current.eng, ko: state.current.ko, picked: null, elapsed: null, result: '볼', correct: false });
       if (state.balls >= 4) {
-        // 볼넷 = 타자 1루 진루 (상대 진루)
-        showCallout('볼넷!', 'out');
         const runs = advanceRunners(1);
         state.oppScore += runs;
         state.balls = 0; state.strikes = 0;
-        if (runs > 0) showCallout(`실점 +${runs}`, 'run');
+        setTimeout(() => showCallout('볼넷!' + (runs>0?` +${runs}실점`:''), 'out'), 500);
       }
     }
     renderScore();
-    setTimeout(nextPitch, 1100);
+    setTimeout(nextPitch, 1200);
   }
 
   function handleAnswer(picked, btn) {
@@ -826,15 +1178,13 @@
     const elapsed = performance.now() - state.current.startAt;
     const correct = picked === state.current.ko;
 
-    if (isOffense()) {
-      handleOffenseAnswer(picked, btn, correct, elapsed);
-    } else {
-      handleDefenseAnswer(picked, btn, correct, elapsed);
-    }
+    if (isOffense()) handleOffense(picked, btn, correct, elapsed);
+    else              handleDefense(picked, btn, correct, elapsed);
   }
 
-  function handleOffenseAnswer(picked, btn, correct, elapsed) {
+  function handleOffense(picked, btn, correct, elapsed) {
     if (!correct) {
+      state.streak = 0;
       btn.classList.add('wrong');
       disableChoicesMarkCorrect();
       ball.classList.remove('throwing');
@@ -843,73 +1193,84 @@
       state.outs++;
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: '스윙아웃', correct: false });
       renderScore();
-      setTimeout(nextPitch, 1100);
+      setTimeout(nextPitch, 1200);
       return;
     }
+    state.streak++;
     btn.classList.add('correct');
-    [...choices.children].forEach(b => b.disabled = true);
+    [...choicesBox.children].forEach(b => b.disabled = true);
 
-    let bases, label, cls;
-    if (elapsed < 1200)      { bases = 4; label = '홈런! ⚾'; cls = 'homerun'; }
-    else if (elapsed < 2000) { bases = 3; label = '3루타!';  cls = 'hit'; }
-    else if (elapsed < 3000) { bases = 2; label = '2루타!';  cls = 'hit'; }
-    else                     { bases = 1; label = '안타!';   cls = 'hit'; }
+    let bases, label, cls, isHR = false;
+    if (elapsed < 1200)      { bases = 4; label = 'HOMERUN! ⚾'; cls = 'homerun'; isHR = true; }
+    else if (elapsed < 2000) { bases = 3; label = '3루타!';     cls = 'hit'; }
+    else if (elapsed < 3000) { bases = 2; label = '2루타!';     cls = 'hit'; }
+    else                     { bases = 1; label = '안타!';       cls = 'hit'; }
 
     ball.classList.remove('throwing');
-    ball.classList.add(bases >= 4 ? 'hit-homerun' : 'hit');
+    ball.classList.add(isHR ? 'hit-homerun' : 'hit');
 
     const runs = advanceRunners(bases);
     state.myScore += runs;
-    showCallout(label + (runs > 0 ? ` +${runs}` : ''), cls);
+
+    showCallout(label, cls);
+    if (isHR) {
+      screenFlash();
+      burstConfetti();
+      showXP(`+${runs * 100} XP · 홈런!`);
+    } else if (runs > 0) {
+      showXP(`+${runs} 득점!`);
+    }
+
     logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: label.replace('!','').trim() + (runs>0?` +${runs}`:''), correct: true });
     renderScore();
-    setTimeout(nextPitch, bases >= 4 ? 1400 : 1100);
+    setTimeout(nextPitch, isHR ? 1600 : 1200);
   }
 
-  function handleDefenseAnswer(picked, btn, correct, elapsed) {
+  function handleDefense(picked, btn, correct, elapsed) {
     if (!correct) {
+      state.streak = 0;
       btn.classList.add('wrong');
       disableChoicesMarkCorrect();
       ball.classList.remove('throwing');
       ball.classList.add('hit');
-      // 피안타 - 상대가 때림, 1루 진루
       const runs = advanceRunners(1);
       state.oppScore += runs;
       state.balls = 0; state.strikes = 0;
-      showCallout('피안타!' + (runs>0 ? ` 실점 +${runs}` : ''), 'run');
+      showCallout('피안타!' + (runs>0 ? ` -${runs}` : ''), 'run');
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: '피안타' + (runs>0?` +${runs}`:''), correct: false });
       renderScore();
-      setTimeout(nextPitch, 1300);
+      setTimeout(nextPitch, 1400);
       return;
     }
+    state.streak++;
     btn.classList.add('correct');
-    [...choices.children].forEach(b => b.disabled = true);
+    [...choicesBox.children].forEach(b => b.disabled = true);
     ball.classList.remove('throwing');
     ball.classList.add('struck');
 
     if (elapsed < 1500) {
       state.strikes++;
-      showCallout('스트라이크!', 'strike');
+      showCallout('STRIKE!', 'strike');
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: `K${state.strikes}`, correct: true });
       if (state.strikes >= 3) {
-        showCallout('삼진 아웃! 🔥', 'strike');
+        setTimeout(() => showCallout('삼진 아웃! 🔥', 'strike'), 500);
         state.outs++;
         state.balls = 0; state.strikes = 0;
+        showXP('+50 XP · 삼진!');
       }
     } else {
       state.balls++;
       showCallout('볼', 'ball');
       logPlay({ word: state.current.eng, ko: state.current.ko, picked, elapsed, result: `B${state.balls}`, correct: true });
       if (state.balls >= 4) {
-        showCallout('볼넷!', 'out');
         const runs = advanceRunners(1);
         state.oppScore += runs;
         state.balls = 0; state.strikes = 0;
-        if (runs > 0) setTimeout(() => showCallout(`실점 +${runs}`, 'run'), 600);
+        setTimeout(() => showCallout('볼넷!' + (runs>0?` -${runs}`:''), 'out'), 500);
       }
     }
     renderScore();
-    setTimeout(nextPitch, 1100);
+    setTimeout(nextPitch, 1200);
   }
 
   function nextPitch() {
@@ -918,25 +1279,19 @@
   }
 
   function endHalf() {
-    // show review, then advance
     renderReview();
     $('review').classList.remove('hide');
   }
 
   function advanceHalf() {
     $('review').classList.add('hide');
-    if (state.half === 'top') {
-      state.half = 'bottom';
-    } else {
-      state.half = 'top';
-      state.inning++;
-    }
-    state.outs = 0;
-    state.balls = 0;
-    state.strikes = 0;
+    if (state.half === 'top') state.half = 'bottom';
+    else { state.half = 'top'; state.inning++; }
+    state.outs = 0; state.balls = 0; state.strikes = 0;
     state.bases = [false, false, false];
     state.halfLog = [];
     state.pitchesThisHalf = 0;
+    state.streak = 0;
 
     if (state.inning > MAX_INNING) { endGame(); return; }
     renderScore();
@@ -945,7 +1300,8 @@
 
   function renderReview() {
     const half = state.half === 'top' ? '초' : '말';
-    $('reviewTitle').textContent = `${state.inning}회 ${half} 종료`;
+    const role = state.half === 'top' ? '⚾ 공격' : '🧢 수비';
+    $('reviewTitle').textContent = `${state.inning}회 ${half} 종료 · ${role}`;
     $('revMe').textContent = state.myScore;
     $('revOpp').textContent = state.oppScore;
 
@@ -953,17 +1309,19 @@
     const answered = logs.filter(l => l.elapsed !== null);
     const corrects = logs.filter(l => l.correct).length;
     const avgMs = answered.length ? answered.reduce((s,l)=>s+l.elapsed,0) / answered.length : 0;
+
     $('revAvg').textContent = answered.length ? (avgMs/1000).toFixed(1) + 's' : '—';
     $('revAcc').textContent = logs.length ? Math.round(corrects / logs.length * 100) + '%' : '—';
+    $('revCnt').textContent = logs.length;
 
     const list = $('revList');
     list.innerHTML = '';
     if (logs.length === 0) {
-      list.innerHTML = '<div class="row" style="grid-template-columns:1fr;text-align:center;color:#7fd99f">기록 없음</div>';
+      list.innerHTML = '<div class="row" style="grid-template-columns:1fr;text-align:center;color:var(--text-sub)">기록 없음</div>';
     } else {
       logs.forEach(l => {
         const row = document.createElement('div');
-        row.className = 'row';
+        row.className = 'row' + (l.correct ? '' : ' bad');
         const markCls = l.correct ? 'ok' : 'bad';
         const mark = l.correct ? '✓' : '✗';
         const time = l.elapsed !== null ? (l.elapsed/1000).toFixed(1) + 's' : '—';
@@ -985,10 +1343,12 @@
     let title, msg;
     if (state.myScore > state.oppScore) {
       title = '🏆 WIN!';
-      msg = `멋진 경기! ${state.myScore - state.oppScore}점 차로 승리 🎉`;
+      msg = `멋진 경기! ${state.myScore - state.oppScore}점 차 승리 🎉`;
+      burstConfetti();
+      screenFlash();
     } else if (state.myScore < state.oppScore) {
       title = '😢 LOSE';
-      msg = `아쉽다... ${state.oppScore - state.myScore}점 차로 패배. 다시 도전!`;
+      msg = `아쉽다... ${state.oppScore - state.myScore}점 차 패배. 다시 도전!`;
     } else {
       title = '🤝 TIE';
       msg = '무승부! 아슬아슬한 경기였어';
@@ -1005,12 +1365,23 @@
     state.bases = [false, false, false];
     state.halfLog = [];
     state.pitchesThisHalf = 0;
+    state.streak = 0;
     $('start').classList.add('hide');
     $('end').classList.add('hide');
     $('review').classList.add('hide');
     renderScore();
     throwPitch();
   }
+
+  // Keyboard shortcuts (1-4)
+  document.addEventListener('keydown', (e) => {
+    if (state.locked || !state.current) return;
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= 4) {
+      const btns = choicesBox.children;
+      if (btns[n-1] && !btns[n-1].disabled) btns[n-1].click();
+    }
+  });
 
   $('btnStart').addEventListener('click', startGame);
   $('btnRestart').addEventListener('click', startGame);
