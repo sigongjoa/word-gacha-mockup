@@ -629,6 +629,7 @@
 
   const THROW_MS = 2800;
   const MAX_INNING = 4;
+  const MAX_PITCHES_PER_HALF = 7;
 
   // ===== State =====
   const state = {
@@ -644,6 +645,7 @@
     locked: false,
     pitchTimeout: null,
     halfLog: [],   // current half plays
+    pitchesThisHalf: 0,
   };
 
   const $ = id => document.getElementById(id);
@@ -694,9 +696,11 @@
     role.className = 'role ' + (isOffense() ? 'off' : 'def');
     $('halfText').textContent = `${state.inning}회 ${isOffense() ? '초' : '말'}`;
     $('tierText').textContent = `티어 ${state.inning} · ${TIER_LABEL[state.inning]}`;
-    $('qhint').textContent = isOffense()
+    const pitchLeft = Math.max(0, MAX_PITCHES_PER_HALF - state.pitchesThisHalf);
+    $('qhint').textContent = (isOffense()
       ? '날아오는 공의 뜻을 맞혀 타격!'
-      : '빠르게 정답 골라 스트라이크!';
+      : '빠르게 정답 골라 스트라이크!')
+      + ` · 남은 공 ${pitchLeft}/${MAX_PITCHES_PER_HALF}`;
   }
 
   function showCallout(text, cls) {
@@ -750,6 +754,8 @@
 
   function throwPitch() {
     if (state.outs >= 3) { endHalf(); return; }
+    if (state.pitchesThisHalf >= MAX_PITCHES_PER_HALF) { endHalf(); return; }
+    state.pitchesThisHalf++;
     const q = pickQuestion();
     state.current = { ...q, startAt: 0, answered: false };
     state.locked = false;
@@ -930,6 +936,7 @@
     state.strikes = 0;
     state.bases = [false, false, false];
     state.halfLog = [];
+    state.pitchesThisHalf = 0;
 
     if (state.inning > MAX_INNING) { endGame(); return; }
     renderScore();
@@ -997,6 +1004,7 @@
     state.outs = 0; state.balls = 0; state.strikes = 0;
     state.bases = [false, false, false];
     state.halfLog = [];
+    state.pitchesThisHalf = 0;
     $('start').classList.add('hide');
     $('end').classList.add('hide');
     $('review').classList.add('hide');
