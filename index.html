@@ -1978,30 +1978,49 @@
   }
   .mascot-tap:active svg { transform: scale(1.04); transition: transform .12s var(--e-out); }
 
-  /* Body — always breathing + idle bob (모든 마스코트 적용, 뚜렷하게) */
+  /* Body — breathing + bob 하나의 transform으로 (구형 브라우저 호환) */
   .m-body {
-    animation: m-breathe 2.2s ease-in-out infinite, m-idle-bob 2.2s ease-in-out infinite;
+    animation: m-alive 2s ease-in-out infinite;
     transform-box: fill-box;
     transform-origin: 50% 90%;
+    will-change: transform;
   }
-  @keyframes m-breathe {
-    0%,100% { transform: scaleY(1) scaleX(1); }
-    50%     { transform: scaleY(0.9) scaleX(1.08); }
-  }
-  @keyframes m-idle-bob {
-    0%,100% { translate: 0 0; }
-    50%     { translate: 0 -4px; }
+  @keyframes m-alive {
+    0%,100% { transform: translateY(0)     scale(1,    1)    rotate(0);     }
+    25%     { transform: translateY(-6px)  scale(1.1,  0.88) rotate(-3deg); }
+    50%     { transform: translateY(-10px) scale(1.18, 0.78) rotate(0);     }
+    75%     { transform: translateY(-6px)  scale(1.1,  0.88) rotate(3deg);  }
   }
 
-  /* Eyes — blinking (모든 마스코트 적용, 더 자주) */
+  /* Eyes — blinking */
   .m-eyes {
-    animation: m-blink 3.5s linear infinite;
+    animation: m-blink 3s linear infinite;
     transform-box: fill-box;
     transform-origin: 50% 50%;
+    will-change: transform;
   }
   @keyframes m-blink {
-    0%, 86%, 92%, 94%, 100% { transform: scaleY(1); }
-    88%, 93%                { transform: scaleY(0.05); }
+    0%, 85%, 91%, 93%, 100% { transform: scaleY(1);    }
+    88%, 92%                { transform: scaleY(0.05); }
+  }
+
+  /* Antenna ball — gentle wiggle */
+  .m-antenna-ball {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: m-wiggle 2.8s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes m-wiggle {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-2px); }
+    75%     { transform: translateX(2px); }
+  }
+
+  /* m-breathe — 차분한 숨쉬기 (mood/sleeping/petting 상태에서 사용) */
+  @keyframes m-breathe {
+    0%,100% { transform: scale(1,    1);    }
+    50%     { transform: scale(1.03, 0.97); }
   }
 
   /* Mouth — default visibility (모든 마스코트 적용) */
@@ -2210,27 +2229,35 @@
         .m-body {
           transform-box: fill-box;
           transform-origin: 50% 90%;
-          animation: m-breathe 2.2s ease-in-out infinite, m-idle-bob 2.2s ease-in-out infinite;
+          animation: m-alive 2s ease-in-out infinite;
         }
         .m-eyes {
           transform-box: fill-box;
           transform-origin: 50% 50%;
-          animation: m-blink 3.5s linear infinite;
+          animation: m-blink 3s linear infinite;
         }
-        @keyframes m-breathe {
-          0%,100% { transform: scaleY(1) scaleX(1); }
-          50%     { transform: scaleY(0.9) scaleX(1.08); }
+        .m-antenna-ball {
+          transform-box: fill-box;
+          transform-origin: 50% 100%;
+          animation: m-wiggle 2.8s ease-in-out infinite;
         }
-        @keyframes m-idle-bob {
-          0%,100% { translate: 0 0; }
-          50%     { translate: 0 -4px; }
+        @keyframes m-alive {
+          0%,100% { transform: translateY(0)     scale(1,    1)    rotate(0);     }
+          25%     { transform: translateY(-6px)  scale(1.1,  0.88) rotate(-3deg); }
+          50%     { transform: translateY(-10px) scale(1.18, 0.78) rotate(0);     }
+          75%     { transform: translateY(-6px)  scale(1.1,  0.88) rotate(3deg);  }
         }
         @keyframes m-blink {
-          0%, 86%, 92%, 94%, 100% { transform: scaleY(1); }
-          88%, 93%                { transform: scaleY(0.05); }
+          0%, 85%, 91%, 93%, 100% { transform: scaleY(1); }
+          88%, 92%                { transform: scaleY(0.05); }
+        }
+        @keyframes m-wiggle {
+          0%,100% { transform: translateX(0); }
+          25%     { transform: translateX(-2px); }
+          75%     { transform: translateX(2px); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .m-body, .m-eyes { animation: none; }
+          .m-body, .m-eyes, .m-antenna-ball { animation: none; }
         }
       </style>
       <!-- 그림자 -->
