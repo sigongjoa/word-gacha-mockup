@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Gacha · 흑백 포스터 (A4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Bagel+Fat+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+  :root {
+    --ink: #000;
+    --paper: #fff;
+    --gray: #e6e6e6;
+    --display: "Jua", system-ui, sans-serif;
+    --num: "Bagel Fat One", "Jua", sans-serif;
+    --en: "Fredoka", "Jua", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--display);
+    background: #cfcfcf;
+    color: var(--ink);
+    min-height: 100dvh;
+    padding: 16px;
+    display: grid;
+    place-items: start center;
+  }
+
+  /* ── A4 포스터: 인쇄 시 실제 크기(210×297mm) ──
+       화면에서는 축소해서 보여주고, @page는 A4 고정. */
+  .poster {
+    width: 210mm;
+    height: 297mm;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 14mm 14mm 10mm;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto auto;
+    gap: 6mm;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+  }
+
+  /* 모서리 장식 — 4개 코너에 두꺼운 L자 */
+  .poster::before,
+  .poster::after {
+    content: "";
+    position: absolute;
+    width: 16mm; height: 16mm;
+    border: 3mm solid var(--ink);
+  }
+  .poster::before {
+    top: 4mm; left: 4mm;
+    border-right: 0; border-bottom: 0;
+  }
+  .poster::after {
+    bottom: 4mm; right: 4mm;
+    border-left: 0; border-top: 0;
+  }
+  .poster > * { position: relative; z-index: 1; }
+
+  /* ── 헤더 ── */
+  .head { text-align: center; padding-top: 4mm; }
+  .wordmark {
+    width: 110mm; height: auto;
+    display: block; margin: 0 auto;
+  }
+  .tagline {
+    margin: 4mm 0 0;
+    font-family: var(--display);
+    font-size: 20pt;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── 캐릭터 영역 ── */
+  .toto-row { text-align: center; }
+  .bubble {
+    display: inline-block;
+    background: var(--paper);
+    border: 2.5pt solid var(--ink);
+    border-radius: 10mm;
+    padding: 3mm 8mm;
+    font-family: var(--display);
+    font-size: 18pt;
+    margin-bottom: 4mm;
+    position: relative;
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -3mm; left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 4mm; height: 4mm;
+    background: var(--paper);
+    border-right: 2.5pt solid var(--ink);
+    border-bottom: 2.5pt solid var(--ink);
+  }
+  .toto {
+    width: 45mm; height: 45mm;
+    display: block; margin: 0 auto;
+  }
+
+  /* ── QR 카드 ── */
+  .qr-card {
+    background: var(--paper);
+    border: 3pt solid var(--ink);
+    box-shadow: 2mm 2mm 0 var(--ink);
+    padding: 6mm;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6mm;
+    align-items: center;
+    margin: 0 4mm;
+  }
+  #qr {
+    width: 70mm; height: 70mm;
+    display: grid; place-items: center;
+    position: relative;
+  }
+  #qr svg, #qr canvas { width: 100%; height: 100%; display: block; }
+  .qr-text { display: grid; gap: 3mm; }
+  .qr-text .label {
+    font-family: var(--display);
+    font-size: 20pt; line-height: 1.25;
+  }
+  .qr-text .label b {
+    font-family: var(--num);
+    font-size: 26pt;
+    font-weight: normal;
+  }
+  .qr-text .url {
+    font-family: var(--en);
+    font-size: 11pt;
+    word-break: break-all;
+    background: var(--gray);
+    padding: 3mm 4mm;
+    border-radius: 2mm;
+    letter-spacing: 0;
+  }
+
+  /* ── 3단계 안내 ── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4mm;
+  }
+  .step {
+    background: var(--paper);
+    border: 2pt solid var(--ink);
+    padding: 4mm 2mm;
+    text-align: center;
+  }
+  .step .num {
+    font-family: var(--num);
+    font-size: 32pt;
+    line-height: 1;
+    display: block;
+    margin-bottom: 2mm;
+  }
+  .step .desc {
+    font-family: var(--display);
+    font-size: 15pt;
+    line-height: 1.2;
+  }
+
+  /* ── 푸터 ── */
+  .foot {
+    text-align: center;
+    font-family: var(--display);
+    font-size: 12pt;
+    padding: 2mm 0;
+    border-top: 1.5pt solid var(--ink);
+  }
+
+  /* ── 도구 모음 (인쇄 시 숨김) ── */
+  .toolbar {
+    position: fixed;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    background: var(--ink); color: var(--paper);
+    padding: 8px 12px;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    font-family: var(--display);
+    font-size: 13px;
+    z-index: 99;
+  }
+  .toolbar button {
+    background: transparent; color: inherit;
+    border: 0; padding: 6px 12px;
+    border-radius: 999px;
+    font-family: inherit; font-size: inherit;
+    cursor: pointer;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,.18); }
+  .toolbar a { color: inherit; text-decoration: underline; padding: 6px 10px; }
+
+  /* ── 인쇄 설정 ── */
+  @page { size: A4 portrait; margin: 0; }
+  @media print {
+    body { background: white; padding: 0; }
+    .poster {
+      box-shadow: none;
+      page-break-after: always;
+    }
+    .toolbar { display: none; }
+    /* 흑백 강제: 컬러 장치에서도 그레이스케일로 */
+    * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- 흑백 마스코트 — 앱 내 캐릭터를 라인+망점으로 재해석 -->
+    <symbol id="toto-bw" viewBox="0 0 100 100">
+      <!-- 그림자 (해치) -->
+      <ellipse cx="50" cy="91" rx="26" ry="3" fill="#000" opacity=".18"/>
+      <!-- 발 -->
+      <ellipse cx="40" cy="85" rx="7" ry="4" fill="#000"/>
+      <ellipse cx="60" cy="85" rx="7" ry="4" fill="#000"/>
+      <!-- 안테나 -->
+      <path d="M50 22v-8M50 14l-3-4M50 14l3-4" stroke="#000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="12" r="3" fill="#000" stroke="#000" stroke-width="1"/>
+      <!-- 몸통 (외곽선 + 망점) -->
+      <path d="M50 22c-16 0-25 10-25 24v14c0 12 10 21 25 21s25-9 25-21V46c0-14-9-24-25-24z"
+            fill="url(#dots)" stroke="#000" stroke-width="3"/>
+      <!-- 배 (흰색) -->
+      <ellipse cx="50" cy="60" rx="14" ry="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+      <!-- 볼터치 (해치) -->
+      <ellipse cx="33" cy="50" rx="3.5" ry="2.5" fill="none" stroke="#000" stroke-width="1"/>
+      <ellipse cx="67" cy="50" rx="3.5" ry="2.5" fill="none" stroke="#000" stroke-width="1"/>
+      <!-- 눈 -->
+      <ellipse cx="40" cy="44" rx="3" ry="4.5" fill="#000"/>
+      <ellipse cx="60" cy="44" rx="3" ry="4.5" fill="#000"/>
+      <circle cx="41.4" cy="42.6" r="1.1" fill="#fff"/>
+      <circle cx="61.4" cy="42.6" r="1.1" fill="#fff"/>
+      <!-- 입 (웃는 얼굴) -->
+      <path d="M44 52q6 6 12 0" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- 팔 -->
+      <ellipse cx="26" cy="54" rx="4" ry="6" fill="url(#dots)" stroke="#000" stroke-width="2"/>
+      <ellipse cx="74" cy="54" rx="4" ry="6" fill="url(#dots)" stroke="#000" stroke-width="2"/>
+    </symbol>
+
+    <!-- 망점 패턴 (B&W에서 톤 표현) -->
+    <pattern id="dots" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+      <rect width="3" height="3" fill="#fff"/>
+      <circle cx="1.5" cy="1.5" r="0.8" fill="#000"/>
+    </pattern>
+
+    <!-- 워드마크 (흑백) -->
+    <symbol id="wordmark-bw" viewBox="0 0 220 60">
+      <text x="2" y="34" font-family="Fredoka" font-weight="700" font-size="28" fill="#000" letter-spacing="-0.5">word</text>
+      <circle cx="80" cy="14" r="2.4" fill="#000"/>
+      <text x="80" y="36" font-family="Bagel Fat One" font-size="30" fill="#000" letter-spacing="-0.5">gacha</text>
+      <text x="2" y="52" font-family="Jua" font-size="11" fill="#000">단어 가챠</text>
+    </symbol>
+  </defs>
+</svg>
+
+<article class="poster" aria-label="Word Gacha 흑백 QR 포스터">
+
+  <header class="head">
+    <svg class="wordmark" viewBox="0 0 220 60" aria-hidden="true"><use href="#wordmark-bw"/></svg>
+    <p class="tagline">단어 외우고 친구 모으자</p>
+  </header>
+
+  <div class="toto-row">
+    <div class="bubble">나랑 친구 하자!</div>
+    <svg class="toto" viewBox="0 0 100 100" role="img" aria-label="친구"><use href="#toto-bw"/></svg>
+  </div>
+
+  <div class="qr-card">
+    <div id="qr" role="img" aria-label="Word Gacha 접속 QR 코드"></div>
+    <div class="qr-text">
+      <div class="label">스마트폰 카메라로<br><b>여기</b>를 찍어요</div>
+      <div class="url" id="url-text"></div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step"><span class="num">1</span><span class="desc">카메라 켜기</span></div>
+    <div class="step"><span class="num">2</span><span class="desc">QR 비추기</span></div>
+    <div class="step"><span class="num">3</span><span class="desc">학습 시작!</span></div>
+  </div>
+
+  <footer class="foot">매일 단어 외우면 친구가 자라요 · 와와 학원</footer>
+
+</article>
+
+<div class="toolbar">
+  <button type="button" onclick="window.print()">🖨 A4 인쇄</button>
+  <a href="./qr.html">컬러 버전</a>
+  <button type="button" onclick="copyURL()">📋 URL 복사</button>
+</div>
+
+<script>
+  const APP_URL = "https://sigongjoa.github.io/word-gacha-mockup/";
+  document.getElementById("url-text").textContent = APP_URL.replace(/^https:\/\//, "");
+
+  function renderQR() {
+    const container = document.getElementById("qr");
+    try {
+      const qr = qrcode(0, 'H');
+      qr.addData(APP_URL);
+      qr.make();
+      const count = qr.getModuleCount();
+      const cell = 10;
+      const size = count * cell;
+      let rects = "";
+      for (let r = 0; r < count; r++) {
+        for (let c = 0; c < count; c++) {
+          if (qr.isDark(r, c)) {
+            rects += `<rect x="${c * cell}" y="${r * cell}" width="${cell}" height="${cell}"/>`;
+          }
+        }
+      }
+      container.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" style="width:100%;height:100%;display:block;fill:#000">
+          ${rects}
+        </svg>`;
+      // 가운데 마스코트 오버레이 (흑백)
+      container.style.position = "relative";
+      const overlay = document.createElement("div");
+      overlay.style.cssText = `
+        position: absolute; inset: 0; margin: auto;
+        width: 26%; height: 26%;
+        background: #fff;
+        border: 2.5pt solid #000;
+        border-radius: 50%;
+        display: grid; place-items: center;
+        padding: 2mm;
+      `;
+      overlay.innerHTML = `<svg viewBox="0 0 100 100" style="width:100%;height:100%"><use href="#toto-bw"/></svg>`;
+      container.appendChild(overlay);
+    } catch (e) {
+      console.error("QR render error", e);
+      container.textContent = APP_URL;
+    }
+  }
+
+  if (typeof qrcode === "function") renderQR();
+  else window.addEventListener("load", () => {
+    if (typeof qrcode === "function") renderQR();
+    else document.getElementById("qr").textContent = APP_URL;
+  });
+
+  function copyURL() {
+    navigator.clipboard.writeText(APP_URL).then(() => {
+      alert("주소가 복사됐어요\n" + APP_URL);
+    });
+  }
+</script>
+
+</body>
+</html>
