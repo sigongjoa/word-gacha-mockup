@@ -246,24 +246,33 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="toto" viewBox="0 0 120 120">
-      <g class="ear-l">
-        <ellipse cx="38" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
-        <ellipse cx="38" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
-      </g>
-      <g class="ear-r">
-        <ellipse cx="82" cy="28" rx="10" ry="16" fill="var(--pal-ear)" stroke="var(--ink)" stroke-width="2.5"/>
-        <ellipse cx="82" cy="30" rx="5" ry="9" fill="var(--pal-ear-inner)"/>
-      </g>
-      <ellipse cx="60" cy="62" rx="34" ry="32" fill="var(--pal-fur)" stroke="var(--ink)" stroke-width="2.5"/>
-      <ellipse cx="60" cy="78" rx="20" ry="13" fill="var(--pal-belly)"/>
-      <circle cx="36" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
-      <circle cx="84" cy="68" r="6" fill="var(--pal-cheek)" opacity=".75"/>
-      <ellipse cx="48" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
-      <ellipse cx="72" cy="58" rx="4.5" ry="5" fill="var(--pal-eye)"/>
-      <circle cx="49.5" cy="56.5" r="1.5" fill="white"/>
-      <circle cx="73.5" cy="56.5" r="1.5" fill="white"/>
-      <path d="M 56 70 Q 60 73 64 70" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
+    <symbol id="toto" viewBox="0 0 100 100">
+      <!-- 그림자 -->
+      <ellipse cx="50" cy="91" rx="26" ry="3.5" fill="rgba(20,23,31,.15)"/>
+      <!-- 발 -->
+      <ellipse cx="40" cy="85" rx="7" ry="4" fill="#1438a8"/>
+      <ellipse cx="60" cy="85" rx="7" ry="4" fill="#1438a8"/>
+      <!-- 안테나 -->
+      <path d="M50 22v-8M50 14l-3-4M50 14l3-4" stroke="#14171f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="12" r="3" fill="#d4232c" stroke="#14171f" stroke-width="2"/>
+      <!-- 몸통 -->
+      <path d="M50 22c-16 0-25 10-25 24v14c0 12 10 21 25 21s25-9 25-21V46c0-14-9-24-25-24z"
+            fill="#1f4fe6" stroke="#14171f" stroke-width="2.5"/>
+      <!-- 배 -->
+      <ellipse cx="50" cy="60" rx="14" ry="12" fill="#f6efe3"/>
+      <!-- 볼터치 -->
+      <ellipse cx="33" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+      <ellipse cx="67" cy="50" rx="3" ry="2" fill="#ff9db2" opacity=".8"/>
+      <!-- 눈 -->
+      <ellipse cx="40" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+      <ellipse cx="60" cy="44" rx="3" ry="4.5" fill="#14171f"/>
+      <circle cx="41.4" cy="42.6" r="1.1" fill="#fff"/>
+      <circle cx="61.4" cy="42.6" r="1.1" fill="#fff"/>
+      <!-- 입 (웃는 얼굴) -->
+      <path d="M44 52q6 6 12 0" stroke="#14171f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- 팔 -->
+      <ellipse cx="26" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
+      <ellipse cx="74" cy="54" rx="4" ry="6" fill="#1f4fe6" stroke="#14171f" stroke-width="2"/>
     </symbol>
 
     <symbol id="wordmark" viewBox="0 0 220 60">
@@ -283,8 +292,8 @@
   </header>
 
   <div class="toto-row">
-    <div class="bubble">같이 놀자!</div>
-    <svg class="toto" viewBox="0 0 120 120" role="img" aria-label="토토"><use href="#toto"/></svg>
+    <div class="bubble">나랑 친구 하자!</div>
+    <svg class="toto" viewBox="0 0 100 100" role="img" aria-label="친구"><use href="#toto"/></svg>
   </div>
 
   <div class="qr-card">
@@ -350,7 +359,7 @@
         display: grid; place-items: center;
         padding: 4%;
       `;
-      overlay.innerHTML = `<svg viewBox="0 0 120 120" style="width:100%;height:100%"><use href="#toto"/></svg>`;
+      overlay.innerHTML = `<svg viewBox="0 0 100 100" style="width:100%;height:100%"><use href="#toto"/></svg>`;
       container.appendChild(overlay);
     } catch (e) {
       console.error("QR render error", e);
