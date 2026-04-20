@@ -594,17 +594,29 @@
 
   function pitchClassFor(type) { return type === '직구' ? 'fastball' : type === '슬라이더' ? 'slider' : 'curve'; }
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function fillBlank(prompt, word, cls) {
+    const p = String(prompt || '');
+    const safeWord = `<b class="${cls}">${escapeHtml(word)}</b>`;
+    if (p.includes('___')) return escapeHtml(p).replace('___', safeWord);
+    // No blank (e.g. 직구 word-only) → just the word itself.
+    return safeWord;
+  }
+
   function showReview(r) {
     const cat = PITCH_CATEGORY[r.type] ?? '';
     els.review.className = 'review ' + (r.correct ? 'correct' : 'wrong');
     els.reviewBadge.textContent = `${r.type}${cat ? ' · ' + cat : ''}`;
     els.reviewResult.textContent = r.result + (r.runs > 0 ? ` · +${r.runs}점` : '');
-    els.reviewPrompt.textContent = r.prompt || (lastThrown && lastThrown.prompt) || '';
-    els.reviewAnswer.textContent = r.answer || '';
+    const promptText = r.prompt || (lastThrown && lastThrown.prompt) || '';
+    els.reviewPrompt.textContent = promptText;
+    els.reviewAnswer.innerHTML = fillBlank(promptText, r.answer || '', 'ok');
     if (role === 'batter' && pickedLast >= 0 && lastThrown) {
       const myPickText = lastThrown.options[pickedLast];
-      els.reviewYourPick.textContent = myPickText;
-      els.reviewYourPick.className = r.correct ? 'ok' : 'ng';
+      els.reviewYourPick.className = '';
+      els.reviewYourPick.innerHTML = fillBlank(promptText, myPickText, r.correct ? 'ok' : 'ng');
       els.reviewYourPickLine.hidden = false;
     } else {
       els.reviewYourPickLine.hidden = true;

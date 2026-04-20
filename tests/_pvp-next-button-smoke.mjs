@@ -21,6 +21,8 @@ try {
     prompt: document.querySelector('#reviewPrompt').textContent,
     answer: document.querySelector('#reviewAnswer').textContent,
     myPick: document.querySelector('#reviewYourPick').textContent,
+    answerHtml: document.querySelector('#reviewAnswer').innerHTML,
+    myPickHtml: document.querySelector('#reviewYourPick').innerHTML,
     nextBtn: !!document.querySelector('#nextBtn'),
     explainShown: !document.querySelector('#reviewExplain').hidden,
     explainText: document.querySelector('#reviewExplainText').textContent,
