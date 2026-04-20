@@ -82,6 +82,13 @@ export function createMockTransport({ humanRole = 'batter', tier = 1, rand = Mat
       feedBatAnswer(payload.pickedIndex);
       return;
     }
+
+    if (type === EV.READY_NEXT) {
+      if (game.phase === 'END') return;
+      if (humanRole === 'batter') scheduleAIPitch();
+      else emit(EV.TURN_START, { whoseTurn: 'pitcher' });
+      return;
+    }
   }
 
   function feedBatAnswer(pickedIndex) {
@@ -91,15 +98,16 @@ export function createMockTransport({ humanRole = 'batter', tier = 1, rand = Mat
       result: game.lastPlay.result,
       runs: game.lastPlay.runs,
       type: game.lastPlay.type,
+      prompt: game.lastPlay.prompt,
+      answer: game.lastPlay.answer,
+      correctIndex: game.lastPlay.correctIndex,
     });
     emit(EV.ROOM_STATE, snapshotRoomState());
     if (game.phase === 'END') {
       emit(EV.GAME_END, { home: game.homeScore, away: game.awayScore, winner: winnerOf(game) });
       return;
     }
-    // Next turn
-    if (humanRole === 'batter') scheduleAIPitch();
-    else emit(EV.TURN_START, { whoseTurn: 'pitcher' });
+    // Next turn: wait for client to press "다음 공" → READY_NEXT
   }
 
   function scheduleAIPitch() {

@@ -170,6 +170,35 @@
   .choice.wrong   { background:#fde2e2; border-color:var(--red); animation: shake-wrong 400ms ease-out; }
   .choice[disabled] { cursor:not-allowed; }
 
+  /* Review panel — 결과 리뷰 후 다음 공 버튼 */
+  .review {
+    margin-top:12px; padding:14px; border-radius:12px;
+    background:#fff; border:2px solid var(--line);
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    animation: review-fade-in 250ms ease-out;
+  }
+  @keyframes review-fade-in {
+    0%   { opacity:0; transform:translateY(8px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  .review.correct { border-color:var(--lime); background:#f3fbef; }
+  .review.wrong   { border-color:var(--red);  background:#fef5f5; }
+  .review-header { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .review-badge {
+    padding:3px 10px; border-radius:999px; font-weight:800; font-size:12px; color:#fff;
+    background:var(--sub);
+  }
+  .review.correct .review-badge { background:var(--lime-d); }
+  .review.wrong   .review-badge { background:var(--red); }
+  .review-result { font-weight:800; font-size:16px; color:var(--ink); }
+  .review-body { display:grid; gap:6px; margin-bottom:12px; }
+  .review-line { display:grid; grid-template-columns:60px 1fr; align-items:center; font-size:14px; }
+  .review-label { color:var(--sub); font-size:12px; font-weight:700; }
+  .review-line b { font-weight:800; color:var(--ink); }
+  .review-line b.ok { color:var(--lime-d); }
+  .review-line b.ng { color:var(--red); text-decoration:line-through; }
+  .next-btn { width:100%; padding:12px; font-size:15px; }
+
   /* Pitcher info (본인이 던진 공 정보) */
   .pitcher-info { margin-top:12px; padding:12px; border-radius:10px; background:#fff8e6; border:2px dashed var(--gold); font-size:14px; }
   .pitcher-info .pi-header { font-weight:800; font-size:13px; color:#7a5a00; margin-bottom:6px; }
@@ -462,6 +491,19 @@
     </div>
 
     <div class="callout" id="callout"></div>
+
+    <div class="review" id="review" hidden>
+      <div class="review-header">
+        <span class="review-badge" id="reviewBadge"></span>
+        <span class="review-result" id="reviewResult"></span>
+      </div>
+      <div class="review-body">
+        <div class="review-line"><span class="review-label">문제</span><b id="reviewPrompt"></b></div>
+        <div class="review-line"><span class="review-label">정답</span><b class="ok" id="reviewAnswer"></b></div>
+        <div class="review-line" id="reviewYourPickLine"><span class="review-label">내 선택</span><b id="reviewYourPick"></b></div>
+      </div>
+      <button class="btn primary next-btn" id="nextBtn">다음 공 ▶</button>
+    </div>
   </main>
 
   <aside class="sidebar">
@@ -514,6 +556,10 @@
     prompt: $('#prompt'), ptype: $('#ptype'), promptText: $('#promptText'),
     choices: $('#choices'),
     callout: $('#callout'),
+    review: $('#review'), reviewBadge: $('#reviewBadge'), reviewResult: $('#reviewResult'),
+    reviewPrompt: $('#reviewPrompt'), reviewAnswer: $('#reviewAnswer'),
+    reviewYourPick: $('#reviewYourPick'), reviewYourPickLine: $('#reviewYourPickLine'),
+    nextBtn: $('#nextBtn'),
     log: $('#log'),
     roleSwitch: $('#roleSwitch'),
     pitcherChar: $('#pitcherChar'), batterChar: $('#batterChar'),
@@ -533,6 +579,25 @@
   let prevState = null;
 
   function pitchClassFor(type) { return type === '직구' ? 'fastball' : type === '슬라이더' ? 'slider' : 'curve'; }
+
+  function showReview(r) {
+    const cat = PITCH_CATEGORY[r.type] ?? '';
+    els.review.className = 'review ' + (r.correct ? 'correct' : 'wrong');
+    els.reviewBadge.textContent = `${r.type}${cat ? ' · ' + cat : ''}`;
+    els.reviewResult.textContent = r.result + (r.runs > 0 ? ` · +${r.runs}점` : '');
+    els.reviewPrompt.textContent = r.prompt || (lastThrown && lastThrown.prompt) || '';
+    els.reviewAnswer.textContent = r.answer || '';
+    if (role === 'batter' && pickedLast >= 0 && lastThrown) {
+      const myPickText = lastThrown.options[pickedLast];
+      els.reviewYourPick.textContent = myPickText;
+      els.reviewYourPick.className = r.correct ? 'ok' : 'ng';
+      els.reviewYourPickLine.hidden = false;
+    } else {
+      els.reviewYourPickLine.hidden = true;
+    }
+    els.review.hidden = false;
+  }
+  function hideReview() { els.review.hidden = true; }
 
   function showCallout(text, cls = 'info', hold = 1400) {
     els.callout.textContent = text;
@@ -813,6 +878,7 @@
       lastThrown = q;
       hideBatterPanel();
       hidePitcherInfo();
+      hideReview();
       windupPitcher();
       await sleep(200);
       // Kick off ball flight in background — do NOT await.
@@ -853,6 +919,7 @@
         burstConfetti(40 + r.runs * 24);
         if (r.runs >= 2) flashGold();
       }
+      showReview(r);
     });
     t.on(EV.GAME_END, async (r, env) => {
       renderLogRow('S→C', env);
@@ -897,6 +964,10 @@
     b.addEventListener('click', () => selectPitch(b.dataset.pitch));
   });
   els.endClose.addEventListener('click', () => { els.endOverlay.classList.remove('show'); startGame(); });
+  els.nextBtn.addEventListener('click', () => {
+    hideReview();
+    transport.send(EV.READY_NEXT, {});
+  });
 
   // Ensure batter panel visible for default batter role
   els.batterPanel.hidden = false;

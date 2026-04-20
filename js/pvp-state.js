@@ -78,6 +78,10 @@ export function applyTimeout(state) {
 
 function resolvePlay(state, correct) {
   const pitchType = state._serverAnswer.pitchType;
+  const prompt = state._serverAnswer.prompt;
+  const options = state._serverAnswer.options;
+  const correctIndex = state._serverAnswer.correctIndex;
+  const answer = options[correctIndex];
   let next = { ...state, phase: 'RESOLVING', _serverAnswer: null };
 
   // 직구: 기본 볼/스트라이크 카운트 기반
@@ -118,7 +122,7 @@ function resolvePlay(state, correct) {
     }
   }
 
-  next.lastPlay = { type: pitchType, correct, result, runs };
+  next.lastPlay = { type: pitchType, correct, result, runs, prompt, answer, correctIndex };
 
   if (next.outs >= 3) return endHalf(next);
   next.phase = 'IDLE';

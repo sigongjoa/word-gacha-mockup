@@ -8,6 +8,7 @@ export const EV = Object.freeze({
   PITCH_THROWN:   'pitch:thrown',   // S→C  (broadcast — no answer inside)
   PITCH_INFO:     'pitch:info',     // S→C  (pitcher only — includes answer)
   BAT_ANSWER:     'bat:answer',     // C→S  (batter only)
+  READY_NEXT:     'ready:next',     // C→S  (proceed to next pitch after reviewing result)
   PLAY_RESULT:    'play:result',    // S→C  (includes correct flag + state delta)
   TURN_START:     'turn:start',     // S→C
   GAME_END:       'game:end',       // S→C
@@ -35,6 +36,7 @@ const VALIDATORS = {
   [EV.PITCH_THROWN]: p => str(p.type) && str(p.prompt) && Array.isArray(p.options) && p.options.length === 4 ? null : 'invalid pitch:thrown',
   [EV.PITCH_INFO]:   p => str(p.type) && str(p.answer) && Number.isInteger(p.correctIndex) ? null : 'invalid pitch:info',
   [EV.BAT_ANSWER]:   p => Number.isInteger(p.pickedIndex) && p.pickedIndex >= 0 && p.pickedIndex < 4 ? null : 'invalid bat:answer',
+  [EV.READY_NEXT]:   _ => null,
   [EV.PLAY_RESULT]:  p => typeof p.correct === 'boolean' && str(p.result) ? null : 'invalid play:result',
   [EV.TURN_START]:   p => str(p.whoseTurn) ? null : 'invalid turn:start',
   [EV.GAME_END]:     p => num(p.home) && num(p.away) ? null : 'invalid game:end',
@@ -58,5 +60,5 @@ export function isClientBound(type) {
   return [EV.ROOM_STATE, EV.PITCH_THROWN, EV.PITCH_INFO, EV.PLAY_RESULT, EV.TURN_START, EV.GAME_END].includes(type);
 }
 export function isServerBound(type) {
-  return [EV.ROOM_JOIN, EV.PITCH_SELECT, EV.BAT_ANSWER].includes(type);
+  return [EV.ROOM_JOIN, EV.PITCH_SELECT, EV.BAT_ANSWER, EV.READY_NEXT].includes(type);
 }
