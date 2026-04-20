@@ -52,10 +52,31 @@
   .home.glow { animation: home-glow 800ms ease-out; }
 
   /* Ball — flies from pitcher (top) toward batter (bottom) */
-  .ball { position:absolute; width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #fff, #bbb 70%); box-shadow:0 2px 4px rgba(0,0,0,.25); left:50%; top:6px; transform:translateX(-50%); display:none; z-index:10; }
-  .ball.flying-fastball { display:block; animation: ball-fastball var(--ball-dur) cubic-bezier(.22,.9,.32,1) forwards; }
-  .ball.flying-slider   { display:block; animation: ball-slider   var(--ball-dur) ease-in forwards; }
-  .ball.flying-curve    { display:block; animation: ball-curve    var(--ball-dur) cubic-bezier(.3,.1,.9,.6) forwards; }
+  .ball {
+    position:absolute; width:44px; height:44px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, #e8e8e8 60%, #c4c4c4);
+    border:2px solid var(--ink);
+    box-shadow:0 4px 10px rgba(0,0,0,.35), inset -3px -3px 6px rgba(0,0,0,.18);
+    left:50%; top:6px; transform:translateX(-50%);
+    display:none; z-index:10;
+    align-items:center; justify-content:center;
+    font-weight:900; color:var(--ink);
+    font-size:11px; line-height:1; text-align:center;
+    padding:0 3px; overflow:hidden; word-break:break-all;
+  }
+  .ball.show { display:flex; }
+  .ball.long { font-size:9px; letter-spacing:-0.3px; }
+  .ball.xlong { font-size:7.5px; letter-spacing:-0.5px; }
+  .ball::before, .ball::after {
+    content:''; position:absolute; inset:3px;
+    border:1.5px solid var(--red); border-radius:50%;
+    border-left:none; border-right:none; transform:rotate(25deg);
+    pointer-events:none;
+  }
+  .ball::after { transform:rotate(-25deg); }
+  .ball.flying-fastball { display:flex; animation: ball-fastball var(--ball-dur) cubic-bezier(.22,.9,.32,1) forwards; }
+  .ball.flying-slider   { display:flex; animation: ball-slider   var(--ball-dur) ease-in forwards; }
+  .ball.flying-curve    { display:flex; animation: ball-curve    var(--ball-dur) cubic-bezier(.3,.1,.9,.6) forwards; }
 
   /* Count */
   .count { display:flex; gap:14px; align-items:center; justify-content:center; }
@@ -102,8 +123,31 @@
   .flash { position:fixed; inset:0; pointer-events:none; opacity:0; z-index:900; }
   .flash.green { background:rgba(88,204,2,.3); }
   .flash.red   { background:rgba(229,62,62,.3); }
+  .flash.gold  { background:radial-gradient(circle at center, rgba(255,200,0,.75), transparent 65%); }
   .flash.green.on { animation: flash-green 450ms ease-out; }
   .flash.red.on   { animation: flash-red   450ms ease-out; }
+  .flash.gold.on  { animation: flash-gold  900ms ease-out; }
+
+  /* Mega callout — 홈런/안타/삼진 드라마틱 오버레이 */
+  .mega-callout {
+    position:fixed; left:50%; top:38%;
+    transform:translate(-50%,-50%) scale(0.3) rotate(-8deg);
+    padding:12px 30px; font-size:44px; font-weight:900; color:#fff;
+    text-shadow:
+      3px 3px 0 #1f2933,
+      -2px -2px 0 #1f2933,
+      2px -2px 0 #1f2933,
+      -2px 2px 0 #1f2933,
+      0 0 24px rgba(255,200,0,.6);
+    letter-spacing:2px; white-space:nowrap; z-index:940;
+    pointer-events:none; opacity:0;
+  }
+  .mega-callout.show { animation: mega-callout-pop 1300ms ease-out forwards; }
+  .mega-callout.homerun { color:var(--gold); font-size:60px; }
+  .mega-callout.hit     { color:var(--lime); }
+  .mega-callout.out     { color:var(--red); }
+  .mega-callout.strike  { color:#2b8cff; }
+  .mega-callout.ball    { color:#fff; }
 
   /* Callout */
   .callout { text-align:center; padding:10px; font-weight:800; font-size:16px; border-radius:10px; margin:10px 0; opacity:0; transition:opacity .2s; min-height:42px; }
@@ -183,6 +227,14 @@
   }
   @keyframes flash-green { 0% { opacity:0; } 30% { opacity:1; } 100% { opacity:0; } }
   @keyframes flash-red   { 0% { opacity:0; } 30% { opacity:1; } 100% { opacity:0; } }
+  @keyframes flash-gold  { 0% { opacity:0; } 15% { opacity:1; } 100% { opacity:0; } }
+  @keyframes mega-callout-pop {
+    0%   { opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-8deg); }
+    15%  { opacity:1; transform:translate(-50%,-50%) scale(1.25) rotate(5deg); }
+    30%  { transform:translate(-50%,-50%) scale(1.0) rotate(-3deg); }
+    55%  { transform:translate(-50%,-50%) scale(1.05) rotate(0); }
+    100% { opacity:0; transform:translate(-50%,-90%) scale(0.9) rotate(0); }
+  }
   @keyframes windup {
     0%   { transform:translateX(-50%) scale(1)     rotate(0); }
     40%  { transform:translateX(-50%) scale(1.15) rotate(-15deg); }
@@ -341,6 +393,8 @@
 
 <div class="flash green" id="flashGreen"></div>
 <div class="flash red" id="flashRed"></div>
+<div class="flash gold" id="flashGold"></div>
+<div class="mega-callout" id="megaCallout"></div>
 <div class="half-overlay" id="halfOverlay">🔄 공수교대!</div>
 <canvas class="confetti" id="confetti"></canvas>
 <div class="end-overlay" id="endOverlay">
@@ -378,6 +432,7 @@
     pitcherChar: $('#pitcherChar'), batterChar: $('#batterChar'),
     ball: $('#ball'),
     flashGreen: $('#flashGreen'), flashRed: $('#flashRed'),
+    flashGold: $('#flashGold'), megaCallout: $('#megaCallout'),
     halfOverlay: $('#halfOverlay'),
     endOverlay: $('#endOverlay'), endTitle: $('#endTitle'), endScore: $('#endScore'), endClose: $('#endClose'),
     confetti: $('#confetti'),
@@ -400,13 +455,17 @@
   }
 
   // --- Animations ---
-  async function playBallFlight(type) {
+  async function playBallFlight(type, promptText = '') {
     const cls = 'flying-' + pitchClassFor(type);
     els.ball.className = 'ball';
+    const short = (promptText || '').split(/\s+/)[0] || promptText || '';
+    els.ball.textContent = short;
+    const lenCls = short.length > 10 ? ' xlong' : short.length > 6 ? ' long' : '';
     void els.ball.offsetWidth;
-    els.ball.className = 'ball ' + cls;
+    els.ball.className = 'ball ' + cls + lenCls;
     await sleep(900);
     els.ball.className = 'ball';
+    els.ball.textContent = '';
   }
   function windupPitcher() { restart(els.pitcherChar, 'windup'); }
   function batterSwing(correct) {
@@ -421,6 +480,25 @@
       restart(document.body, 'shake-screen');
       setTimeout(() => document.body.classList.remove('shake-screen'), 400);
     }
+  }
+  function flashGold() { restart(els.flashGold, 'on'); }
+  function showMegaCallout(text, cls = 'hit') {
+    els.megaCallout.textContent = text;
+    els.megaCallout.className = 'mega-callout';
+    void els.megaCallout.offsetWidth;
+    els.megaCallout.className = 'mega-callout show ' + cls;
+  }
+  function megaClassForResult(r) {
+    if (r.runs >= 2) return 'homerun';
+    if (r.result === '삼진') return 'strike';
+    if (r.result === '볼넷') return 'ball';
+    if (r.correct) return 'hit';
+    return 'out';
+  }
+  function megaTextForResult(r) {
+    if (r.runs >= 4) return 'GRAND SLAM!';
+    if (r.runs >= 2) return 'HOME RUN!';
+    return r.result;
   }
   function animateScoreRoll(id, newVal) {
     const el = document.getElementById(id);
@@ -608,7 +686,7 @@
       hideBatterPanel();
       windupPitcher();
       await sleep(300);
-      await playBallFlight(q.type);
+      await playBallFlight(q.type, q.prompt);
       if (role === 'batter') {
         renderBatterPanel(q);
         revealBatterPanel();
@@ -629,10 +707,12 @@
       flashResult(r.correct);
       const msg = `${r.type} · ${r.result}${r.runs > 0 ? ` · +${r.runs}점` : ''}`;
       showCallout(msg, r.correct ? 'hit' : 'out');
+      showMegaCallout(megaTextForResult(r), megaClassForResult(r));
       if (r.runs > 0) {
         pulseDiamond();
         glowHome();
         burstConfetti(40 + r.runs * 24);
+        if (r.runs >= 2) flashGold();
       }
     });
     t.on(EV.GAME_END, async (r, env) => {
