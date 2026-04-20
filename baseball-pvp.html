@@ -9,7 +9,7 @@
     --lime:#58cc02; --lime-d:#46a302;
     --red:#e53e3e; --blue:#2b8cff; --gold:#ffc800;
     --ink:#1f2933; --sub:#6b7280; --bg:#f7f8fb; --card:#fff; --line:#e5e7eb;
-    --ball-dur: 1800ms;
+    --ball-dur: 3000ms;
     --slide-dur: 400ms;
     --grass:#4fa83a; --grass-d:#3d8c2b;
     --dirt:#b57b4a; --dirt-d:#8f5f38;
@@ -765,7 +765,7 @@
       if (locked) return;
       const btn = els.choices.children[0];
       if (btn) { locked = true; pickedLast = 0; transport.send(EV.BAT_ANSWER, { pickedIndex: 0 }); }
-    }, 1850);
+    }, BALL_DUR_MS + 50);
   }
   function stopTimerBar() {
     clearTimeout(timerTimeout);

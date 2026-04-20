@@ -56,23 +56,27 @@ try {
     const p = await b.newPage();
     await p.goto('http://localhost:8772/baseball-pvp.html', { waitUntil: 'networkidle' });
     await p.waitForSelector('#ball', { timeout: 8000 });
-    // Record when ball becomes visible, and when it disappears
-    const stats = await p.evaluate(() => new Promise(resolve => {
+    // Install observer BEFORE any pitch happens by reloading and grabbing immediately
+    await p.evaluate(() => { window.__obs = { start: 0, dur: -1 }; });
+    await p.evaluate(() => {
       const el = document.querySelector('#ball');
-      let startAt = 0;
-      const mo = new MutationObserver(() => {
+      window.__mo = new MutationObserver(() => {
         const isFlying = el.className.includes('flying');
         const now = performance.now();
-        if (isFlying && !startAt) startAt = now;
-        else if (!isFlying && startAt) {
-          mo.disconnect();
-          resolve({ durationMs: Math.round(now - startAt) });
+        if (isFlying && !window.__obs.start) window.__obs.start = now;
+        else if (!isFlying && window.__obs.start && window.__obs.dur < 0) {
+          window.__obs.dur = Math.round(now - window.__obs.start);
         }
       });
-      mo.observe(el, { attributes: true, attributeFilter: ['class'] });
-      setTimeout(() => { mo.disconnect(); resolve({ durationMs: -1 }); }, 6000);
-    }));
-    console.log('[timing] ball flight duration ms:', stats.durationMs);
+      window.__mo.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+    // Click a choice to kick off another pitch after this one
+    await p.waitForSelector('.choice:not([disabled])', { timeout: 8000 });
+    await p.click('.choice:nth-child(1)');
+    await p.waitForTimeout(5500);
+    const dur = await p.evaluate(() => window.__obs.dur);
+    const cssVar = await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--ball-dur').trim());
+    console.log('[timing] --ball-dur CSS:', cssVar, '| observed flight ms:', dur);
     await p.close();
   }
 

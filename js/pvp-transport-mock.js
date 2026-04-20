@@ -68,13 +68,13 @@ export function createMockTransport({ humanRole = 'batter', tier = 1, rand = Mat
         answer: q.answer,
         correctIndex: game._serverAnswer.correctIndex,
       });
-      // AI batter answers after ball flight completes (matches --ball-dur 1800ms).
+      // AI batter answers after ball flight completes (matches --ball-dur ~3000ms).
       setTimeout(() => {
         const correctIdx = game._serverAnswer.correctIndex;
         const acc = 0.6;
         const pick = rand() < acc ? correctIdx : (correctIdx + 1 + Math.floor(rand() * 3)) % 4;
         feedBatAnswer(pick);
-      }, 2200);
+      }, 3300);
       return;
     }
 
