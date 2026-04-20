@@ -62,13 +62,19 @@ export function createMockTransport({ humanRole = 'batter', tier = 1, rand = Mat
       const { state, broadcast } = applyPitchThrown(game);
       game = state;
       emit(EV.PITCH_THROWN, broadcast);
-      // Batter is AI in this mode — auto-answer with some accuracy
+      // Pitcher-only side channel: include answer so human pitcher sees it.
+      emit(EV.PITCH_INFO, {
+        type: q.type,
+        answer: q.answer,
+        correctIndex: game._serverAnswer.correctIndex,
+      });
+      // AI batter answers after ball flight completes (matches --ball-dur 1800ms).
       setTimeout(() => {
         const correctIdx = game._serverAnswer.correctIndex;
         const acc = 0.6;
         const pick = rand() < acc ? correctIdx : (correctIdx + 1 + Math.floor(rand() * 3)) % 4;
         feedBatAnswer(pick);
-      }, 800);
+      }, 2200);
       return;
     }
 

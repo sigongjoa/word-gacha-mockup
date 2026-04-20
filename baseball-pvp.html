@@ -9,8 +9,11 @@
     --lime:#58cc02; --lime-d:#46a302;
     --red:#e53e3e; --blue:#2b8cff; --gold:#ffc800;
     --ink:#1f2933; --sub:#6b7280; --bg:#f7f8fb; --card:#fff; --line:#e5e7eb;
-    --ball-dur: 900ms;
+    --ball-dur: 1800ms;
     --slide-dur: 400ms;
+    --grass:#4fa83a; --grass-d:#3d8c2b;
+    --dirt:#b57b4a; --dirt-d:#8f5f38;
+    --chalk:#f5f3e8;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans KR', system-ui, sans-serif; }
@@ -32,12 +35,60 @@
   .meta b.tick { animation: inning-tick 500ms ease-out; }
 
   /* Field — includes pitcher / batter / ball */
-  .field { position:relative; width:260px; height:300px; margin:8px auto; }
-  .diamond { position:absolute; left:50px; top:60px; width:160px; height:160px; }
+  .field {
+    position:relative; width:300px; height:340px; margin:8px auto;
+    border-radius:16px 16px 10px 10px;
+    background:
+      radial-gradient(ellipse 180px 90px at 50% 100%, var(--dirt-d) 0%, var(--dirt) 35%, transparent 55%),
+      radial-gradient(ellipse 240px 200px at 50% 55%, var(--grass) 0%, var(--grass-d) 65%, #2e6a1e 100%),
+      linear-gradient(180deg, #6dc2ff 0%, #a9dcff 18%, #c8e8bf 24%, var(--grass) 30%);
+    box-shadow: inset 0 -6px 10px rgba(0,0,0,.2), 0 4px 10px rgba(0,0,0,.08);
+    overflow:hidden;
+  }
+  /* Foul lines chalked */
+  .field::before, .field::after {
+    content:''; position:absolute; bottom:10%; width:3px; height:70%;
+    background:var(--chalk); box-shadow:0 0 4px rgba(255,255,255,.6);
+    transform-origin:bottom center;
+  }
+  .field::before { left:50%; transform:translateX(-50%) rotate(-32deg); }
+  .field::after  { left:50%; transform:translateX(-50%) rotate(32deg); }
+  /* Crowd band */
+  .crowd {
+    position:absolute; left:0; right:0; top:0; height:22px;
+    background:
+      repeating-linear-gradient(90deg, #d6a86b 0 6px, #c79a5d 6px 12px, #e0b378 12px 18px),
+      #c9a169;
+    border-bottom:2px solid #6b4a2a;
+    opacity:.85;
+  }
+  .diamond {
+    position:absolute; left:70px; top:80px; width:160px; height:160px;
+  }
+  /* Diamond infield — rotated rhombus of dirt */
+  .diamond::before {
+    content:''; position:absolute; inset:0;
+    background:var(--dirt);
+    border:3px solid var(--chalk);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+    transform:rotate(45deg);
+    transform-origin:center;
+    z-index:0;
+  }
+  .diamond > * { position:absolute; z-index:2; }
+  .mound {
+    position:absolute; left:50%; top:52%;
+    width:40px; height:40px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, var(--dirt), var(--dirt-d));
+    border:2px solid var(--dirt-d);
+    z-index:1;
+  }
   .diamond.pulse { animation: diamond-pulse 700ms ease-out; }
-  .pitcher-icon, .batter-icon { position:absolute; font-size:34px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.15)); transition:transform .2s; user-select:none; }
-  .pitcher-icon { left:50%; top:-2px; transform:translateX(-50%); }
-  .batter-icon  { left:50%; bottom:-10px; transform:translateX(-50%); }
+  .pitcher-icon, .batter-icon { position:absolute; font-size:38px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.35)); transition:transform .2s; user-select:none; z-index:5; }
+  .pitcher-icon { left:50%; top:138px; transform:translateX(-50%); }
+  .batter-icon  { left:50%; top:252px; transform:translateX(-50%); }
   .pitcher-icon.windup { animation: windup 450ms ease-out; }
   .batter-icon.swung { animation: swing 300ms ease-out; }
   .batter-icon.whiff { animation: whiff 400ms ease-out; }
@@ -57,7 +108,7 @@
     background:radial-gradient(circle at 35% 30%, #fff, #e8e8e8 60%, #c4c4c4);
     border:2px solid var(--ink);
     box-shadow:0 4px 10px rgba(0,0,0,.35), inset -3px -3px 6px rgba(0,0,0,.18);
-    left:50%; top:6px; transform:translateX(-50%);
+    left:50%; top:150px; transform:translateX(-50%);
     display:none; z-index:10;
     align-items:center; justify-content:center;
     font-weight:900; color:var(--ink);
@@ -118,6 +169,29 @@
   .choice.correct { background:#dff3dd; border-color:var(--lime); animation: bounce-correct 500ms ease-out; }
   .choice.wrong   { background:#fde2e2; border-color:var(--red); animation: shake-wrong 400ms ease-out; }
   .choice[disabled] { cursor:not-allowed; }
+
+  /* Pitcher info (본인이 던진 공 정보) */
+  .pitcher-info { margin-top:12px; padding:12px; border-radius:10px; background:#fff8e6; border:2px dashed var(--gold); font-size:14px; }
+  .pitcher-info .pi-header { font-weight:800; font-size:13px; color:#7a5a00; margin-bottom:6px; }
+  .pitcher-info .pi-tag { display:inline-block; padding:1px 8px; background:var(--gold); color:#000; border-radius:999px; font-size:11px; margin-left:4px; }
+  .pitcher-info .pi-prompt { background:#fff; border:1px solid #eadaa5; border-radius:8px; padding:10px; margin-bottom:6px; font-weight:700; min-height:36px; }
+  .pitcher-info .pi-answer { font-size:13px; color:#374151; margin-bottom:6px; }
+  .pitcher-info .pi-answer b { color:var(--lime-d); }
+  .pitcher-info .pi-status { font-size:12px; color:var(--sub); font-style:italic; }
+
+  /* Timer bar — 공 비행 중 카운트다운 */
+  .timer-bar { position:relative; width:100%; height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-bottom:10px; display:none; }
+  .timer-bar.on { display:block; }
+  .timer-bar .fill {
+    position:absolute; inset:0; right:auto; width:100%;
+    background:linear-gradient(90deg, var(--lime) 0%, var(--gold) 55%, var(--red) 100%);
+    transform-origin:left center;
+    animation: timer-shrink var(--ball-dur) linear forwards;
+  }
+  @keyframes timer-shrink {
+    0%   { transform:scaleX(1); }
+    100% { transform:scaleX(0); }
+  }
 
   /* Flash layers */
   .flash { position:fixed; inset:0; pointer-events:none; opacity:0; z-index:900; }
@@ -191,20 +265,21 @@
 
   /* ===== Keyframes ===== */
   @keyframes ball-fastball {
-    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
-    100% { top:258px; transform:translate(-50%, 0) rotate(720deg); }
+    0%   { top:150px; transform:translate(-50%, 0) scale(0.35) rotate(0deg); }
+    20%  { transform:translate(-50%, 0) scale(0.55) rotate(180deg); }
+    100% { top:252px; transform:translate(-50%, 0) scale(1.15) rotate(1080deg); }
   }
   @keyframes ball-slider {
-    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
-    25%  { top:70px;  transform:translate(calc(-50% + 30px), 0) rotate(180deg); }
-    50%  { top:140px; transform:translate(calc(-50% - 30px), 0) rotate(360deg); }
-    75%  { top:210px; transform:translate(calc(-50% + 20px), 0) rotate(540deg); }
-    100% { top:258px; transform:translate(-50%, 0) rotate(720deg); }
+    0%   { top:150px; transform:translate(-50%, 0) scale(0.35) rotate(0deg); }
+    25%  { top:176px; transform:translate(calc(-50% + 28px), 0) scale(0.55) rotate(180deg); }
+    50%  { top:204px; transform:translate(calc(-50% - 34px), 0) scale(0.75) rotate(360deg); }
+    75%  { top:232px; transform:translate(calc(-50% + 18px), 0) scale(0.95) rotate(540deg); }
+    100% { top:252px; transform:translate(-50%, 0) scale(1.15) rotate(720deg); }
   }
   @keyframes ball-curve {
-    0%   { top:6px;   transform:translate(-50%, 0) rotate(0deg); }
-    55%  { top:110px; transform:translate(-50%, 0) rotate(360deg); }
-    100% { top:258px; transform:translate(calc(-50% + 16px), 32px) rotate(720deg); }
+    0%   { top:150px; transform:translate(-50%, 0) scale(0.35) rotate(0deg); }
+    55%  { top:200px; transform:translate(-50%, 0) scale(0.7) rotate(360deg); }
+    100% { top:252px; transform:translate(calc(-50% + 22px), 0) scale(1.15) rotate(900deg); }
   }
   @keyframes bounce-correct {
     0%   { transform:scale(1); }
@@ -338,13 +413,15 @@
       </div>
 
       <div class="field" aria-label="야구장">
-        <div class="pitcher-icon" id="pitcherChar">🧢</div>
+        <div class="crowd"></div>
         <div class="diamond" id="diamond">
+          <div class="mound"></div>
           <div class="base b2" id="base2"></div>
           <div class="base b3" id="base3"></div>
           <div class="base b1" id="base1"></div>
           <div class="home" id="homePlate"></div>
         </div>
+        <div class="pitcher-icon" id="pitcherChar">🧢</div>
         <div class="batter-icon" id="batterChar">🏏</div>
         <div class="ball" id="ball"></div>
       </div>
@@ -370,10 +447,17 @@
         <button class="pcard slider" data-pitch="슬라이더">🌀 슬라이더<small>문법 · 정답=1루타 / 3S=삼진</small></button>
         <button class="pcard curve" data-pitch="커브">🎯 커브<small>빈칸 · 정답=2루타 / 오답=즉시 삼진</small></button>
       </div>
+      <div class="pitcher-info" id="pitcherInfo" hidden>
+        <div class="pi-header">내가 던진 공 <span class="pi-tag" id="piTag"></span></div>
+        <div class="pi-prompt" id="piPrompt"></div>
+        <div class="pi-answer">정답: <b id="piAnswer"></b></div>
+        <div class="pi-status" id="piStatus">🤖 AI 타자가 생각 중…</div>
+      </div>
     </div>
 
     <div class="card" id="batterPanel" hidden>
       <div class="prompt hidden" id="prompt"><span class="ptype" id="ptype"></span><span id="promptText">대기 중…</span></div>
+      <div class="timer-bar" id="timerBar"><div class="fill" id="timerFill"></div></div>
       <div class="choices hidden" id="choices"></div>
     </div>
 
@@ -423,7 +507,10 @@
     sDots: [$('#s1'),$('#s2')],
     oDots: [$('#o1'),$('#o2')],
     pitcherPanel: $('#pitcherPanel'),
+    pitcherInfo: $('#pitcherInfo'), piTag: $('#piTag'),
+    piPrompt: $('#piPrompt'), piAnswer: $('#piAnswer'), piStatus: $('#piStatus'),
     batterPanel: $('#batterPanel'),
+    timerBar: $('#timerBar'), timerFill: $('#timerFill'),
     prompt: $('#prompt'), ptype: $('#ptype'), promptText: $('#promptText'),
     choices: $('#choices'),
     callout: $('#callout'),
@@ -455,6 +542,7 @@
   }
 
   // --- Animations ---
+  const BALL_DUR_MS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--ball-dur')) || 1800;
   async function playBallFlight(type, promptText = '') {
     const cls = 'flying-' + pitchClassFor(type);
     els.ball.className = 'ball';
@@ -463,7 +551,7 @@
     const lenCls = short.length > 10 ? ' xlong' : short.length > 6 ? ' long' : '';
     void els.ball.offsetWidth;
     els.ball.className = 'ball ' + cls + lenCls;
-    await sleep(900);
+    await sleep(BALL_DUR_MS);
     els.ball.className = 'ball';
     els.ball.textContent = '';
   }
@@ -639,16 +727,56 @@
   function hideBatterPanel() {
     els.prompt.classList.add('hidden');
     els.choices.classList.add('hidden');
+    stopTimerBar();
   }
   function revealBatterPanel() {
     els.prompt.classList.remove('hidden');
     els.choices.classList.remove('hidden');
   }
 
+  function showPitcherInfo(q, info) {
+    if (!q) return;
+    const cat = PITCH_CATEGORY[q.type] ?? '';
+    els.piTag.textContent = `${q.type}${cat ? ' · ' + cat : ''}`;
+    els.piPrompt.textContent = q.prompt;
+    els.piAnswer.textContent = info.answer;
+    els.piStatus.textContent = '🤖 AI 타자가 생각 중…';
+    els.pitcherInfo.hidden = false;
+  }
+  function updatePitcherInfoResult(r) {
+    if (els.pitcherInfo.hidden) return;
+    els.piStatus.textContent = r.correct
+      ? `🎯 AI가 맞췄어요 → ${r.result}`
+      : `❌ AI가 놓쳤어요 → ${r.result}`;
+  }
+  function hidePitcherInfo() { els.pitcherInfo.hidden = true; }
+
+  // Timer bar — 공 비행 중 카운트다운
+  let timerTimeout = null;
+  function startTimerBar() {
+    els.timerBar.classList.add('on');
+    // Restart fill animation
+    els.timerFill.style.animation = 'none';
+    void els.timerFill.offsetWidth;
+    els.timerFill.style.animation = '';
+    // If user doesn't click in time, auto-pick the first choice (counts as a swing).
+    clearTimeout(timerTimeout);
+    timerTimeout = setTimeout(() => {
+      if (locked) return;
+      const btn = els.choices.children[0];
+      if (btn) { locked = true; pickedLast = 0; transport.send(EV.BAT_ANSWER, { pickedIndex: 0 }); }
+    }, 1850);
+  }
+  function stopTimerBar() {
+    clearTimeout(timerTimeout);
+    els.timerBar.classList.remove('on');
+  }
+
   function swing(idx, btn) {
     if (locked) return;
     locked = true;
     pickedLast = idx;
+    stopTimerBar();
     transport.send(EV.BAT_ANSWER, { pickedIndex: idx });
   }
   function selectPitch(type) {
@@ -684,25 +812,36 @@
       renderLogRow('S→C', env);
       lastThrown = q;
       hideBatterPanel();
+      hidePitcherInfo();
       windupPitcher();
-      await sleep(300);
-      await playBallFlight(q.type, q.prompt);
+      await sleep(200);
+      // Kick off ball flight in background — do NOT await.
+      playBallFlight(q.type, q.prompt);
       if (role === 'batter') {
         renderBatterPanel(q);
         revealBatterPanel();
+        startTimerBar();
       } else {
         const cat = PITCH_CATEGORY[q.type] ?? '';
-        showCallout(`공을 던졌어요: ${q.type}${cat ? ' ('+cat+')' : ''}`, 'info', 900);
+        showCallout(`공을 던졌어요: ${q.type}${cat ? ' ('+cat+')' : ''}`, 'info', 1200);
+        // Pitcher info will arrive via PITCH_INFO event.
       }
+    });
+    t.on(EV.PITCH_INFO, (p, env) => {
+      renderLogRow('S→C', env);
+      if (role !== 'pitcher') return;
+      showPitcherInfo(lastThrown, p);
     });
     t.on(EV.TURN_START, (_, env) => renderLogRow('S→C', env));
     t.on(EV.PLAY_RESULT, async (r, env) => {
       renderLogRow('S→C', env);
+      stopTimerBar();
       if (role === 'batter' && pickedLast >= 0) {
         const btn = els.choices.children[pickedLast];
         if (btn) btn.classList.add(r.correct ? 'correct' : 'wrong');
         [...els.choices.children].forEach(b => { b.disabled = true; });
       }
+      if (role === 'pitcher') updatePitcherInfoResult(r);
       batterSwing(r.correct);
       flashResult(r.correct);
       const msg = `${r.type} · ${r.result}${r.runs > 0 ? ` · +${r.runs}점` : ''}`;
