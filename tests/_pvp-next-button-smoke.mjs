@@ -22,6 +22,8 @@ try {
     answer: document.querySelector('#reviewAnswer').textContent,
     myPick: document.querySelector('#reviewYourPick').textContent,
     nextBtn: !!document.querySelector('#nextBtn'),
+    explainShown: !document.querySelector('#reviewExplain').hidden,
+    explainText: document.querySelector('#reviewExplainText').textContent,
   }));
   console.log('review:', review);
 

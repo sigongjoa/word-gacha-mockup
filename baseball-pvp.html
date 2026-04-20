@@ -197,6 +197,15 @@
   .review-line b { font-weight:800; color:var(--ink); }
   .review-line b.ok { color:var(--lime-d); }
   .review-line b.ng { color:var(--red); text-decoration:line-through; }
+  .review-explain {
+    margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:#fffbea; border:1px solid #f0d98a;
+    font-size:13px; line-height:1.55; color:#4a3b00;
+  }
+  .review-explain .review-explain-label {
+    display:block; font-weight:800; font-size:11px;
+    color:#8a6a00; margin-bottom:4px; letter-spacing:.5px;
+  }
   .next-btn { width:100%; padding:12px; font-size:15px; }
 
   /* Pitcher info (본인이 던진 공 정보) */
@@ -502,6 +511,10 @@
         <div class="review-line"><span class="review-label">정답</span><b class="ok" id="reviewAnswer"></b></div>
         <div class="review-line" id="reviewYourPickLine"><span class="review-label">내 선택</span><b id="reviewYourPick"></b></div>
       </div>
+      <div class="review-explain" id="reviewExplain" hidden>
+        <span class="review-explain-label">💡 설명</span>
+        <span id="reviewExplainText"></span>
+      </div>
       <button class="btn primary next-btn" id="nextBtn">다음 공 ▶</button>
     </div>
   </main>
@@ -559,6 +572,7 @@
     review: $('#review'), reviewBadge: $('#reviewBadge'), reviewResult: $('#reviewResult'),
     reviewPrompt: $('#reviewPrompt'), reviewAnswer: $('#reviewAnswer'),
     reviewYourPick: $('#reviewYourPick'), reviewYourPickLine: $('#reviewYourPickLine'),
+    reviewExplain: $('#reviewExplain'), reviewExplainText: $('#reviewExplainText'),
     nextBtn: $('#nextBtn'),
     log: $('#log'),
     roleSwitch: $('#roleSwitch'),
@@ -594,6 +608,13 @@
       els.reviewYourPickLine.hidden = false;
     } else {
       els.reviewYourPickLine.hidden = true;
+    }
+    const explainText = r.explanation || '';
+    if (explainText) {
+      els.reviewExplainText.textContent = explainText;
+      els.reviewExplain.hidden = false;
+    } else {
+      els.reviewExplain.hidden = true;
     }
     els.review.hidden = false;
   }

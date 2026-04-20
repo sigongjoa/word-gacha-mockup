@@ -101,6 +101,7 @@ export function createMockTransport({ humanRole = 'batter', tier = 1, rand = Mat
       prompt: game.lastPlay.prompt,
       answer: game.lastPlay.answer,
       correctIndex: game.lastPlay.correctIndex,
+      explanation: game.lastPlay.explanation || '',
     });
     emit(EV.ROOM_STATE, snapshotRoomState());
     if (game.phase === 'END') {

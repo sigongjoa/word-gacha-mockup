@@ -48,7 +48,7 @@ export function applyPitchSelect(state, { type, question }) {
   return {
     ...state,
     phase: 'PITCH_SELECTED',
-    _serverAnswer: { pitchType: type, correctIndex: question.options.indexOf(question.answer), prompt: question.prompt, options: question.options },
+    _serverAnswer: { pitchType: type, correctIndex: question.options.indexOf(question.answer), prompt: question.prompt, options: question.options, explanation: question.explanation || '' },
   };
 }
 
@@ -82,6 +82,7 @@ function resolvePlay(state, correct) {
   const options = state._serverAnswer.options;
   const correctIndex = state._serverAnswer.correctIndex;
   const answer = options[correctIndex];
+  const explanation = state._serverAnswer.explanation || '';
   let next = { ...state, phase: 'RESOLVING', _serverAnswer: null };
 
   // 직구: 기본 볼/스트라이크 카운트 기반
@@ -122,7 +123,7 @@ function resolvePlay(state, correct) {
     }
   }
 
-  next.lastPlay = { type: pitchType, correct, result, runs, prompt, answer, correctIndex };
+  next.lastPlay = { type: pitchType, correct, result, runs, prompt, answer, correctIndex, explanation };
 
   if (next.outs >= 3) return endHalf(next);
   next.phase = 'IDLE';
